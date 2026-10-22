@@ -1,4 +1,6 @@
 #include "global.h"
+#include "ce/qol.h" // CE:
+#include "ce/speed.h" // CE:
 #include "battle.h"
 #include "blit.h"
 #include "dynamic_placeholder_text_util.h"
@@ -331,6 +333,7 @@ u32 GetPlayerTextSpeed(void)
 
     if (FlagGet(FLAG_TEXT_SPEED_INSTANT) || TEXT_SPEED_INSTANT)
         return OPTIONS_TEXT_SPEED_INSTANT;
+    if (CeOptions_IsLocked(CE_VOPT_TEXT_SPEED)) return CeOptions_Effective(CE_VOPT_TEXT_SPEED, 0); // CE: competitive lock (after instant text QoL)
 
     return gSaveBlock2Ptr->optionsTextSpeed;
 }
@@ -1335,7 +1338,7 @@ static u16 RenderText(struct TextPrinter *textPrinter)
     switch (textPrinter->state)
     {
     case RENDER_STATE_HANDLE_CHAR:
-        if ((JOY_HELD(A_BUTTON | B_BUTTON) && textPrinter->hasPrintBeenSpedUp) || IsPlayerTextSpeedInstant())
+        if ((JOY_HELD(A_BUTTON | B_BUTTON) && (textPrinter->hasPrintBeenSpedUp || (gTextFlags.canABSpeedUpPrint && CeSpeed_IsHoldToSpeedText()))) || IsPlayerTextSpeedInstant()) // CE: hold A/B to speed text
             textPrinter->delayCounter = 0;
 
         if (textPrinter->delayCounter && textPrinter->textSpeed)

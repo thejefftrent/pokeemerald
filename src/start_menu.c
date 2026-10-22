@@ -1,5 +1,6 @@
 #include "global.h"
 #include "config/save.h"
+#include "ce/qol.h" // CE:
 #include "battle_pike.h"
 #include "battle_pyramid.h"
 #include "battle_pyramid_bag.h"
@@ -1077,7 +1078,7 @@ static u8 SaveConfirmInputCallback(void)
             sSaveDialogCallback = SaveSavingMessageCallback;
             return SAVE_IN_PROGRESS;
         default:
-            if (SKIP_SAVE_CONFIRMATION)
+            if (SKIP_SAVE_CONFIRMATION && gDifferentSaveFile == FALSE) // CE: quick save still warns before overwriting a different game
                 sSaveDialogCallback = SaveSavingMessageCallback;
             else
                 sSaveDialogCallback = SaveFileExistsCallback;

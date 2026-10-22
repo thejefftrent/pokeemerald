@@ -1,4 +1,5 @@
 #include "global.h"
+#include "ce/speed.h" // CE:
 #include "battle.h"
 #include "battle_ai_main.h"
 #include "battle_ai_util.h"

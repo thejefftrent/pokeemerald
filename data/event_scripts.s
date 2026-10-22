@@ -1166,6 +1166,7 @@ EventScript_SetBrineyLocation_Route109::
 	.include "data/scripts/record_mix.inc"
 	.include "data/scripts/pc.inc"
 	.include "data/scripts/move_relearner.inc"
+#include "data/scripts/ce/key_items.inc" // CE: QoL key item scripts (cpp include: .include allows no trailing comment)
 
 @ scripts/notices.inc? signs.inc? See comment about text/notices.inc
 Common_EventScript_ShowPokemartSign::

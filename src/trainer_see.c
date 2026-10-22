@@ -1,4 +1,5 @@
 #include "global.h"
+#include "ce/overworld.h" // CE:
 #include "battle_setup.h"
 #include "event_data.h"
 #include "event_object_movement.h"
@@ -439,7 +440,7 @@ bool8 CheckForTrainersWantingBattle(void)
     u8 trainerObjects[OBJECT_EVENTS_COUNT] = {0};
     u8 trainerObjectsCount = 0;
 
-    if (FlagGet(OW_FLAG_NO_TRAINER_SEE))
+    if (FlagGet(OW_FLAG_NO_TRAINER_SEE) || CeOverworld_NoTrainerSight()) // CE: no trainer sight QoL
         return FALSE;
 
     gNoOfApproachingTrainers = 0;

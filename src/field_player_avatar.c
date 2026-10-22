@@ -1,4 +1,5 @@
 #include "global.h"
+#include "ce/overworld.h" // CE:
 #include "main.h"
 #include "bike.h"
 #include "event_data.h"
@@ -902,14 +903,14 @@ static void PlayerNotOnBikeMoving(enum Direction direction, u16 heldKeys)
         else
         {
             // speed 2 is fast, same speed as running
-            PlayerWalkFast(direction);
+            CeOverworld_SurfStep(direction, heldKeys); // CE: fast surf QoL (was PlayerWalkFast)
         }
         return;
     }
 
     if (!(gPlayerAvatar.flags & PLAYER_AVATAR_FLAG_UNDERWATER)
-     && (heldKeys & B_BUTTON)
-     && FlagGet(FLAG_SYS_B_DASH)
+     && CeOverworld_IsRunButtonHeld(heldKeys) // CE: auto-run QoL inverts B (was heldKeys & B_BUTTON)
+     && (FlagGet(FLAG_SYS_B_DASH) || CeQol_IsOn(CE_QOL_RUNNING_SHOES)) // CE: running shoes QoL, no flag set
      && IsRunningDisallowed(gObjectEvents[gPlayerAvatar.objectEventId].currentMetatileBehavior) == 0
      && !FollowerNPCComingThroughDoor()
      && (I_ORAS_DOWSING_FLAG == 0 || (I_ORAS_DOWSING_FLAG != 0 && !FlagGet(I_ORAS_DOWSING_FLAG))))

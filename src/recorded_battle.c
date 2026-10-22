@@ -1,4 +1,5 @@
 #include "global.h"
+#include "ce/qol.h" // CE:
 #include "battle.h"
 #include "battle_anim.h"
 #include "battle_controllers.h"
@@ -348,8 +349,8 @@ bool32 MoveRecordedBattleToSaveData(void)
     battleSave->lvlMode = gSaveBlock2Ptr->frontier.lvlMode;
     battleSave->frontierFacility = sFrontierFacility;
     battleSave->frontierBrainSymbol = sFrontierBrainSymbol;
-    battleSave->battleScene = gSaveBlock2Ptr->optionsBattleSceneOff;
-    battleSave->textSpeed = gSaveBlock2Ptr->optionsTextSpeed;
+    battleSave->battleScene = CeOptions_Effective(CE_VOPT_BATTLE_SCENE, gSaveBlock2Ptr->optionsBattleSceneOff); // CE: record the locked value the battle used
+    battleSave->textSpeed = CeOptions_Effective(CE_VOPT_TEXT_SPEED, gSaveBlock2Ptr->optionsTextSpeed); // CE: record the locked value the battle used
 
     if (TRAINER_BATTLE_PARAM.opponentA >= TRAINER_RECORD_MIXING_FRIEND && TRAINER_BATTLE_PARAM.opponentA < TRAINER_RECORD_MIXING_APPRENTICE)
     {

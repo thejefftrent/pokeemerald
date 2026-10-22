@@ -1,4 +1,6 @@
 #include "global.h"
+#include "ce/overworld.h" // CE:
+#include "ce/key_items.h" // CE:
 #include "item_use.h"
 #include "battle.h"
 #include "battle_anim.h"
@@ -284,7 +286,7 @@ void ItemUseOutOfBattle_Bike(u8 taskId)
     {
         DisplayCannotDismountBikeMessage(taskId, tUsingRegisteredKeyItem);
     }
-    else if (Overworld_IsBikingAllowed() && !IsBikingDisallowedByPlayer() && FollowerNPCCanBike())
+    else if ((Overworld_IsBikingAllowed() || CeOverworld_CanGetOffBikeIndoors()) && !IsBikingDisallowedByPlayer() && FollowerNPCCanBike()) // CE: bike indoors QoL, getting off always works
     {
         sItemUseOnFieldCB = ItemUseOnFieldCB_Bike;
         SetUpItemUseOnFieldCallback(taskId);
@@ -901,6 +903,7 @@ void ItemUseOutOfBattle_PPUp(u8 taskId)
 
 void ItemUseOutOfBattle_RareCandy(u8 taskId)
 {
+    if (CeKeyItems_BlockPartyItemUse(taskId)) return; // CE: Candy Jar on Select with no Pokemon
     gItemUseCB = ItemUseCB_RareCandy;
     SetUpItemUseCallback(taskId);
 }

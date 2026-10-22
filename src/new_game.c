@@ -1,4 +1,5 @@
 #include "global.h"
+#include "ce/qol.h" // CE:
 #include "clock.h"
 #include "new_game.h"
 #include "random.h"
@@ -234,6 +235,7 @@ void NewGameInitData(void)
     ResetItemFlags();
     ResetDexNav();
     ClearFollowerNPCData();
+    CeQol_OnNewGame(); // CE: give QoL key items
 }
 
 static void ResetMiniGamesRecords(void)

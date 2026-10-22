@@ -1,4 +1,6 @@
 #include "global.h"
+#include "ce/qol.h" // CE:
+#include "ce/speed.h" // CE:
 #include "battle.h"
 #include "battle_anim.h"
 #include "battle_ai_main.h"
@@ -2745,10 +2747,11 @@ static void ClearSetBScriptingStruct(void)
 
     gBattleScripting.windowsType = temp;
     gBattleScripting.battleStyle = gSaveBlock2Ptr->optionsBattleStyle;
+    gBattleScripting.battleStyle = CeOptions_Effective(CE_VOPT_BATTLE_STYLE, gBattleScripting.battleStyle); // CE: competitive lock
     #if TESTING
     gBattleScripting.battleStyle = OPTIONS_BATTLE_STYLE_SET;
     #endif
-    gBattleScripting.expOnCatch = (GetConfig(B_EXP_CATCH) >= GEN_6);
+    gBattleScripting.expOnCatch = (GetConfig(B_EXP_CATCH) >= GEN_6) && CeQol_IsOn(CE_QOL_CATCH_EXP); // CE: catch exp QoL, read once per battle
     gBattleScripting.specialTrainerBattleType = specialBattleType;
 }
 
@@ -2803,7 +2806,7 @@ static void BattleStartClearSetData(void)
 
     if (!(gBattleTypeFlags & BATTLE_TYPE_RECORDED))
     {
-        if (!(gBattleTypeFlags & BATTLE_TYPE_LINK) && gSaveBlock2Ptr->optionsBattleSceneOff == TRUE)
+        if (!(gBattleTypeFlags & BATTLE_TYPE_LINK) && CeOptions_Effective(CE_VOPT_BATTLE_SCENE, gSaveBlock2Ptr->optionsBattleSceneOff) == TRUE) // CE: competitive lock
             gHitMarker |= HITMARKER_NO_ANIMATIONS;
     }
     else if (!(gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_RECORDED_LINK)) && GetBattleSceneInRecordedBattle())

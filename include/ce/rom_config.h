@@ -1,6 +1,8 @@
 #ifndef GUARD_CE_ROM_CONFIG_H
 #define GUARD_CE_ROM_CONFIG_H
 
+#include "ce/qol.h"
+
 // Custom Emerald patch interface.
 // The website writes this block after the build; game code only ever reads it.
 // Field offsets reach the website through DWARF, so fields can be added freely,
@@ -33,9 +35,29 @@ struct CeSelfTestConfig
     u16 species[CE_SELF_TEST_SPECIES]; // SPECIES_NONE ends the list
 };
 
+struct CeQolConfig
+{
+    u8 mode[CE_QOL_MAX];                 // enum CeQolMode, indexed by enum CeQolFeature
+    u8 showLockedOff;                    // also list ALWAYS_OFF features on the in-game QoL page
+    u8 vanillaOptionLock[CE_VOPT_COUNT]; // 0 = player's choice, n = forced to value n - 1
+};
+
+#define CE_LEVEL_CAP_MAX_BOSSES 16
+
+// Level caps (CE_QOL_LEVEL_CAPS): the cap is the highest level in the party of the first
+// boss in this list the player has not beaten (and of every boss before it), plus levelOffset.
+struct CeLevelCapConfig
+{
+    s8 levelOffset;
+    u8 bossCount;                         // 0 = the built-in list (8 gym leaders, Elite Four, Wallace)
+    u16 bosses[CE_LEVEL_CAP_MAX_BOSSES];  // trainer ids in progression order
+};
+
 struct CeRomConfigBody
 {
     struct CeSelfTestConfig selfTest;
+    struct CeQolConfig qol;
+    struct CeLevelCapConfig levelCaps;
 };
 
 struct CeRomConfig

@@ -1,4 +1,5 @@
 #include "global.h"
+#include "ce/qol.h" // CE:
 #include "battle.h"
 #include "battle_anim.h"
 #include "battle_anim_scripts.h"
@@ -5640,6 +5641,7 @@ enum Obedience GetAttackerObedienceForAction(void)
         return OBEYS;
     if (gBattleTypeFlags & BATTLE_TYPE_RECORDED)
         return OBEYS;
+    if (CeQol_IsOn(CE_QOL_ALWAYS_OBEY)) return OBEYS; // CE: always-obey QoL (traded mons ignore badges too)
     if (B_OBEDIENCE_MECHANICS < GEN_8 && !IsOtherTrainer(gBattleMons[gBattlerAttacker].otId, gBattleMons[gBattlerAttacker].otName))
         return OBEYS;
     if (FlagGet(FLAG_BADGE08_GET)) // Rain Badge, ignore obedience altogether
@@ -9631,6 +9633,7 @@ bool32 MoveEffectIsGuaranteed(enum BattlerId battler, enum Ability battlerAbilit
 
 bool32 IsGen6ExpShareEnabled(void)
 {
+    if (CeQol_IsOn(CE_QOL_EXP_SHARE_ALL)) return TRUE; // CE: party Exp. Share QoL, no flag or key item needed
     if (I_EXP_SHARE_FLAG <= TEMP_FLAGS_END)
         return FALSE;
 

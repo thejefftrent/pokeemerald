@@ -15,6 +15,7 @@
 #include "window.h"
 #include "gba/m4a_internal.h"
 #include "constants/rgb.h"
+#include "ce/option_menu_qol.h" // CE:
 
 #define tMenuSelection data[0]
 #define tTextSpeed data[1]
@@ -250,6 +251,7 @@ void CB2_InitOptionMenu(void)
         gTasks[taskId].tSound = gSaveBlock2Ptr->optionsSound;
         gTasks[taskId].tButtonMode = gSaveBlock2Ptr->optionsButtonMode;
         gTasks[taskId].tWindowFrameType = gSaveBlock2Ptr->optionsWindowFrameType;
+        CeOptions_OnMenuInit(taskId, &gTasks[taskId].tTextSpeed, &gTasks[taskId].tBattleSceneOff, &gTasks[taskId].tBattleStyle); // CE:
 
         TextSpeed_DrawChoices(gTasks[taskId].tTextSpeed);
         BattleScene_DrawChoices(gTasks[taskId].tBattleSceneOff);
@@ -279,6 +281,7 @@ static void Task_OptionMenuFadeIn(u8 taskId)
 
 static void Task_OptionMenuProcessInput(u8 taskId)
 {
+    if (CeOptions_ProcessInput(taskId)) return; // CE: QoL page and locked rows
     if (JOY_NEW(A_BUTTON))
     {
         if (gTasks[taskId].tMenuSelection == MENUITEM_CANCEL)
@@ -366,6 +369,7 @@ static void Task_OptionMenuProcessInput(u8 taskId)
 
 static void Task_OptionMenuSave(u8 taskId)
 {
+    CeOptions_OnMenuSave(taskId, &gTasks[taskId].tTextSpeed, &gTasks[taskId].tBattleSceneOff, &gTasks[taskId].tBattleStyle); // CE:
     gSaveBlock2Ptr->optionsTextSpeed = gTasks[taskId].tTextSpeed;
     gSaveBlock2Ptr->optionsBattleSceneOff = gTasks[taskId].tBattleSceneOff;
     gSaveBlock2Ptr->optionsBattleStyle = gTasks[taskId].tBattleStyle;
@@ -406,6 +410,7 @@ static void DrawOptionMenuChoice(const u8 *text, u8 x, u8 y, u8 style)
         dst[2] = TEXT_COLOR_RED;
         dst[5] = TEXT_COLOR_LIGHT_RED;
     }
+    CeOptions_GreyLockedChoice(dst, y / 16, style); // CE:
 
     dst[i] = EOS;
     AddTextPrinterParameterized(WIN_OPTIONS, FONT_NORMAL, dst, x, y + 1, TEXT_SKIP_DRAW, NULL);
@@ -645,6 +650,7 @@ static void DrawOptionMenuTexts(void)
     FillWindowPixelBuffer(WIN_OPTIONS, PIXEL_FILL(1));
     for (i = 0; i < MENUITEM_COUNT; i++)
         AddTextPrinterParameterized(WIN_OPTIONS, FONT_NORMAL, sOptionMenuItemsNames[i], 8, (i * 16) + 1, TEXT_SKIP_DRAW, NULL);
+    CeOptions_GreyLockedLabels(WIN_OPTIONS, sOptionMenuItemsNames); // CE:
     CopyWindowToVram(WIN_OPTIONS, COPYWIN_FULL);
 }
 

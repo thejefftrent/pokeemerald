@@ -1,4 +1,5 @@
 #include "global.h"
+#include "ce/speed.h" // CE:
 #include "malloc.h"
 #include "battle.h"
 #include "pokemon.h"

@@ -1,4 +1,7 @@
 #include "global.h"
+#include "ce/qol.h" // CE:
+#include "ce/key_items.h" // CE:
+#include "ce/overworld.h" // CE:
 #include "overworld.h"
 #include "battle_pyramid.h"
 #include "battle_setup.h"
@@ -707,6 +710,7 @@ void WarpIntoMap(void)
     ApplyCurrentWarp();
     LoadCurrentMapData();
     SetPlayerCoordsFromWarp();
+    CeKeyItems_Sync(); // CE: e.g. after key-item QoL toggled inside the Battle Pyramid
 }
 
 void SetWarpDestination(s8 mapGroup, s8 mapNum, s8 warpId, s8 x, s8 y)
@@ -912,7 +916,7 @@ void LoadMapFromCameraTransition(u8 mapGroup, u8 mapNum)
     ResetFieldTasksArgs();
     RunOnResumeMapScript();
 
-    if (OW_HIDE_REPEAT_MAP_POPUP)
+    if (OW_HIDE_REPEAT_MAP_POPUP || CeQol_IsOn(CE_QOL_HIDE_REPEAT_MAP_POPUP)) // CE: hide repeated map popups QoL
     {
         if (gMapHeader.regionMapSectionId != sLastMapSectionId)
             ShowMapNamePopup();
@@ -1092,7 +1096,7 @@ static u16 GetCenterScreenMetatileBehavior(void)
 
 bool32 Overworld_IsBikingAllowed(void)
 {
-    if (!gMapHeader.allowCycling)
+    if (!gMapHeader.allowCycling && !CeOverworld_IsBikeIndoorsAllowed()) // CE: bike indoors QoL
         return FALSE;
     else
         return TRUE;
@@ -2122,6 +2126,7 @@ void CB2_ContinueSavedGame(void)
     if (gSaveFileStatus == SAVE_STATUS_ERROR)
         ResetWinStreaks();
 
+    CeQol_OnContinue(); // CE: sync QoL key items before the map (and any Pyramid bag) loads
     LoadSaveblockMapHeader();
     ClearDiveAndHoleWarps();
     trainerHillMapId = GetCurrentTrainerHillMapId();
@@ -3718,7 +3723,7 @@ static u8 ReformatItemDescription(enum Item item, u8 *dest)
 void ScriptShowItemDescription(struct ScriptContext *ctx)
 {
     (void) ScriptReadByte(ctx);
-    if (OW_SHOW_ITEM_DESCRIPTIONS == OW_ITEM_DESCRIPTIONS_OFF)
+    if (OW_SHOW_ITEM_DESCRIPTIONS == OW_ITEM_DESCRIPTIONS_OFF && !CeOverworld_ShowItemDescription()) // CE: item descriptions QoL
         return;
 
     Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
@@ -3757,7 +3762,7 @@ void ScriptShowItemDescription(struct ScriptContext *ctx)
 
 void ScriptHideItemDescription(struct ScriptContext *ctx)
 {
-    if (OW_SHOW_ITEM_DESCRIPTIONS == OW_ITEM_DESCRIPTIONS_OFF)
+    if (OW_SHOW_ITEM_DESCRIPTIONS == OW_ITEM_DESCRIPTIONS_OFF && !CeOverworld_HideItemDescription()) // CE: hide only a box CE showed
         return;
 
     Script_RequestEffects(SCREFF_V1 | SCREFF_SAVE | SCREFF_HARDWARE);

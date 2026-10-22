@@ -1,5 +1,6 @@
 #include "global.h"
 #include "ce/selftest.h"
+#include "ce/speed.h" // CE:
 #include "main.h"
 #include "palette.h"
 #include "scanline_effect.h"
@@ -1150,6 +1151,7 @@ void CB2_InitCopyrightScreenAfterBootup(void)
         SetPokemonCryStereo(gSaveBlock2Ptr->optionsSound);
         InitHeap(gHeap, HEAP_SIZE);
         CeSelfTest_RunIfEnabled(); // CE: never returns when the ROM is a self-test build
+        CeSpeed_MaybeSkipBootIntro(); // CE: skip intro QoL; must follow LoadGameSave
     }
 }
 

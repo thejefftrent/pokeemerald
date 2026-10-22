@@ -1,4 +1,5 @@
 #include "global.h"
+#include "ce/speed.h" // CE:
 #include "battle.h"
 #include "battle_hold_effects.h"
 #include "battle_message.h"
@@ -1511,7 +1512,7 @@ static void Cmd_waitmessage(void)
         }
         else
         {
-            u16 toWait = cmd->time;
+            u16 toWait = CeSpeed_BattleWait(cmd->time); // CE: short battle pauses
             if (gTestRunnerHeadless)
                 gPauseCounterBattle = toWait;
             if (++gPauseCounterBattle >= toWait)
@@ -2302,7 +2303,7 @@ static void Cmd_getexp(void)
 
                     ApplyExperienceMultipliers(&gBattleStruct->battlerExpReward, *expMonId, gBattlerFainted);
 
-                    if (B_EXP_CAP_TYPE == EXP_CAP_HARD && gBattleStruct->battlerExpReward != 0)
+                    if (GetCurrentLevelCap() < MAX_LEVEL && gBattleStruct->battlerExpReward != 0) // CE: was B_EXP_CAP_TYPE == EXP_CAP_HARD
                     {
                         enum GrowthRate growthRate = gSpeciesInfo[GetMonData(&gParties[B_TRAINER_PLAYER][*expMonId], MON_DATA_SPECIES)].growthRate;
                         u32 currentExp = GetMonData(&gParties[B_TRAINER_PLAYER][*expMonId], MON_DATA_EXP);
@@ -2920,7 +2921,7 @@ static void Cmd_pause(void)
 
     if (gBattleControllerExecFlags == 0)
     {
-        u16 value = cmd->frames;
+        u16 value = CeSpeed_BattleWait(cmd->frames); // CE: short battle pauses
         if (gTestRunnerHeadless)
             gPauseCounterBattle = value;
         if (++gPauseCounterBattle >= value)

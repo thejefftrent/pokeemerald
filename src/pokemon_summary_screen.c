@@ -1,4 +1,5 @@
 #include "global.h"
+#include "ce/progression.h" // CE:
 #include "main.h"
 #include "battle.h"
 #include "battle_anim.h"
@@ -4739,7 +4740,7 @@ static void KeepMoveSelectorVisible(u8 firstSpriteId)
 
 static inline bool32 ShouldShowMoveRelearner(void)
 {
-    return (P_SUMMARY_SCREEN_MOVE_RELEARNER
+    return (P_SUMMARY_SCREEN_MOVE_RELEARNER && CeQol_IsOn(CE_QOL_SUMMARY_RELEARNER) && !CeProgression_InFrontierChallenge() // CE: summary relearner QoL, not mid-challenge
          && !sMonSummaryScreen->lockMovesFlag
          && sMonSummaryScreen->mode != SUMMARY_MODE_BOX_CURSOR
          && sMonSummaryScreen->hasRelearnableMoves
@@ -4762,12 +4763,12 @@ static inline bool32 ShouldShowIvEvPrompt(void)
 {
     if (P_SUMMARY_SCREEN_IV_EV_BOX_ONLY)
     {
-        return (P_SUMMARY_SCREEN_IV_EV_INFO || FlagGet(P_FLAG_SUMMARY_SCREEN_IV_EV_INFO))
+        return (P_SUMMARY_SCREEN_IV_EV_INFO || FlagGet(P_FLAG_SUMMARY_SCREEN_IV_EV_INFO) || CeQol_IsOn(CE_QOL_SUMMARY_IV_EV)) // CE: IV/EV summary QoL
             && (sMonSummaryScreen->mode == SUMMARY_MODE_BOX || sMonSummaryScreen->mode == SUMMARY_MODE_BOX_CURSOR);
     }
     else if (!P_SUMMARY_SCREEN_IV_EV_BOX_ONLY)
     {
-        return (P_SUMMARY_SCREEN_IV_EV_INFO || FlagGet(P_FLAG_SUMMARY_SCREEN_IV_EV_INFO));
+        return (P_SUMMARY_SCREEN_IV_EV_INFO || FlagGet(P_FLAG_SUMMARY_SCREEN_IV_EV_INFO) || CeQol_IsOn(CE_QOL_SUMMARY_IV_EV)); // CE: IV/EV summary QoL
     }
     return FALSE;
 }

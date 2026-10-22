@@ -285,8 +285,10 @@ struct Pokedex
     /*0x04*/ u32 unownPersonality; // set when you first see Unown
     /*0x08*/ u32 spindaPersonality; // set when you first see Spinda
     /*0x0C*/ u32 unknown3;
+    /*0x10*/ u32 ceQolChosen[2]; // CE: bit n set = the player picked QoL feature n themselves
+    /*0x18*/ u32 ceQolValue[2];  // CE: bit n = that pick; ignored while the chosen bit is clear
 #if FREE_EXTRA_SEEN_FLAGS_SAVEBLOCK2 == FALSE
-    /*0x10*/ u8 filler[0x68]; // Previously Dex Flags, feel free to remove.
+    /*0x20*/ u8 filler[0x58]; // Previously Dex Flags, feel free to remove. CE: was 0x68, never written
 #endif //FREE_EXTRA_SEEN_FLAGS_SAVEBLOCK2
 };
 

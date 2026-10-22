@@ -1,4 +1,5 @@
 #include "global.h"
+#include "ce/overworld.h" // CE:
 #include "bike.h"
 #include "event_object_movement.h"
 #include "field_player_avatar.h"
@@ -1361,7 +1362,7 @@ void Bike_HandleBumpySlopeJump(void)
 
 bool32 IsRunningDisallowed(u8 metatile)
 {
-    if ((OW_RUNNING_INDOORS == GEN_3 && !gMapHeader.allowRunning) || IsRunningDisallowedByMetatile(metatile) == TRUE)
+    if (((OW_RUNNING_INDOORS == GEN_3 || !CeQol_IsOn(CE_QOL_RUN_INDOORS)) && !gMapHeader.allowRunning) || IsRunningDisallowedByMetatile(metatile) == TRUE) // CE: run indoors QoL
         return TRUE;
 
     return FALSE;

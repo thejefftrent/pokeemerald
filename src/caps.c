@@ -22,6 +22,7 @@ u32 GetCurrentLevelCap(void)
 
     u32 i;
 
+    return CeLevelCap_GetEffective(); // CE: runtime caps from the next boss; the table above is unused
     if (B_LEVEL_CAP_TYPE == LEVEL_CAP_FLAG_LIST)
     {
         for (i = 0; i < ARRAY_COUNT(sLevelCapFlagMap); i++)

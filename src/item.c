@@ -1,4 +1,6 @@
 #include "global.h"
+#include "ce/progression.h" // CE:
+#include "ce/key_items.h" // CE:
 #include "item.h"
 #include "berry.h"
 #include "pokeball.h"
@@ -255,6 +257,7 @@ bool32 CheckBagHasSpace(enum Item itemId, u16 count)
     if (CurrentBattlePyramidLocation() != PYRAMID_LOCATION_NONE || FlagGet(FLAG_STORING_ITEMS_IN_PYRAMID_BAG) == TRUE)
         return CheckPyramidBagHasSpace(itemId, count);
 
+    CeKeyItems_MakeRoomFor(itemId, count); // CE: as in AddBagItem, so checkitemspace agrees with additem
     return GetFreeSpaceForItemInBag(itemId) >= count;
 }
 
@@ -357,6 +360,7 @@ bool32 AddBagItem(enum Item itemId, u16 count)
     if (CurrentBattlePyramidLocation() != PYRAMID_LOCATION_NONE || FlagGet(FLAG_STORING_ITEMS_IN_PYRAMID_BAG) == TRUE)
         return AddPyramidBagItem(itemId, count);
 
+    CeKeyItems_MakeRoomFor(itemId, count); // CE: a full Key Items pocket puts QoL key items away, never refuses a story item
     return BagPocket_AddItem(&gBagPockets[GetItemPocket(itemId)], itemId, count);
 }
 
@@ -868,6 +872,7 @@ const u8 *GetItemDescription(enum Item itemId)
 
 u8 GetItemImportance(enum Item itemId)
 {
+    if (CeProgression_IsReusableTm(itemId)) return 1; // CE: reusable TMs QoL (I_REUSABLE_TMS at runtime)
     return gItemsInfo[SanitizeItemId(itemId)].importance;
 }
 
@@ -883,11 +888,13 @@ enum Pocket GetItemPocket(enum Item itemId)
 
 enum ItemType GetItemType(enum Item itemId)
 {
+    if (CeProgression_IsBagEvoItem(itemId)) return ITEM_USE_PARTY_MENU; // CE: no-trade evos QoL (I_USE_EVO_HELD_ITEMS_FROM_BAG at runtime)
     return gItemsInfo[SanitizeItemId(itemId)].type;
 }
 
 ItemUseFunc GetItemFieldFunc(enum Item itemId)
 {
+    if (CeProgression_IsBagEvoItem(itemId)) return ItemUseOutOfBattle_EvolutionStone; // CE: no-trade evos QoL (I_USE_EVO_HELD_ITEMS_FROM_BAG at runtime)
     return gItemsInfo[SanitizeItemId(itemId)].fieldUseFunc;
 }
 
