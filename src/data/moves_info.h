@@ -20,7 +20,7 @@ const u8 gNotDoneYetDescription[] = _(
     "This move can't be used.\n"
     "Its effect is in development.");
 
-const struct MoveInfo gMovesInfo[MOVES_COUNT_ALL] =
+const struct MoveInfo gMovesInfo[MOVES_COUNT_ALL] CE_PATCHABLE = // CE:
 {
     [MOVE_NONE] =
     {

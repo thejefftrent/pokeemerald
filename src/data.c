@@ -227,7 +227,7 @@ const union AnimCmd *const gAnims_Trainer[] ={
 };
 
 #if !TESTING
-const struct Trainer gTrainers[DIFFICULTY_COUNT][TRAINERS_COUNT] =
+const struct Trainer gTrainers[DIFFICULTY_COUNT][TRAINERS_COUNT] CE_PATCHABLE = // CE:
 {
 #if IS_FRLG
 #include "data/trainers_frlg.h"

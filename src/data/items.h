@@ -19,7 +19,7 @@
 
 const u8 gQuestionMarksItemName[] = _("????????");
 
-const struct ItemInfo gItemsInfo[] =
+const struct ItemInfo gItemsInfo[] CE_PATCHABLE = // CE:
 {
     [ITEM_NONE] =
     {

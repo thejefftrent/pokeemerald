@@ -77,6 +77,7 @@ SECTIONS {
         src/rom_header.o(.text);
         KEEP(*.o(.text.header_gf));
         KEEP(*.o(.text.header_rhh));
+        KEEP(*.o(.text.header_ce)); /* CE: */
         KEEP(*.o(.text.consts));
         src/*.o(.text);
     } > ROM =0
@@ -105,6 +106,7 @@ SECTIONS {
     .rodata :
     ALIGN(4)
     {
+        KEEP(*.o(.rodata.ce_config)); /* CE: */
         src/*.o(.rodata*);
         data/*.o(.rodata*);
     } > ROM =0
@@ -150,6 +152,8 @@ SECTIONS {
     } > ROM =0
 
     __rom_end = .;
+    __ce_free_start = ALIGN(__rom_end, 0x100); /* CE: */
+    __ce_free_end = 0x9FFC000; /* CE: */
 
     dacs 0x9FFC000 :
     ALIGN(4)

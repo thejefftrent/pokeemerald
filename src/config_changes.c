@@ -9,7 +9,7 @@
 #define UNPACK_POKEMON_CONFIG_GEN_CHANGES(_name, _field, ...) ._field = P_##_name,
 #define UNPACK_AI_CONFIG_CHANGES(_name, _field, ...) ._field = _name,
 
-const struct ConfigChanges sConfigChanges =
+const struct ConfigChanges sConfigChanges CE_PATCHABLE = // CE:
 {
     BATTLE_CONFIG_DEFINITIONS(UNPACK_BATTLE_CONFIG_GEN_CHANGES)
     POKEMON_CONFIG_DEFINITIONS(UNPACK_POKEMON_CONFIG_GEN_CHANGES)

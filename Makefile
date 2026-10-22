@@ -171,6 +171,9 @@ override CFLAGS += -mthumb -mthumb-interwork -O$(O_LEVEL) -mabi=apcs-gnu -mtune=
 
 ifneq ($(LTO),0)
   ifneq ($(TEST),1)
+    ifneq ($(CE_ALLOW_LTO),1) # CE:
+      $(error Custom Emerald: LTO breaks post-build table patching. Set CE_ALLOW_LTO=1 to override)
+    endif
     override CFLAGS += -flto=auto -fno-fat-lto-objects -fno-asynchronous-unwind-tables -ffunction-sections -fdata-sections
   endif
 endif
@@ -413,6 +416,7 @@ include spritesheet_rules.mk
 include json_data_rules.mk
 include audio_rules.mk
 include trainer_rules.mk
+include ce_rules.mk # CE:
 
 # NOTE: Tools must have been built prior (FIXME)
 # so you can't really call this rule directly

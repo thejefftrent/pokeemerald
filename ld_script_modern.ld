@@ -56,6 +56,7 @@ SECTIONS {
         src/rom_header.o(.text*);
         KEEP(*.o(.text.header_gf));
         KEEP(*.o(.text.header_rhh));
+        KEEP(*.o(.text.header_ce)); /* CE: */
         src/crt0.o(.text);
         *libagbsyscall.a:*.o(.text*);
         *libgcc.a:*.o(.text*);
@@ -82,6 +83,7 @@ SECTIONS {
     .rodata :
     ALIGN(4)
     {
+        KEEP(*.o(.rodata.ce_config)); /* CE: */
         *.o(.rodata*);
         *libgcc.a:*.o(.rodata*);
         *libc.a:*.o(.rodata*);
@@ -104,6 +106,11 @@ SECTIONS {
     } > ROM = 0
 
     __rom_end = .;
+
+    /* CE: free space the website allocates into (gbafix -p fills it with 0xFF) */
+    __ce_free_start = ALIGN(__rom_end, 0x100);
+    __ce_free_end = ORIGIN(ROM) + LENGTH(ROM);
+    ASSERT(__ce_free_end - __ce_free_start >= 0x200000, "Custom Emerald needs at least 2 MiB of free ROM space")
 
     /* DWARF debug sections.
        Symbols in the DWARF debugging sections are relative to the beginning

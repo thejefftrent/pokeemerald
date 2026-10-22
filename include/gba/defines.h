@@ -13,6 +13,7 @@
 #define COMMON_DATA __attribute__((section("common_data")))
 #define UNUSED __attribute__((unused))
 #define USED __attribute__((used))
+#define CE_PATCHABLE __attribute__((weak, used)) // CE: table the website writes; weak stops constant folding
 #define KEEP_SECTION __attribute__((section(".text.consts")))
 #define DEPRECATED(msg) __attribute__((deprecated(msg)))
 

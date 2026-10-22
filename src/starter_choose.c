@@ -114,7 +114,7 @@ static const u8 sStarterLabelCoords[STARTER_MON_COUNT][2] =
 #define FIRE_STARTER  (IS_FRLG ? SPECIES_CHARMANDER : SPECIES_TORCHIC)
 #define WATER_STARTER (IS_FRLG ? SPECIES_SQUIRTLE   : SPECIES_MUDKIP )
 
-static const u16 sStarterMon[STARTER_MON_COUNT] =
+const u16 sStarterMon[STARTER_MON_COUNT] CE_PATCHABLE = // CE: global so it can be weak
 {
     GRASS_STARTER,
     FIRE_STARTER,

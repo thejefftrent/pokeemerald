@@ -95,7 +95,7 @@
 #define FLIP    0
 #define NO_FLIP 1
 
-const struct SpeciesInfo gSpeciesInfo[] =
+const struct SpeciesInfo gSpeciesInfo[] CE_PATCHABLE = // CE:
 {
     [SPECIES_NONE] =
     {

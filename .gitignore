@@ -66,3 +66,6 @@ tools/aif2pcm/aif2pcm
 *.smolTM
 __pycache__
 .map_version
+
+# CE: generated build info
+include/ce/build_info.h
