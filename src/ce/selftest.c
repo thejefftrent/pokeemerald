@@ -187,6 +187,25 @@ static void ProbeLevelCaps(void)
         FlagClear(TRAINER_FLAGS_START + bosses[i]);
 }
 
+void CeSelfTest_LineStart(const char *probe)
+{
+    LineStart();
+    Put("CE:{\"probe\":\"");
+    Put(probe);
+    Put("\"");
+}
+
+void CeSelfTest_PutField(const char *name, u32 value)
+{
+    PutField(name, value);
+}
+
+void CeSelfTest_LineEmit(void)
+{
+    Put("}");
+    LineEmit();
+}
+
 static void __attribute__((noreturn)) Exit(u32 code)
 {
     register u32 exitCode asm("r0") = code;
@@ -216,6 +235,18 @@ void CeSelfTest_RunIfEnabled(void)
     ProbeStarters();
     ProbeLevelCaps();
     ProbeQol();
+    if (CeSelfTest_ProbeLearnsets != NULL)
+        CeSelfTest_ProbeLearnsets();
+    if (CeSelfTest_ProbeTrainers != NULL)
+        CeSelfTest_ProbeTrainers();
+    if (CeSelfTest_ProbeWild != NULL)
+        CeSelfTest_ProbeWild();
+    if (CeSelfTest_ProbeStatics != NULL)
+        CeSelfTest_ProbeStatics();
+    if (CeSelfTest_ProbeModes != NULL)
+        CeSelfTest_ProbeModes();
+    if (CeSelfTest_ProbeBattleConfig != NULL)
+        CeSelfTest_ProbeBattleConfig();
 
     LineStart();
     Put("CE:{\"probe\":\"done\"}");
