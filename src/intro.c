@@ -1,4 +1,5 @@
 #include "global.h"
+#include "ce/selftest.h"
 #include "main.h"
 #include "palette.h"
 #include "scanline_effect.h"
@@ -1148,6 +1149,7 @@ void CB2_InitCopyrightScreenAfterBootup(void)
             Sav2_ClearSetDefault();
         SetPokemonCryStereo(gSaveBlock2Ptr->optionsSound);
         InitHeap(gHeap, HEAP_SIZE);
+        CeSelfTest_RunIfEnabled(); // CE: never returns when the ROM is a self-test build
     }
 }
 
