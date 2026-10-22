@@ -1,6 +1,10 @@
 #include "global.h"
 #include "pokemon.h"
+#include "caps.h"
+#include "event_data.h"
 #include "starter_choose.h"
+#include "ce/level_caps.h"
+#include "ce/qol.h"
 #include "ce/rom_config.h"
 #include "ce/selftest.h"
 
@@ -103,6 +107,86 @@ static void ProbeStarters(void)
     LineEmit();
 }
 
+static void PutQolMask(void)
+{
+    u32 word, i;
+    for (word = 0; word < 2; word++)
+    {
+        u32 mask = 0;
+        for (i = 0; i < 32 && word * 32 + i < CE_QOL_COUNT; i++)
+        {
+            if (CeQol_IsOn(word * 32 + i))
+                mask |= 1u << i;
+        }
+        PutField(word == 0 ? "lo" : "hi", mask);
+    }
+}
+
+// Which features the game sees as on, then again after the player flips every
+// player's-choice feature (locked ones must not move).
+static void ProbeQol(void)
+{
+    u32 i;
+
+    LineStart();
+    Put("CE:{\"probe\":\"qol\"");
+    PutField("count", CE_QOL_COUNT);
+    PutQolMask();
+    Put("}");
+    LineEmit();
+
+    for (i = 0; i < CE_QOL_COUNT; i++)
+    {
+        if (CeQol_IsPlayerChoice(i))
+            CeQol_SetPlayerValue(i, !CeQol_IsOn(i));
+    }
+    LineStart();
+    Put("CE:{\"probe\":\"qolFlipped\"");
+    PutQolMask();
+    Put("}");
+    LineEmit();
+
+    LineStart();
+    Put("CE:{\"probe\":\"options\"");
+    PutField("textSpeed", CeOptions_Effective(CE_VOPT_TEXT_SPEED, 0));
+    PutField("battleScene", CeOptions_Effective(CE_VOPT_BATTLE_SCENE, 0));
+    PutField("battleStyle", CeOptions_Effective(CE_VOPT_BATTLE_STYLE, 0));
+    Put("}");
+    LineEmit();
+}
+
+// Level caps at three points of progress: nothing beaten, the first boss beaten,
+// everything beaten. Works on the in-RAM save only.
+static void ProbeLevelCaps(void)
+{
+    const u16 *bosses;
+    u32 count = CeLevelCap_GetBosses(&bosses);
+    u32 i;
+    u16 boss;
+
+    for (i = 0; i < count; i++)
+        FlagClear(TRAINER_FLAGS_START + bosses[i]);
+
+    LineStart();
+    Put("CE:{\"probe\":\"caps\"");
+    PutField("bossCount", count);
+    PutField("cap0", CeLevelCap_Compute(&boss));
+    PutField("boss0", boss);
+    PutField("effective0", GetCurrentLevelCap());
+    FlagSet(TRAINER_FLAGS_START + bosses[0]);
+    PutField("cap1", CeLevelCap_Compute(&boss));
+    PutField("boss1", boss);
+    for (i = 0; i < count; i++)
+        FlagSet(TRAINER_FLAGS_START + bosses[i]);
+    PutField("capAll", CeLevelCap_Compute(&boss));
+    PutField("bossAll", boss);
+    Put("}");
+    LineEmit();
+
+    for (i = 0; i < count; i++)
+        FlagClear(TRAINER_FLAGS_START + bosses[i]);
+}
+
 static void __attribute__((noreturn)) Exit(u32 code)
 {
     register u32 exitCode asm("r0") = code;
@@ -130,6 +214,8 @@ void CeSelfTest_RunIfEnabled(void)
     for (i = 0; i < CE_SELF_TEST_SPECIES && config->species[i] != SPECIES_NONE; i++)
         ProbeSpecies(config->species[i]);
     ProbeStarters();
+    ProbeLevelCaps();
+    ProbeQol();
 
     LineStart();
     Put("CE:{\"probe\":\"done\"}");
