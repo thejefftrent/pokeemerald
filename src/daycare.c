@@ -355,6 +355,7 @@ static u16 TakeSelectedPokemonFromDaycare(struct DaycareMon *daycareMon)
     daycareMon->steps = 0;
     CompactPartySlots();
     CalculatePlayerPartyCount();
+    CeModes_EnforcePartyLimit(); // CE: single-Pokémon party limit
     return GetMonData(&pokemon, MON_DATA_SPECIES);
 }
 
@@ -1014,6 +1015,7 @@ static void _GiveEggFromDaycare(struct DayCare *daycare)
     gParties[B_TRAINER_PLAYER][PARTY_SIZE - 1] = egg;
     CompactPartySlots();
     CalculatePlayerPartyCount();
+    CeModes_EnforcePartyLimit(); // CE: single-Pokémon party limit
     RemoveEggFromDayCare(daycare);
 }
 

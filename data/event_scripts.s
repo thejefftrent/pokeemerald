@@ -1169,6 +1169,7 @@ EventScript_SetBrineyLocation_Route109::
 	.include "data/scripts/pc.inc"
 	.include "data/scripts/move_relearner.inc"
 #include "data/scripts/ce/key_items.inc" // CE: QoL key item scripts (cpp include: .include allows no trailing comment)
+#include "data/scripts/ce/modes.inc" // CE: game-mode scripts (no-heal refusals)
 
 @ scripts/notices.inc? signs.inc? See comment about text/notices.inc
 Common_EventScript_ShowPokemartSign::
@@ -1244,6 +1245,7 @@ Common_EventScript_PlayGymBadgeFanfare::
 	return
 
 Common_EventScript_OutOfCenterPartyHeal::
+	callnative CeModes_ScriptRestHealGate // CE: no-heal mode (Mom, beds, rest stops)
 	fadescreenswapbuffers FADE_TO_BLACK
 	playfanfare MUS_HEAL
 	waitfanfare

@@ -1,6 +1,7 @@
 #ifndef GUARD_CE_ROM_CONFIG_H
 #define GUARD_CE_ROM_CONFIG_H
 
+#include "ce/modes.h"
 #include "ce/qol.h"
 #include "ce/wild.h"
 
@@ -72,6 +73,7 @@ struct CeRomConfigBody
     struct CeLevelCapConfig levelCaps;
     struct CeTrainerConfig trainers;
     struct CeWildConfig wild;
+    struct CeModesConfig modes;
 };
 
 struct CeRomConfig

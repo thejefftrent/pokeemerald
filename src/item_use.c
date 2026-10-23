@@ -1133,6 +1133,7 @@ static u32 GetBallThrowableState(void)
         return BALL_THROW_UNABLE_SEMI_INVULNERABLE;
     else if (FlagGet(WE_FLAG_NO_CATCHING) || !IsAllowedToUseBag())
         return BALL_THROW_UNABLE_DISABLED_FLAG;
+    else if (CeModes_CurrentCatchBlock() != CE_CATCH_OK) return BALL_THROW_UNABLE_CE_RULES; // CE: game-mode catch rules
 
     return BALL_THROW_ABLE;
 }
@@ -1203,6 +1204,7 @@ bool32 CannotUseItemsInBattle(enum Item itemId, struct Pokemon *mon)
     u32 i, battlerTarget;
     u16 hp = GetMonData(mon, MON_DATA_HP);
 
+    if (CeModes_BlocksBattleItem(itemId)) { StringExpandPlaceholders(gStringVar4, CeModes_NoItemsText()); return TRUE; } // CE: hard mode
     if (gPartyMenu.slotId == 0)
         battlerTarget = B_POSITION_PLAYER_LEFT;
     else if (gPartyMenu.slotId == 1)
@@ -1259,6 +1261,7 @@ bool32 CannotUseItemsInBattle(enum Item itemId, struct Pokemon *mon)
             failStr = sText_CantThrowPokeBall_Disabled;
             cannotUse = TRUE;
             break;
+        case BALL_THROW_UNABLE_CE_RULES: failStr = CeModes_CatchBlockedText(); cannotUse = TRUE; break; // CE: game-mode catch rules
         }
         break;
     case EFFECT_ITEM_INCREASE_ALL_STATS:
@@ -1298,6 +1301,7 @@ bool32 CannotUseItemsInBattle(enum Item itemId, struct Pokemon *mon)
     case EFFECT_ITEM_REVIVE:
         if (hp != 0)
             cannotUse = TRUE;
+        if (CeModes_IsDead(mon)) cannotUse = TRUE; // CE: Nuzlocke, the dead stay dead
         break;
     case EFFECT_ITEM_RESTORE_PP:
         if (GetItemEffect(itemId)[4] == ITEM4_HEAL_PP)

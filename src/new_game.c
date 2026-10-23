@@ -236,6 +236,7 @@ void NewGameInitData(void)
     ResetDexNav();
     ClearFollowerNPCData();
     CeQol_OnNewGame(); // CE: give QoL key items
+    CeModes_OnNewGame(); // CE: copy the game-mode rules into the save
 }
 
 static void ResetMiniGamesRecords(void)
