@@ -5,6 +5,7 @@
 #define TILE_FLAG_HAS_ENCOUNTERS (1 << 0)
 #define TILE_FLAG_SURFABLE       (1 << 1)
 #define TILE_FLAG_UNUSED         (1 << 2) // Roughly all of the traversable metatiles. Set but never read
+const u8 gCeTileFlags[2] = { TILE_FLAG_HAS_ENCOUNTERS, TILE_FLAG_SURFABLE }; // CE: the bits the website's terrain check reads
 
 static const u8 sTileBitAttributes[NUM_METATILE_BEHAVIORS] =
 {

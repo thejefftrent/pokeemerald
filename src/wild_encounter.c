@@ -22,6 +22,7 @@
 #include "script.h"
 #include "tv.h"
 #include "wild_encounter.h"
+#include "ce/wild.h" // CE:
 #include "battle_debug.h"
 #include "battle_pike.h"
 #include "battle_pyramid.h"
@@ -62,7 +63,10 @@ EWRAM_DATA bool8 gIsFishingEncounter = 0;
 EWRAM_DATA bool8 gIsSurfingEncounter = 0;
 EWRAM_DATA u8 gChainFishingDexNavStreak = 0;
 
+#undef gWildMonHeaders // CE: the generated table keeps its name; readers use gCeWildMonHeaders
 #include "data/wild_encounters.h"
+#include "ce/wild_vanilla.h" // CE: vanilla slot weights from the macros generated above
+#define gWildMonHeaders gCeWildMonHeaders // CE: back to the patchable pointer
 
 const struct WildPokemon gWildFeebas = {20, 25, SPECIES_FEEBAS};
 
@@ -176,32 +180,7 @@ u32 ChooseWildMonIndex_Land(void)
 {
     u8 wildMonIndex = 0;
     bool8 swap = FALSE;
-    u8 rand = Random() % ENCOUNTER_CHANCE_LAND_MONS_TOTAL;
-
-    if (rand < ENCOUNTER_CHANCE_LAND_MONS_SLOT_0)
-        wildMonIndex = 0;
-    else if (rand >= ENCOUNTER_CHANCE_LAND_MONS_SLOT_0 && rand < ENCOUNTER_CHANCE_LAND_MONS_SLOT_1)
-        wildMonIndex = 1;
-    else if (rand >= ENCOUNTER_CHANCE_LAND_MONS_SLOT_1 && rand < ENCOUNTER_CHANCE_LAND_MONS_SLOT_2)
-        wildMonIndex = 2;
-    else if (rand >= ENCOUNTER_CHANCE_LAND_MONS_SLOT_2 && rand < ENCOUNTER_CHANCE_LAND_MONS_SLOT_3)
-        wildMonIndex = 3;
-    else if (rand >= ENCOUNTER_CHANCE_LAND_MONS_SLOT_3 && rand < ENCOUNTER_CHANCE_LAND_MONS_SLOT_4)
-        wildMonIndex = 4;
-    else if (rand >= ENCOUNTER_CHANCE_LAND_MONS_SLOT_4 && rand < ENCOUNTER_CHANCE_LAND_MONS_SLOT_5)
-        wildMonIndex = 5;
-    else if (rand >= ENCOUNTER_CHANCE_LAND_MONS_SLOT_5 && rand < ENCOUNTER_CHANCE_LAND_MONS_SLOT_6)
-        wildMonIndex = 6;
-    else if (rand >= ENCOUNTER_CHANCE_LAND_MONS_SLOT_6 && rand < ENCOUNTER_CHANCE_LAND_MONS_SLOT_7)
-        wildMonIndex = 7;
-    else if (rand >= ENCOUNTER_CHANCE_LAND_MONS_SLOT_7 && rand < ENCOUNTER_CHANCE_LAND_MONS_SLOT_8)
-        wildMonIndex = 8;
-    else if (rand >= ENCOUNTER_CHANCE_LAND_MONS_SLOT_8 && rand < ENCOUNTER_CHANCE_LAND_MONS_SLOT_9)
-        wildMonIndex = 9;
-    else if (rand >= ENCOUNTER_CHANCE_LAND_MONS_SLOT_9 && rand < ENCOUNTER_CHANCE_LAND_MONS_SLOT_10)
-        wildMonIndex = 10;
-    else
-        wildMonIndex = 11;
+    wildMonIndex = CeWild_ChooseSlot(WILD_AREA_LAND); // CE: weighted pick over gCeRomConfig.body.wild (vanilla if unset)
 
     if (LURE_STEP_COUNT != 0 && (Random() % 10 < 2))
         swap = TRUE;
@@ -216,32 +195,7 @@ u32 ChooseWildMonIndex_Land(void)
 // NUM_LAND_MONS_ENCOUNTER_SLOTS
 u8 GetLandEncounterSlotForMatchCall(void)
 {
-    int rand = Random() % ENCOUNTER_CHANCE_LAND_MONS_TOTAL;
-
-    if (rand < ENCOUNTER_CHANCE_LAND_MONS_SLOT_0)
-        return 0;
-    else if (rand >= ENCOUNTER_CHANCE_LAND_MONS_SLOT_0 && rand < ENCOUNTER_CHANCE_LAND_MONS_SLOT_1)
-        return 1;
-    else if (rand >= ENCOUNTER_CHANCE_LAND_MONS_SLOT_1 && rand < ENCOUNTER_CHANCE_LAND_MONS_SLOT_2)
-        return 2;
-    else if (rand >= ENCOUNTER_CHANCE_LAND_MONS_SLOT_2 && rand < ENCOUNTER_CHANCE_LAND_MONS_SLOT_3)
-        return 3;
-    else if (rand >= ENCOUNTER_CHANCE_LAND_MONS_SLOT_3 && rand < ENCOUNTER_CHANCE_LAND_MONS_SLOT_4)
-        return 4;
-    else if (rand >= ENCOUNTER_CHANCE_LAND_MONS_SLOT_4 && rand < ENCOUNTER_CHANCE_LAND_MONS_SLOT_5)
-        return 5;
-    else if (rand >= ENCOUNTER_CHANCE_LAND_MONS_SLOT_5 && rand < ENCOUNTER_CHANCE_LAND_MONS_SLOT_6)
-        return 6;
-    else if (rand >= ENCOUNTER_CHANCE_LAND_MONS_SLOT_6 && rand < ENCOUNTER_CHANCE_LAND_MONS_SLOT_7)
-        return 7;
-    else if (rand >= ENCOUNTER_CHANCE_LAND_MONS_SLOT_7 && rand < ENCOUNTER_CHANCE_LAND_MONS_SLOT_8)
-        return 8;
-    else if (rand >= ENCOUNTER_CHANCE_LAND_MONS_SLOT_8 && rand < ENCOUNTER_CHANCE_LAND_MONS_SLOT_9)
-        return 9;
-    else if (rand >= ENCOUNTER_CHANCE_LAND_MONS_SLOT_9 && rand < ENCOUNTER_CHANCE_LAND_MONS_SLOT_10)
-        return 10;
-    else
-        return 11;
+    return CeWild_ChooseSlot(WILD_AREA_LAND); // CE: same weights as ChooseWildMonIndex_Land
 }
 
 // NUM_WATER_MONS_ENCOUNTER_SLOTS
@@ -249,18 +203,7 @@ u32 ChooseWildMonIndex_Water(void)
 {
     u32 wildMonIndex = 0;
     bool8 swap = FALSE;
-    u8 rand = Random() % ENCOUNTER_CHANCE_WATER_MONS_TOTAL;
-
-    if (rand < ENCOUNTER_CHANCE_WATER_MONS_SLOT_0)
-        wildMonIndex = 0;
-    else if (rand >= ENCOUNTER_CHANCE_WATER_MONS_SLOT_0 && rand < ENCOUNTER_CHANCE_WATER_MONS_SLOT_1)
-        wildMonIndex = 1;
-    else if (rand >= ENCOUNTER_CHANCE_WATER_MONS_SLOT_1 && rand < ENCOUNTER_CHANCE_WATER_MONS_SLOT_2)
-        wildMonIndex = 2;
-    else if (rand >= ENCOUNTER_CHANCE_WATER_MONS_SLOT_2 && rand < ENCOUNTER_CHANCE_WATER_MONS_SLOT_3)
-        wildMonIndex = 3;
-    else
-        wildMonIndex = 4;
+    wildMonIndex = CeWild_ChooseSlot(WILD_AREA_WATER); // CE: weighted pick over gCeRomConfig.body.wild (vanilla if unset)
 
     if (LURE_STEP_COUNT != 0 && (Random() % 10 < 2))
         swap = TRUE;
@@ -275,18 +218,7 @@ u32 ChooseWildMonIndex_Water(void)
 // NUM_WATER_MONS_ENCOUNTER_SLOTS
 u8 GetWaterEncounterSlotForMatchCall(void)
 {
-    int rand = Random() % ENCOUNTER_CHANCE_WATER_MONS_TOTAL;
-
-    if (rand < ENCOUNTER_CHANCE_WATER_MONS_SLOT_0)
-        return 0;
-    else if (rand >= ENCOUNTER_CHANCE_WATER_MONS_SLOT_0 && rand < ENCOUNTER_CHANCE_WATER_MONS_SLOT_1)
-        return 1;
-    else if (rand >= ENCOUNTER_CHANCE_WATER_MONS_SLOT_1 && rand < ENCOUNTER_CHANCE_WATER_MONS_SLOT_2)
-        return 2;
-    else if (rand >= ENCOUNTER_CHANCE_WATER_MONS_SLOT_2 && rand < ENCOUNTER_CHANCE_WATER_MONS_SLOT_3)
-        return 3;
-    else
-        return 4;
+    return CeWild_ChooseSlot(WILD_AREA_WATER); // CE: same weights as ChooseWildMonIndex_Water
 }
 
 
@@ -295,18 +227,7 @@ u32 ChooseWildMonIndex_Rocks(void)
 {
     u32 wildMonIndex = 0;
     bool8 swap = FALSE;
-    u8 rand = Random() % ENCOUNTER_CHANCE_ROCK_SMASH_MONS_TOTAL;
-
-    if (rand < ENCOUNTER_CHANCE_ROCK_SMASH_MONS_SLOT_0)
-        wildMonIndex = 0;
-    else if (rand >= ENCOUNTER_CHANCE_ROCK_SMASH_MONS_SLOT_0 && rand < ENCOUNTER_CHANCE_ROCK_SMASH_MONS_SLOT_1)
-        wildMonIndex = 1;
-    else if (rand >= ENCOUNTER_CHANCE_ROCK_SMASH_MONS_SLOT_1 && rand < ENCOUNTER_CHANCE_ROCK_SMASH_MONS_SLOT_2)
-        wildMonIndex = 2;
-    else if (rand >= ENCOUNTER_CHANCE_ROCK_SMASH_MONS_SLOT_2 && rand < ENCOUNTER_CHANCE_ROCK_SMASH_MONS_SLOT_3)
-        wildMonIndex = 3;
-    else
-        wildMonIndex = 4;
+    wildMonIndex = CeWild_ChooseSlot(WILD_AREA_ROCKS); // CE: weighted pick over gCeRomConfig.body.wild (vanilla if unset)
 
     if (LURE_STEP_COUNT != 0 && (Random() % 10 < 2))
         swap = TRUE;
@@ -320,52 +241,14 @@ u32 ChooseWildMonIndex_Rocks(void)
 // NUM_FISHING_MONS_ENCOUNTER_SLOTS
 static u32 ChooseWildMonIndex_Fishing(u8 rod)
 {
-    u8 wildMonIndex = 0;
+    u8 wildMonIndex = CeWild_ChooseFishingSlot(rod); // CE: weighted pick over the rod's slots in gCeRomConfig.body.wild
     bool8 swap = FALSE;
-    u8 rand = Random() % max(max(ENCOUNTER_CHANCE_FISHING_MONS_OLD_ROD_TOTAL, ENCOUNTER_CHANCE_FISHING_MONS_GOOD_ROD_TOTAL),
-                             ENCOUNTER_CHANCE_FISHING_MONS_SUPER_ROD_TOTAL);
 
     if (LURE_STEP_COUNT != 0 && (Random() % 10 < 2))
         swap = TRUE;
 
-    switch (rod)
-    {
-    case OLD_ROD:
-        if (rand < ENCOUNTER_CHANCE_FISHING_MONS_OLD_ROD_SLOT_0)
-            wildMonIndex = 0;
-        else
-            wildMonIndex = 1;
-
-        if (swap)
-            wildMonIndex = 1 - wildMonIndex;
-        break;
-    case GOOD_ROD:
-        if (rand < ENCOUNTER_CHANCE_FISHING_MONS_GOOD_ROD_SLOT_2)
-            wildMonIndex = 2;
-        if (rand >= ENCOUNTER_CHANCE_FISHING_MONS_GOOD_ROD_SLOT_2 && rand < ENCOUNTER_CHANCE_FISHING_MONS_GOOD_ROD_SLOT_3)
-            wildMonIndex = 3;
-        if (rand >= ENCOUNTER_CHANCE_FISHING_MONS_GOOD_ROD_SLOT_3 && rand < ENCOUNTER_CHANCE_FISHING_MONS_GOOD_ROD_SLOT_4)
-            wildMonIndex = 4;
-
-        if (swap)
-            wildMonIndex = 6 - wildMonIndex;
-        break;
-    case SUPER_ROD:
-        if (rand < ENCOUNTER_CHANCE_FISHING_MONS_SUPER_ROD_SLOT_5)
-            wildMonIndex = 5;
-        if (rand >= ENCOUNTER_CHANCE_FISHING_MONS_SUPER_ROD_SLOT_5 && rand < ENCOUNTER_CHANCE_FISHING_MONS_SUPER_ROD_SLOT_6)
-            wildMonIndex = 6;
-        if (rand >= ENCOUNTER_CHANCE_FISHING_MONS_SUPER_ROD_SLOT_6 && rand < ENCOUNTER_CHANCE_FISHING_MONS_SUPER_ROD_SLOT_7)
-            wildMonIndex = 7;
-        if (rand >= ENCOUNTER_CHANCE_FISHING_MONS_SUPER_ROD_SLOT_7 && rand < ENCOUNTER_CHANCE_FISHING_MONS_SUPER_ROD_SLOT_8)
-            wildMonIndex = 8;
-        if (rand >= ENCOUNTER_CHANCE_FISHING_MONS_SUPER_ROD_SLOT_8 && rand < ENCOUNTER_CHANCE_FISHING_MONS_SUPER_ROD_SLOT_9)
-            wildMonIndex = 9;
-
-        if (swap)
-            wildMonIndex = 14 - wildMonIndex;
-        break;
-    }
+    if (swap)
+        wildMonIndex = CeWild_MirrorFishingSlot(rod, wildMonIndex); // CE: lure flips within the rod's slot range
     return wildMonIndex;
 }
 
@@ -1209,18 +1092,7 @@ bool8 TryDoDoubleWildBattle(void)
 
 u32 ChooseHiddenMonIndex(void)
 {
-    #ifdef ENCOUNTER_CHANCE_HIDDEN_MONS_TOTAL
-        u8 rand = Random() % ENCOUNTER_CHANCE_HIDDEN_MONS_TOTAL;
-
-        if (rand < ENCOUNTER_CHANCE_HIDDEN_MONS_SLOT_0)
-            return 0;
-        else if (rand >= ENCOUNTER_CHANCE_HIDDEN_MONS_SLOT_0 && rand < ENCOUNTER_CHANCE_HIDDEN_MONS_SLOT_1)
-            return 1;
-        else
-            return 2;
-    #else
-        return 0xFF;
-    #endif
+    return CeWild_ChooseSlot(WILD_AREA_HIDDEN); // CE: hidden weights from gCeRomConfig.body.wild; 0xFF when there are none
 }
 
 bool32 MapHasNoEncounterData(void)
