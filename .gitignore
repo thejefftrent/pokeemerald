@@ -73,3 +73,6 @@ include/ce/build_info.h
 # CE: generated from ce/encounters.json
 include/constants/ce_encounters.h
 src/data/ce_encounters.h
+
+# CE: generated from the map scripts (tools/ce/gen_field_items.py)
+src/data/ce_field_items.h
