@@ -8220,6 +8220,7 @@ static inline void TryNoticeIllusionInTypeEffectiveness(struct DamageContext *ct
     MulByTypeEffectiveness(&illusionContext, &presumedModifier, GetSpeciesType(illusionSpecies, 0));
     if (GetSpeciesType(illusionSpecies, 1) != GetSpeciesType(illusionSpecies, 0))
         MulByTypeEffectiveness(&illusionContext, &presumedModifier, GetSpeciesType(illusionSpecies, 1));
+    if (CeSpecies_GetThirdType(illusionSpecies) != TYPE_MYSTERY) MulByTypeEffectiveness(&illusionContext, &presumedModifier, CeSpecies_GetThirdType(illusionSpecies)); // CE: disguise's third type
 
     if (presumedModifier != resultingModifier)
         RecordAbilityBattle(illusionContext.battlerDef, ABILITY_ILLUSION);
@@ -8403,6 +8404,7 @@ uq4_12_t CalcPartyMonTypeEffectivenessMultiplier(enum Move move, enum Species sp
         MulByTypeEffectiveness(&ctx, &modifier, GetSpeciesType(speciesDef, 0));
         if (GetSpeciesType(speciesDef, 1) != GetSpeciesType(speciesDef, 0))
             MulByTypeEffectiveness(&ctx, &modifier, GetSpeciesType(speciesDef, 1));
+        if (CeSpecies_GetThirdType(speciesDef) != TYPE_MYSTERY) MulByTypeEffectiveness(&ctx, &modifier, CeSpecies_GetThirdType(speciesDef)); // CE: innate third type
 
         if (ctx.moveType == TYPE_GROUND
          && (abilityDef == ABILITY_LEVITATE || abilityDef == ABILITY_EELEVATE)
@@ -8451,6 +8453,7 @@ uq4_12_t GetOverworldTypeEffectiveness(struct Pokemon *mon, enum Type moveType)
     MulByTypeEffectiveness(&ctx, &modifier, type1);
     if (type2 != type1)
         MulByTypeEffectiveness(&ctx, &modifier, type2);
+    if (CeSpecies_GetThirdType(speciesDef) != TYPE_MYSTERY) MulByTypeEffectiveness(&ctx, &modifier, CeSpecies_GetThirdType(speciesDef)); // CE: innate third type
 
     if ((modifier <= UQ_4_12(1.0) && ctx.abilities[B_BATTLER_0] == ABILITY_WONDER_GUARD)
      || CanAbilityAbsorbMove(&ctx))
@@ -8516,7 +8519,7 @@ s32 GetStealthHazardDamage(enum TypeSideHazard hazardType, enum BattlerId battle
     GetBattlerTypes(battler, FALSE, types);
     u32 maxHp = gBattleMons[battler].maxHP;
 
-    return GetStealthHazardDamageByTypesAndHP(hazardType, types[0], types[1], maxHp);
+    return CeThirdType_StealthHazardDamage(hazardType, types, maxHp); // CE: counts the third type too
 }
 
 bool32 IsPartnerMonFromSameTrainer(enum BattlerId battler)
@@ -9551,7 +9554,7 @@ void CopyMonAbilityAndTypesToBattleMon(enum BattlerId battler, struct Pokemon *m
     #endif
     gBattleMons[battler].types[0] = GetSpeciesType(gBattleMons[battler].species, 0);
     gBattleMons[battler].types[1] = GetSpeciesType(gBattleMons[battler].species, 1);
-    gBattleMons[battler].types[2] = TYPE_MYSTERY;
+    gBattleMons[battler].types[2] = CeSpecies_GetThirdType(gBattleMons[battler].species); // CE: innate third type (was TYPE_MYSTERY)
 }
 
 void RecalcBattlerStats(enum BattlerId battler, struct Pokemon *mon, bool32 isDynamaxing)
@@ -9730,7 +9733,7 @@ bool32 CanMonParticipateInSkyBattle(struct Pokemon *mon)
     enum Ability ability = GetSpeciesAbility(species, monAbilityNum);
 
     bool32 hasLevitateAbility = (ability == ABILITY_LEVITATE || ability == ABILITY_EELEVATE);
-    bool32 isFlyingType = GetSpeciesType(species, 0) == TYPE_FLYING || GetSpeciesType(species, 1) == TYPE_FLYING;
+    bool32 isFlyingType = CeSpecies_IsOfType(species, TYPE_FLYING); // CE: counts the third type
     bool32 monIsValidAndNotEgg = GetMonData(mon, MON_DATA_SANITY_HAS_SPECIES) && !GetMonData(mon, MON_DATA_IS_EGG);
 
     if (monIsValidAndNotEgg)
@@ -9768,6 +9771,7 @@ void GetBattlerTypes(enum BattlerId battler, bool32 ignoreTera, enum Type types[
             types[0] = TYPE_MYSTERY;
         else if (types[1] == TYPE_FLYING)
             types[1] = TYPE_MYSTERY;
+        if (types[2] == TYPE_FLYING) types[2] = TYPE_MYSTERY; // CE: Roost also drops a third Flying type
     }
 }
 

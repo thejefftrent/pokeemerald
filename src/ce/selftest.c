@@ -79,6 +79,7 @@ static void ProbeSpecies(enum Species species)
     PutField("baseHP", GetSpeciesBaseHP(species));
     PutField("type1", GetSpeciesType(species, 0));
     PutField("type2", GetSpeciesType(species, 1));
+    PutField("type3", CeSpecies_GetThirdType(species));
     PutField("ability0", GetSpeciesAbility(species, 0));
     PutField("ability1", GetSpeciesAbility(species, 1));
     PutField("ability2", GetSpeciesAbility(species, 2));
@@ -257,6 +258,8 @@ void CeSelfTest_RunIfEnabled(void)
         CeSelfTest_ProbeTeam();
     if (CeSelfTest_ProbeLogic != NULL)
         CeSelfTest_ProbeLogic();
+    if (CeSelfTest_ProbeThirdType != NULL)
+        CeSelfTest_ProbeThirdType();
 
     LineStart();
     Put("CE:{\"probe\":\"done\"}");

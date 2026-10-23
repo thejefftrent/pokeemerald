@@ -4360,6 +4360,7 @@ static void SetMonTypeIcons(void)
             SetTypeSpritePosAndPal(summary->teraType, 200, 48, SPRITE_ARR_ID_TYPE + 2);
         }
     }
+    if (!summary->isEgg && CeSpecies_GetThirdType(summary->species) != TYPE_MYSTERY) SetTypeSpritePosAndPal(CeSpecies_GetThirdType(summary->species), GetSpeciesType(summary->species, 0) != GetSpeciesType(summary->species, 1) ? 200 : 160, 48, SPRITE_ARR_ID_TYPE + 3); else SetSpriteInvisibility(SPRITE_ARR_ID_TYPE + 3, TRUE); // CE: innate third type icon
 }
 
 static enum BattlerId GetCurrentBattlerFromSumIndex(u32 sumIndex)

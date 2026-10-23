@@ -81,7 +81,7 @@ enum CeBattleKind CeModes_BattleKind(void)
 
 static bool32 HasType(u16 species, u32 type)
 {
-    return GetSpeciesType(species, 0) == type || GetSpeciesType(species, 1) == type;
+    return CeSpecies_IsOfType(species, type); // CE: monotype counts the third type
 }
 
 // The gates that decide which species the player may own at all.

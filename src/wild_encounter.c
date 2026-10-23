@@ -999,7 +999,7 @@ static bool8 TryGetRandomWildMonIndexByType(const struct WildPokemon *wildMon, e
 
     for (validMonCount = 0, i = 0; i < numMon; i++)
     {
-        if (GetSpeciesType(wildMon[i].species, 0) == type || GetSpeciesType(wildMon[i].species, 1) == type)
+        if (CeSpecies_IsOfType(wildMon[i].species, type)) // CE: Static/Magnet Pull-style bias counts the third type
             validIndexes[validMonCount++] = i;
     }
 
