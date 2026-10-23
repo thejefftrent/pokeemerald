@@ -53,7 +53,8 @@
     X(CE_QOL_FLY_FROM_ANYWHERE,      FALSE)         \
     X(CE_QOL_INFINITE_REPEL,         FALSE)         \
     X(CE_QOL_FAST_EGG_HATCHING,      FALSE)         \
-    X(CE_QOL_SHINY_CHARM,            FALSE)
+    X(CE_QOL_SHINY_CHARM,            FALSE)         \
+    X(CE_QOL_FOLLOWERS,              FALSE)
 
 #define CE_QOL_ENUM_ENTRY(id, upstream) id,
 enum CeQolFeature

@@ -95,6 +95,7 @@ static const u8 *const sFeatureNames[CE_QOL_COUNT] =
     [CE_QOL_INFINITE_REPEL]           = COMPOUND_STRING("INFINITE REPEL"),
     [CE_QOL_FAST_EGG_HATCHING]        = COMPOUND_STRING("FAST HATCHING"),
     [CE_QOL_SHINY_CHARM]              = COMPOUND_STRING("SHINY CHARM"),
+    [CE_QOL_FOLLOWERS]                = COMPOUND_STRING("FOLLOWERS"),
 };
 
 static bool32 IsVisible(enum CeQolFeature feature)
