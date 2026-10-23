@@ -1,6 +1,7 @@
 #include "global.h"
 #include "ce/qol.h" // CE:
 #include "ce/start.h" // CE:
+#include "ce/team.h" // CE:
 #include "clock.h"
 #include "new_game.h"
 #include "random.h"
@@ -237,6 +238,7 @@ void NewGameInitData(void)
     ResetDexNav();
     ClearFollowerNPCData();
     CeStart_OnNewGame(); // CE: starting items and money
+    CeTeam_OnNewGame(); // CE: static team and the PC Pokémon and items that need no badge
     CeQol_OnNewGame(); // CE: give QoL key items
     CeModes_OnNewGame(); // CE: copy the game-mode rules into the save
 }

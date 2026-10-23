@@ -55,6 +55,7 @@ Route121_SafariZoneEntrance_EventScript_EntranceCounterTrigger::
 	end
 
 Route121_SafariZoneEntrance_EventScript_TryEnterSafariZone::
+	callnative CeTeam_ScriptSafariGate, requests_effects=1 @ CE: static team, nothing to catch here
 	checkitem ITEM_POKEBLOCK_CASE
 	goto_if_eq VAR_RESULT, 0, Route121_SafariZoneEntrance_EventScript_NoPokeblockCase
 	call Route121_SafariZoneEntrance_EventScript_CheckHasRoomForPokemon

@@ -2693,6 +2693,7 @@
 	.endm
 
 	.macro ingame_trade tradeId:req wantTradeMsg:req, declineTradeJump:req, wrongMonJump:req, tradeCompleteMsg:req
+	callnative CeTeam_ScriptTradeGate, requests_effects=1 @ CE: static team, no in-game trades
 	setvar VAR_0x8005, \tradeId
 	specialvar VAR_0x8009, GetInGameTradeSpeciesInfo
 	msgbox \wantTradeMsg, MSGBOX_YESNO

@@ -45,6 +45,7 @@ EventScript_LanettesPCBoxFull::
 	return
 
 Common_EventScript_NoMoreRoomForPokemon::
+	callnative CeTeam_ScriptNoRoomGate, requests_effects=1 @ CE: static team, say why the gift is refused
 	msgbox gText_NoMoreRoomForPokemon, MSGBOX_DEFAULT
 	release
 	end

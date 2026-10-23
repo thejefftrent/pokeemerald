@@ -253,6 +253,8 @@ void CeSelfTest_RunIfEnabled(void)
         CeSelfTest_ProbeStart();
     if (CeSelfTest_ProbeSeedHash != NULL)
         CeSelfTest_ProbeSeedHash();
+    if (CeSelfTest_ProbeTeam != NULL)
+        CeSelfTest_ProbeTeam();
 
     LineStart();
     Put("CE:{\"probe\":\"done\"}");

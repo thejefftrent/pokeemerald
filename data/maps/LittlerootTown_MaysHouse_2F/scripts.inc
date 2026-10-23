@@ -296,6 +296,7 @@ LittlerootTown_MaysHouse_2F_EventScript_CheckPlayersPC::
 	special DoPCTurnOnEffect
 	playse SE_PC_ON
 	msgbox gText_PlayerHouseBootPC, MSGBOX_DEFAULT
+	call CeEventScript_PcDeliveries @ CE: static team and badge-timed PC items arrive
 	special BedroomPC
 	releaseall
 	end

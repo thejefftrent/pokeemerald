@@ -25,10 +25,12 @@ struct CeStartConfig
     u32 money;         // at most MAX_MONEY
     struct CeStartItem bag[CE_START_BAG_ITEMS];
     struct CeStartItem pc[CE_START_PC_ITEMS];
+    u8 pcBadges[CE_START_PC_ITEMS]; // gym badges pc[i] waits for (0 = at New Game); see ce/team.h
 };
 
 // End of NewGameInitData: set the money, replace the PC items and add the bag items. An item
 // that doesn't fit its pocket is skipped; the website checks pocket sizes before writing.
+// PC items with pcBadges set wait in the ROM; the PC hands them out later (CeTeam_DeliverNext).
 void CeStart_OnNewGame(void);
 
 #endif // GUARD_CE_START_H

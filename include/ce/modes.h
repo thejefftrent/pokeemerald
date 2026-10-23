@@ -36,7 +36,9 @@ struct CeModesConfig
     // No-heal
     u8 noCenterHeal;    // Pokémon Center nurses don't heal
     u8 noRestHeal;      // Mom, beds and rest stops don't heal
-    u8 reserved[3];
+    // No evolutions
+    u8 noEvolution;     // no Pokémon evolves, by any method (GetEvolutionTargetSpecies)
+    u8 reserved[2];
 };
 
 // Spare SaveBlock2 space: struct Pokedex's old dex-flag filler (see global.h), next to the
@@ -82,6 +84,7 @@ enum CeCatchBlock
     CE_CATCH_DUPE,      // Nuzlocke dupes clause: this family is already owned
     CE_CATCH_MONOTYPE,  // not of the run's type
     CE_CATCH_SPECIES,   // not the single-Pokémon family
+    CE_CATCH_STATIC_TEAM, // static team: nothing new can join (ce/team.h)
 };
 
 // Heals the no-heal mode can refuse.
@@ -129,6 +132,9 @@ bool32 CeModes_NoBagInTrainerBattles(void);
 bool32 CeModes_BlocksBattleItem(u16 item);
 const u8 *CeModes_NoItemsText(void);
 bool32 CeModes_ForcesSetStyle(void);
+
+// No evolutions.
+bool32 CeModes_NoEvolution(void);
 
 // Single-Pokémon.
 u32 CeModes_PartyLimit(void);

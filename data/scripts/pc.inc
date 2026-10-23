@@ -4,6 +4,7 @@ EventScript_PC::
 	special DoPCTurnOnEffect
 	playse SE_PC_ON
 	msgbox Text_BootUpPC, MSGBOX_DEFAULT
+	call CeEventScript_PcDeliveries @ CE: static team and badge-timed PC items arrive
 	goto EventScript_PCMainMenu
 	end
 
@@ -67,6 +68,7 @@ EventScript_AccessHallOfFame::
 
 EventScript_AccessPokemonBoxLink::
 	playse SE_PC_LOGIN
+	call CeEventScript_PcDeliveries @ CE: static team and badge-timed PC items arrive
 	msgbox gText_StorageSystemOpened, MSGBOX_DEFAULT
 	special ShowPokemonStorageSystemPC
 	goto EventScript_TurnOffPC

@@ -4,6 +4,7 @@
 #include "ce/modes.h"
 #include "ce/qol.h"
 #include "ce/start.h"
+#include "ce/team.h"
 #include "ce/wild.h"
 
 // Custom Emerald patch interface.
@@ -76,6 +77,7 @@ struct CeRomConfigBody
     struct CeWildConfig wild;
     struct CeModesConfig modes;
     struct CeStartConfig start;
+    struct CeTeamConfig team;
 };
 
 struct CeRomConfig

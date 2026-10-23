@@ -233,6 +233,7 @@ LavaridgeTown_EventScript_EggWoman::
 	lock
 	faceplayer
 	goto_if_set FLAG_RECEIVED_LAVARIDGE_EGG, LavaridgeTown_EventScript_ReceivedEgg
+	callnative CeTeam_ScriptGiftGate, requests_effects=1 @ CE: static team, no gift egg
 	msgbox LavaridgeTown_Text_HaveEggWillYouTakeIt, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, NO, LavaridgeTown_EventScript_DeclineEgg
 	getpartysize
