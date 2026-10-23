@@ -3038,7 +3038,7 @@ u8 GetMonsStateToDoubles(void)
     s32 i;
     CalculatePlayerPartyCount();
 
-    if (OW_DOUBLE_APPROACH_WITH_ONE_MON)
+    if (OW_DOUBLE_APPROACH_WITH_ONE_MON || CeModes_PartyLimit() < 2) // CE: a party limit of 1 fights double battles 1-vs-2 (Tate & Liza)
         return PLAYER_HAS_TWO_USABLE_MONS;
 
     if (gPartiesCount[B_TRAINER_PLAYER] == 1)
