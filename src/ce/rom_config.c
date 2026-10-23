@@ -1,4 +1,5 @@
 #include "global.h"
+#define CE_ROM_CONFIG_NO_TEST_OVERRIDE // defines the ROM table
 #include "ce/rom_config.h"
 
 // Data only: no code in this file may read gCeRomConfig, so the compiler never

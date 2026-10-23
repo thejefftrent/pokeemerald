@@ -4,6 +4,7 @@
 #include "constants/config_changes.h"
 #include "config/pokerus.h"
 #include "config/ai.h"
+#include "ce/rom_config.h" // CE: CeTest_InitRomConfig / CeTest_FreeRomConfig
 
 #define UNPACK_BATTLE_CONFIG_GEN_CHANGES(_name, _field, ...) ._field = _name,
 #define UNPACK_POKEMON_CONFIG_GEN_CHANGES(_name, _field, ...) ._field = P_##_name,
@@ -121,10 +122,12 @@ void TestInitConfigData(void)
     Free(gConfigChangesTestOverride);
     gConfigChangesTestOverride = Alloc(sizeof(sConfigChanges));
     memcpy(gConfigChangesTestOverride, &sConfigChanges, sizeof(sConfigChanges));
+    CeTest_InitRomConfig(); // CE: tests edit a RAM copy of gCeRomConfig too
 }
 
 void TestFreeConfigData(void)
 {
     FREE_AND_SET_NULL(gConfigChangesTestOverride);
+    CeTest_FreeRomConfig(); // CE:
 }
 #endif

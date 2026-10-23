@@ -1,4 +1,5 @@
 #include "global.h"
+#define CE_ROM_CONFIG_NO_TEST_OVERRIDE // points at the ROM table
 #include "ce/rom_config.h"
 #include "ce/build_info.h"
 
