@@ -130,20 +130,23 @@ RustboroCity_DevonCorp_2F_EventScript_FossilMonReady::
 	end
 
 RustboroCity_DevonCorp_2F_EventScript_LileepReady::
-	bufferspeciesname STR_VAR_2, SPECIES_LILEEP
+	ce_loadenc CE_ENC_LILEEP
+	bufferspeciesname STR_VAR_2, VAR_CE_ENC_SPECIES
 	msgbox RustboroCity_DevonCorp_2F_Text_FossilizedMonBroughtBackToLife, MSGBOX_DEFAULT
 	goto RustboroCity_DevonCorp_2F_EventScript_ReceiveLileep
 	end
 
 RustboroCity_DevonCorp_2F_EventScript_AnorithReady::
-	bufferspeciesname STR_VAR_2, SPECIES_ANORITH
+	ce_loadenc CE_ENC_ANORITH
+	bufferspeciesname STR_VAR_2, VAR_CE_ENC_SPECIES
 	msgbox RustboroCity_DevonCorp_2F_Text_FossilizedMonBroughtBackToLife, MSGBOX_DEFAULT
 	goto RustboroCity_DevonCorp_2F_EventScript_ReceiveAnorith
 	end
 
 RustboroCity_DevonCorp_2F_EventScript_ReceiveLileep::
-	setvar VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_LILEEP
-	givemon SPECIES_LILEEP, 20
+	ce_loadenc CE_ENC_LILEEP
+	copyvar VAR_TEMP_TRANSFERRED_SPECIES, VAR_CE_ENC_SPECIES
+	ce_givemon CE_ENC_LILEEP
 	goto_if_eq VAR_RESULT, MON_GIVEN_TO_PARTY, RustboroCity_DevonCorp_2F_EventScript_ReceiveLileepParty
 	goto_if_eq VAR_RESULT, MON_GIVEN_TO_PC, RustboroCity_DevonCorp_2F_EventScript_ReceiveLileepPC
 	goto Common_EventScript_NoMoreRoomForPokemon
@@ -172,12 +175,14 @@ RustboroCity_DevonCorp_2F_EventScript_TransferLileepToPC::
 	end
 
 RustboroCity_DevonCorp_2F_EventScript_ReceivedLileepFanfare::
-	bufferspeciesname STR_VAR_2, SPECIES_LILEEP
+	ce_loadenc CE_ENC_LILEEP
+	bufferspeciesname STR_VAR_2, VAR_CE_ENC_SPECIES
 	playfanfare MUS_OBTAIN_ITEM
 	message RustboroCity_DevonCorp_2F_Text_ReceivedMonFromResearcher
 	waitmessage
 	waitfanfare
-	bufferspeciesname STR_VAR_1, SPECIES_LILEEP
+	ce_loadenc CE_ENC_LILEEP
+	bufferspeciesname STR_VAR_1, VAR_CE_ENC_SPECIES
 	return
 
 RustboroCity_DevonCorp_2F_EventScript_FinishReceivingLileep::
@@ -187,8 +192,9 @@ RustboroCity_DevonCorp_2F_EventScript_FinishReceivingLileep::
 	end
 
 RustboroCity_DevonCorp_2F_EventScript_ReceiveAnorith::
-	setvar VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_ANORITH
-	givemon SPECIES_ANORITH, 20
+	ce_loadenc CE_ENC_ANORITH
+	copyvar VAR_TEMP_TRANSFERRED_SPECIES, VAR_CE_ENC_SPECIES
+	ce_givemon CE_ENC_ANORITH
 	goto_if_eq VAR_RESULT, MON_GIVEN_TO_PARTY, RustboroCity_DevonCorp_2F_EventScript_ReceiveAnorithParty
 	goto_if_eq VAR_RESULT, MON_GIVEN_TO_PC, RustboroCity_DevonCorp_2F_EventScript_ReceiveAnorithPC
 	goto Common_EventScript_NoMoreRoomForPokemon
@@ -217,12 +223,14 @@ RustboroCity_DevonCorp_2F_EventScript_TransferAnorithToPC::
 	end
 
 RustboroCity_DevonCorp_2F_EventScript_ReceivedAnorithFanfare::
-	bufferspeciesname STR_VAR_2, SPECIES_ANORITH
+	ce_loadenc CE_ENC_ANORITH
+	bufferspeciesname STR_VAR_2, VAR_CE_ENC_SPECIES
 	playfanfare MUS_OBTAIN_ITEM
 	message RustboroCity_DevonCorp_2F_Text_ReceivedMonFromResearcher
 	waitmessage
 	waitfanfare
-	bufferspeciesname STR_VAR_1, SPECIES_ANORITH
+	ce_loadenc CE_ENC_ANORITH
+	bufferspeciesname STR_VAR_1, VAR_CE_ENC_SPECIES
 	return
 
 RustboroCity_DevonCorp_2F_EventScript_FinishReceivingAnorith::

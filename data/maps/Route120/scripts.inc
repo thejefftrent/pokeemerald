@@ -187,10 +187,11 @@ Route120_EventScript_StevenBattleKecleon::
 	applymovement LOCALID_BRIDGE_KECLEON, Movement_KecleonAppears
 	waitmovement 0
 	waitse
-	playmoncry SPECIES_KECLEON, CRY_MODE_ENCOUNTER
+	ce_loadenc CE_ENC_KECLEON_BRIDGE
+	playmoncry VAR_CE_ENC_SPECIES, CRY_MODE_ENCOUNTER
 	delay 40
 	waitmoncry
-	setwildbattle SPECIES_KECLEON, 30
+	setwildbattle_ce CE_ENC_KECLEON_BRIDGE
 	setvar VAR_0x8009, 0
 	setflag FLAG_SYS_CTRL_OBJ_DELETE
 	dowildbattle

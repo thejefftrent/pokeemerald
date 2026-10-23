@@ -66,6 +66,7 @@
 #include "constants/sound.h"
 #include "constants/species.h"
 #include "constants/trade.h"
+#include "constants/ce_encounters.h" // CE: gift/static/starter encounter ids
 #include "constants/trainer_hill.h"
 #include "constants/trainer_tower.h"
 #include "constants/trainers.h"
@@ -77,6 +78,7 @@
 #include "constants/speaker_names.h"
 	.include "asm/macros.inc"
 	.include "asm/macros/event.inc"
+#include "asm/macros/ce_encounters.inc" // CE: ce_loadenc and friends (cpp include: .include allows no trailing comment)
 	.include "constants/constants.inc"
 
 	.section script_data, "aw", %progbits
@@ -1333,6 +1335,7 @@ Common_EventScript_FerryDepartIsland::
 
 	.include "data/scripts/cave_of_origin.inc"
 	.include "data/scripts/kecleon.inc"
+#include "data/scripts/ce/encounters.inc" // CE: self-test scripts for the encounter table
 
 Common_EventScript_NameReceivedPartyMon::
 	fadescreen FADE_TO_BLACK

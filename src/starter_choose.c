@@ -23,6 +23,7 @@
 #include "window.h"
 #include "constants/songs.h"
 #include "constants/rgb.h"
+#include "ce/encounters.h" // CE: gift/static/starter encounter table
 
 #define STARTER_MON_COUNT   3
 
@@ -110,16 +111,7 @@ static const u8 sStarterLabelCoords[STARTER_MON_COUNT][2] =
     {8, 4},
 };
 
-#define GRASS_STARTER (IS_FRLG ? SPECIES_BULBASAUR  : SPECIES_TREECKO)
-#define FIRE_STARTER  (IS_FRLG ? SPECIES_CHARMANDER : SPECIES_TORCHIC)
-#define WATER_STARTER (IS_FRLG ? SPECIES_SQUIRTLE   : SPECIES_MUDKIP )
-
-const u16 sStarterMon[STARTER_MON_COUNT] CE_PATCHABLE = // CE: global so it can be weak
-{
-    GRASS_STARTER,
-    FIRE_STARTER,
-    WATER_STARTER,
-};
+// CE: the starters are gCeEncounters[CE_ENC_STARTER_*] (ce/encounters.json), not sStarterMon
 
 static const struct BgTemplate sBgTemplates[3] =
 {
@@ -349,9 +341,7 @@ static const struct SpriteTemplate sSpriteTemplate_StarterCircle =
 // .text
 u16 GetStarterPokemon(u16 chosenStarterId)
 {
-    if (chosenStarterId > STARTER_MON_COUNT)
-        chosenStarterId = 0;
-    return sStarterMon[chosenStarterId];
+    return CeEnc_Starter(chosenStarterId); // CE:
 }
 
 static void VblankCB_StarterChoose(void)

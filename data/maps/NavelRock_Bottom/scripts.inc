@@ -48,10 +48,11 @@ NavelRock_Bottom_EventScript_Lugia::
 	delay 30
 	delay 50
 	waitse
-	playmoncry SPECIES_LUGIA, CRY_MODE_ENCOUNTER
+	ce_loadenc CE_ENC_LUGIA
+	playmoncry VAR_CE_ENC_SPECIES, CRY_MODE_ENCOUNTER
 	waitmoncry
 	delay 20
-	seteventmon SPECIES_LUGIA, 70
+	seteventmon_ce CE_ENC_LUGIA
 	setflag FLAG_SYS_CTRL_OBJ_DELETE
 	special BattleSetup_StartLegendaryBattle
 	clearflag FLAG_SYS_CTRL_OBJ_DELETE
@@ -65,11 +66,13 @@ NavelRock_Bottom_EventScript_Lugia::
 
 NavelRock_Bottom_EventScript_DefeatedLugia::
 	setflag FLAG_DEFEATED_LUGIA
-	setvar VAR_0x8004, SPECIES_LUGIA
+	ce_loadenc CE_ENC_LUGIA
+	copyvar VAR_0x8004, VAR_CE_ENC_SPECIES
 	goto Common_EventScript_LegendaryFlewAway
 	end
 
 NavelRock_Bottom_EventScript_RanFromLugia::
-	setvar VAR_0x8004, SPECIES_LUGIA
+	ce_loadenc CE_ENC_LUGIA
+	copyvar VAR_0x8004, VAR_CE_ENC_SPECIES
 	goto Common_EventScript_LegendaryFlewAway
 	end

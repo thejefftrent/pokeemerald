@@ -58,10 +58,11 @@ DesertRuins_EventScript_Regirock::
 	lock
 	faceplayer
 	waitse
-	playmoncry SPECIES_REGIROCK, CRY_MODE_ENCOUNTER
+	ce_loadenc CE_ENC_REGIROCK
+	playmoncry VAR_CE_ENC_SPECIES, CRY_MODE_ENCOUNTER
 	delay 40
 	waitmoncry
-	setwildbattle SPECIES_REGIROCK, 40
+	setwildbattle_ce CE_ENC_REGIROCK
 	setflag FLAG_SYS_CTRL_OBJ_DELETE
 	special StartRegiBattle
 	clearflag FLAG_SYS_CTRL_OBJ_DELETE
@@ -79,7 +80,8 @@ DesertRuins_EventScript_DefeatedRegirock::
 	end
 
 DesertRuins_EventScript_RanFromRegirock::
-	setvar VAR_0x8004, SPECIES_REGIROCK
+	ce_loadenc CE_ENC_REGIROCK
+	copyvar VAR_0x8004, VAR_CE_ENC_SPECIES
 	goto Common_EventScript_LegendaryFlewAway
 	end
 
