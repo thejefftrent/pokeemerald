@@ -6,6 +6,7 @@
 #include "pokedex.h"
 #include "pokemon.h"
 #include "pokemon_storage_system.h"
+#include "save.h"
 #include "script.h"
 #include "script_pokemon_util.h"
 #include "starter_choose.h"
@@ -48,6 +49,7 @@ static void PutRules(void)
     CeSelfTest_PutField("center", CeModes_CanHeal(CE_HEAL_CENTER));
     CeSelfTest_PutField("rest", CeModes_CanHeal(CE_HEAL_REST));
     CeSelfTest_PutField("noExp", rules->noExp);
+    CeSelfTest_PutField("whiteout", CeModes_WhiteoutEndsRun());
     CeSelfTest_LineEmit();
 }
 
@@ -230,6 +232,16 @@ static void ProbeBattleKinds(void)
     CeSelfTest_LineEmit();
 }
 
+// Addresses for the headless-mGBA scenario (tools/canary/whiteout.ts); checked by nothing else.
+static void ProbeScenario(void)
+{
+    CeSelfTest_LineStart("runLostScenario");
+    CeSelfTest_PutField("runLost", (u32)CB2_CeRunLost);
+    CeSelfTest_PutField("saveStatus", (u32)&gSaveFileStatus);
+    CeSelfTest_PutField("hp", offsetof(struct Pokemon, hp));
+    CeSelfTest_LineEmit();
+}
+
 void CeSelfTest_ProbeModes(void)
 {
     const struct CeSelfTestConfig *config = &gCeRomConfig.body.selfTest;
@@ -243,6 +255,7 @@ void CeSelfTest_ProbeModes(void)
     gBattleTypeFlags = 0;
     CeModes_OnNewGame();
 
+    ProbeScenario();
     PutRules();
     PutTables();
     // An area that is never used up in this probe.

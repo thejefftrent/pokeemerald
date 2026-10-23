@@ -1963,6 +1963,7 @@ void CB2_WhiteOut(void)
 
     if (++gMain.state >= 120)
     {
+        if (CeModes_TryEndRunOnWhiteout()) return; // CE: Nuzlocke whiteout ends the run (erases the save)
         FieldClearVBlankHBlankCallbacks();
         StopMapMusic();
         ResetSafariZoneFlag_();

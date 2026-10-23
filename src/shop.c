@@ -532,7 +532,7 @@ static void CB2_InitBuyMenu(void)
         sShopData->itemSpriteIds[0] = SPRITE_NONE;
         sShopData->itemSpriteIds[1] = SPRITE_NONE;
         if (sMartInfo.martType == MART_TYPE_NORMAL)
-            CeProgression_BuildShopItemList(&sMartInfo.itemList, &sMartInfo.itemCount); // CE: was TryBuildDynamicShopItemList; it still runs, plus QoL mart extras (mints, Linking Cord)
+            CeProgression_BuildShopItemList(&sMartInfo.itemList, &sMartInfo.itemCount); // CE: was TryBuildDynamicShopItemList; it still runs, plus QoL mart extras (ce/progression.h)
         BuyMenuBuildListMenuTemplate();
         BuyMenuInitBgs();
         FillBgTilemapBufferRect_Palette0(0, 0, 0, 0, 0x20, 0x20);

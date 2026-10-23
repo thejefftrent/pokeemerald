@@ -2,7 +2,9 @@
 #include "battle.h"
 #include "event_data.h"
 #include "item.h"
+#include "main.h"
 #include "malloc.h"
+#include "overworld.h"
 #include "pokedex.h"
 #include "pokemon.h"
 #include "script_pokemon_util.h"
@@ -213,4 +215,55 @@ TEST("CE: Nuzlocke: the last Pokémon isn't released while none is alive")
     EndWildBattle(SPECIES_POOCHYENA, FALSE, B_OUTCOME_LOST, 1 << 0);
     EXPECT(CeModes_IsDead(&gParties[B_TRAINER_PLAYER][0]));
     EXPECT_EQ(CalculatePlayerPartyCount(), 1);
+}
+
+TEST("CE: Nuzlocke: a whiteout ends the run only with the rule")
+{
+    struct CeModesConfig rules = {0};
+    bool32 nuzlocke = FALSE, whiteout = FALSE;
+
+    PARAMETRIZE { nuzlocke = TRUE; whiteout = TRUE; }
+    PARAMETRIZE { nuzlocke = TRUE; whiteout = FALSE; } // a Nuzlocke save from before the rule
+    PARAMETRIZE { nuzlocke = FALSE; whiteout = TRUE; }
+
+    rules.nuzlocke = nuzlocke;
+    rules.whiteoutEndsRun = whiteout;
+    rules.noCenterHeal = TRUE; // some rule, so the save has rules either way
+    CeTest_StartRun(&rules);
+    EXPECT_EQ(CeModes_WhiteoutEndsRun(), nuzlocke && whiteout);
+    if (!(nuzlocke && whiteout))
+        EXPECT(!CeModes_TryEndRunOnWhiteout()); // CB2_WhiteOut goes on with the usual whiteout
+}
+
+TEST("CE: Nuzlocke: no run ends without rules in the save")
+{
+    static const struct CeModesConfig rules = {0};
+
+    CeTest_StartRun(&rules);
+    EXPECT(!CeModes_SaveHasRules());
+    EXPECT(!CeModes_WhiteoutEndsRun());
+}
+
+static void StandInCallback1(void)
+{
+}
+
+TEST("CE: Nuzlocke: CB2_WhiteOut hands a lost run to the run-lost screen")
+{
+    static const struct CeModesConfig rules = { .nuzlocke = TRUE, .whiteoutEndsRun = TRUE };
+    MainCallback runner1 = gMain.callback1, runner2 = gMain.callback2, after1, after2;
+
+    CeTest_StartRun(&rules);
+    // CB2_WhiteOut waits 120 frames before the whiteout; this is its last one. The test
+    // runner is the main callback, so it is put back before anything is checked.
+    gMain.callback1 = StandInCallback1; // the overworld's, as after field poison
+    gMain.state = 119;
+    CB2_WhiteOut();
+    after1 = gMain.callback1;
+    after2 = gMain.callback2;
+    gMain.callback1 = runner1;
+    gMain.callback2 = runner2;
+    gMain.state = 0;
+    EXPECT(after2 == CB2_CeRunLost);
+    EXPECT(after1 == NULL);
 }

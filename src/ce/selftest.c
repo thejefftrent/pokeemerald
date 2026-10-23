@@ -260,6 +260,8 @@ void CeSelfTest_RunIfEnabled(void)
         CeSelfTest_ProbeLogic();
     if (CeSelfTest_ProbeThirdType != NULL)
         CeSelfTest_ProbeThirdType();
+    if (CeSelfTest_ProbeSprites != NULL)
+        CeSelfTest_ProbeSprites();
 
     LineStart();
     Put("CE:{\"probe\":\"done\"}");
