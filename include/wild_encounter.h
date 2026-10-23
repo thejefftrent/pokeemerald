@@ -45,7 +45,8 @@ struct WildPokemonHeader
 };
 
 
-extern const struct WildPokemonHeader gWildMonHeaders[];
+extern const struct WildPokemonHeader *const gCeWildMonHeaders; // CE: the header array in force; the website can repoint it
+#define gWildMonHeaders gCeWildMonHeaders // CE: every reader goes through the patchable pointer
 extern const struct WildPokemonHeader gBattlePikeWildMonHeaders[];
 extern const struct WildPokemonHeader gBattlePyramidWildMonHeaders[];
 extern const struct WildPokemon gWildFeebas;
