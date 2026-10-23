@@ -1,7 +1,8 @@
 #ifndef GUARD_CE_MODES_H
 #define GUARD_CE_MODES_H
 
-// Game modes: Nuzlocke, hard mode, monotype, single-Pokémon and no-heal challenges.
+// Game modes: Nuzlocke, hard mode, monotype, single-Pokémon, no-heal, no-evolution and
+// no-experience challenges.
 //
 // The website writes the rules into gCeRomConfig.body.modes. New Game copies them into the
 // save (struct CeModesSave, in spare SaveBlock2 space) together with the ROM's config hash,
@@ -38,7 +39,17 @@ struct CeModesConfig
     u8 noRestHeal;      // Mom, beds and rest stops don't heal
     // No evolutions
     u8 noEvolution;     // no Pokémon evolves, by any method (GetEvolutionTargetSpecies)
-    u8 reserved[2];
+    // No experience
+    u8 noExp;           // enum CeNoExp
+    u8 reserved[1];
+};
+
+// CeModesConfig.noExp: how Pokémon may still gain levels.
+enum CeNoExp
+{
+    CE_NO_EXP_OFF,
+    CE_NO_EXP_BATTLE, // no Exp. from any battle (Cmd_getexp); EVs are still gained
+    CE_NO_EXP_ALL,    // nor from Rare Candies, Exp. Candies or the Candy Jar, and the Day Care takes no Pokémon
 };
 
 // Spare SaveBlock2 space: struct Pokedex's old dex-flag filler (see global.h), next to the
@@ -135,6 +146,13 @@ bool32 CeModes_ForcesSetStyle(void);
 
 // No evolutions.
 bool32 CeModes_NoEvolution(void);
+
+// No experience: Cmd_getexp, ItemUseOutOfBattle_RareCandy and the Day Care lady's script.
+bool32 CeModes_NoBattleExp(void);
+bool32 CeModes_NoLevelItems(void);
+const u8 *CeModes_NoLevelItemsText(void);
+bool32 CeModes_DaycareClosed(void);
+void CeModes_ScriptDaycareGate(struct ScriptContext *ctx);
 
 // Single-Pokémon.
 u32 CeModes_PartyLimit(void);

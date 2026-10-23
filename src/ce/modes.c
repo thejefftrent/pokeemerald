@@ -40,9 +40,11 @@ static const u8 sText_Dupe[] = _("You already own a POKéMON of\nthis evolution 
 static const u8 sText_Monotype[] = _("Only {STR_VAR_1}-type POKéMON\ncan be caught on this run!\p");
 static const u8 sText_Species[] = _("Only the {STR_VAR_1} family\ncan be caught on this run!\p");
 static const u8 sText_NoItems[] = _("Items can't be used in battle\non this run!\p");
+static const u8 sText_NoLevels[] = _("POKéMON can't gain levels\non this run!{PAUSE_UNTIL_PRESS}");
 
 extern const u8 CeEventScript_CenterHealRefused[];
 extern const u8 CeEventScript_RestHealRefused[];
+extern const u8 CeEventScript_DaycareRefused[];
 
 bool32 CeModes_SaveHasRules(void)
 {
@@ -195,6 +197,40 @@ const u8 *CeModes_NoItemsText(void)
 bool32 CeModes_NoEvolution(void)
 {
     return CeModes_Rules()->noEvolution;
+}
+
+static enum CeNoExp NoExp(void)
+{
+    return CeModes_Rules()->noExp;
+}
+
+// Every battle, exempt ones included: secret bases and the first battle give Exp. too.
+bool32 CeModes_NoBattleExp(void)
+{
+    return NoExp() >= CE_NO_EXP_BATTLE;
+}
+
+// Every item that uses ItemUseOutOfBattle_RareCandy: Rare Candy, Exp. Candies, the Candy Jar.
+bool32 CeModes_NoLevelItems(void)
+{
+    return NoExp() >= CE_NO_EXP_ALL;
+}
+
+const u8 *CeModes_NoLevelItemsText(void)
+{
+    return sText_NoLevels;
+}
+
+bool32 CeModes_DaycareClosed(void)
+{
+    return NoExp() >= CE_NO_EXP_ALL;
+}
+
+void CeModes_ScriptDaycareGate(struct ScriptContext *ctx)
+{
+    Script_RequestEffects(SCREFF_V1);
+    if (CeModes_DaycareClosed())
+        ScriptJump(ctx, CeEventScript_DaycareRefused);
 }
 
 bool32 CeModes_ForcesSetStyle(void)

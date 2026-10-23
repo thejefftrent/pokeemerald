@@ -16,6 +16,7 @@
 
 extern const u8 CeEventScript_CenterHealRefused[];
 extern const u8 CeEventScript_RestHealRefused[];
+extern const u8 CeEventScript_DaycareRefused[];
 
 TEST("CE: Modes: New Game copies the rules and the config hash into the save")
 {
@@ -118,6 +119,34 @@ TEST("CE: No-heal: Pokémon Center and rest heals are refused by the rules")
     memset(&ctx, 0, sizeof(ctx));
     CeModes_ScriptRestHealGate(&ctx);
     EXPECT(ctx.scriptPtr == (rest ? CeEventScript_RestHealRefused : NULL));
+}
+
+TEST("CE: No-experience: Rare Candies and the Day Care are refused only with the strict option")
+{
+    struct CeModesConfig rules = {0};
+    struct ScriptContext ctx;
+    u32 noExp = CE_NO_EXP_OFF;
+
+    PARAMETRIZE { noExp = CE_NO_EXP_OFF; }
+    PARAMETRIZE { noExp = CE_NO_EXP_BATTLE; }
+    PARAMETRIZE { noExp = CE_NO_EXP_ALL; }
+
+    rules.noExp = noExp;
+    rules.monotype = TYPE_NORMAL; // keep the rules non-empty in every run
+    CeTest_StartRun(&rules);
+    EXPECT_EQ(CeModes_NoBattleExp(), noExp != CE_NO_EXP_OFF);
+    EXPECT_EQ(CeModes_NoLevelItems(), noExp == CE_NO_EXP_ALL);
+    EXPECT_EQ(CeModes_DaycareClosed(), noExp == CE_NO_EXP_ALL);
+
+    // Exempt battles give no Exp. either: secret bases and the first battle would otherwise.
+    gBattleTypeFlags = BATTLE_TYPE_TRAINER | BATTLE_TYPE_SECRET_BASE;
+    EXPECT_EQ(CeModes_NoBattleExp(), noExp != CE_NO_EXP_OFF);
+    gBattleTypeFlags = 0;
+
+    // The Day Care lady's script native jumps to the refusal instead of taking a Pokémon.
+    memset(&ctx, 0, sizeof(ctx));
+    CeModes_ScriptDaycareGate(&ctx);
+    EXPECT(ctx.scriptPtr == (noExp == CE_NO_EXP_ALL ? CeEventScript_DaycareRefused : NULL));
 }
 
 TEST("CE: Hard mode: no bag in trainer battles, only Poké Balls in wild ones")
