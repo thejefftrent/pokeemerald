@@ -20,3 +20,11 @@ AUTO_GEN_TARGETS += $(CE_ENCOUNTERS_OUT)
 $(CE_ENCOUNTERS_OUT) &: $(CE_ENCOUNTERS_JSON) tools/ce/gen_encounters.py ce-force
 	@python3 tools/ce/gen_encounters.py $(CE_ENCOUNTERS_JSON) $(CE_ENCOUNTERS_OUT)
 	@tools/ce/check_encounter_scripts.sh
+
+# Item gifts and Poké Marts in the map scripts (include/ce/items.h), for the website. Always
+# runs: the generator only rewrites the header when the scripts change.
+CE_FIELD_ITEMS_OUT := $(DATA_SRC_SUBDIR)/ce_field_items.h
+AUTO_GEN_TARGETS += $(CE_FIELD_ITEMS_OUT)
+
+$(CE_FIELD_ITEMS_OUT): tools/ce/gen_field_items.py ce-force
+	@python3 tools/ce/gen_field_items.py $@
