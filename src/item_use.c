@@ -904,6 +904,7 @@ void ItemUseOutOfBattle_PPUp(u8 taskId)
 void ItemUseOutOfBattle_RareCandy(u8 taskId)
 {
     if (CeKeyItems_BlockPartyItemUse(taskId)) return; // CE: Candy Jar on Select with no Pokemon
+    if (CeModes_NoLevelItems()) { DisplayCannotUseItemMessage(taskId, gTasks[taskId].tUsingRegisteredKeyItem, CeModes_NoLevelItemsText()); return; } // CE: no-experience mode, no Rare Candies
     gItemUseCB = ItemUseCB_RareCandy;
     SetUpItemUseCallback(taskId);
 }

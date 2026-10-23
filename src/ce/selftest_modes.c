@@ -7,6 +7,7 @@
 #include "pokemon.h"
 #include "pokemon_storage_system.h"
 #include "save.h"
+#include "script.h"
 #include "script_pokemon_util.h"
 #include "starter_choose.h"
 #include "ce/modes.h"
@@ -25,6 +26,8 @@
 // The two Nuzlocke areas the scenario uses.
 #define PROBE_MAPSEC_A MAPSEC_ROUTE_104
 #define PROBE_MAPSEC_B MAPSEC_ROUTE_116
+
+extern const u8 CeEventScript_DaycareRefused[];
 
 static void PutRules(void)
 {
@@ -45,6 +48,7 @@ static void PutRules(void)
     CeSelfTest_PutField("limit", CeModes_PartyLimit());
     CeSelfTest_PutField("center", CeModes_CanHeal(CE_HEAL_CENTER));
     CeSelfTest_PutField("rest", CeModes_CanHeal(CE_HEAL_REST));
+    CeSelfTest_PutField("noExp", rules->noExp);
     CeSelfTest_PutField("whiteout", CeModes_WhiteoutEndsRun());
     CeSelfTest_LineEmit();
 }
@@ -180,6 +184,25 @@ static void ProbeHardMode(void)
     CeSelfTest_LineEmit();
 }
 
+// No experience: battle Exp. (in every kind of battle), the level items and the Day Care lady.
+static void ProbeNoExp(void)
+{
+    struct ScriptContext ctx;
+
+    CeSelfTest_LineStart("modesExp");
+    gBattleTypeFlags = 0;
+    CeSelfTest_PutField("battleWild", CeModes_NoBattleExp());
+    gBattleTypeFlags = BATTLE_TYPE_SECRET_BASE | BATTLE_TYPE_TRAINER;
+    CeSelfTest_PutField("battleExempt", CeModes_NoBattleExp());
+    gBattleTypeFlags = 0;
+    CeSelfTest_PutField("levelItems", CeModes_NoLevelItems());
+    CeSelfTest_PutField("daycareClosed", CeModes_DaycareClosed());
+    memset(&ctx, 0, sizeof(ctx));
+    CeModes_ScriptDaycareGate(&ctx);
+    CeSelfTest_PutField("daycareGate", ctx.scriptPtr == CeEventScript_DaycareRefused);
+    CeSelfTest_LineEmit();
+}
+
 // Which battles the rules treat as exempt (rule-independent).
 static void ProbeBattleKinds(void)
 {
@@ -245,5 +268,6 @@ void CeSelfTest_ProbeModes(void)
     ProbeDeath(starter);
     ProbePartyLimit(starter);
     ProbeHardMode();
+    ProbeNoExp();
     ProbeBattleKinds();
 }

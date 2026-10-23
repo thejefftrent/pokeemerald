@@ -4,7 +4,8 @@
 
 // CE battle tests. test/battle.h redefines PARAMETRIZE for battle tests, so they live apart
 // from the function tests. The runner plays recorded battles, which game modes exempt like
-// real ones (see modes_nuzlocke.c), so only QoL, caps and battle settings are tested here.
+// real ones (see modes_nuzlocke.c), so only QoL, caps, battle settings and the one mode rule
+// that holds in every battle (no experience) are tested here.
 
 WILD_BATTLE_TEST("CE: Party Exp. Share gives Exp. to Pokémon that didn't fight")
 {
@@ -93,6 +94,61 @@ WILD_BATTLE_TEST("CE: Battle Exp. stops at the level cap")
         {
             EXPECT_GT(GetMonData(&gParties[B_TRAINER_PLAYER][0], MON_DATA_LEVEL), cap);
         }
+    }
+}
+
+WILD_BATTLE_TEST("CE: No-experience mode: no Exp. from battles, but EVs are still gained")
+{
+    struct CeModesConfig rules = {0};
+    u32 noExp = CE_NO_EXP_OFF;
+    u32 startExp = gExperienceTables[gSpeciesInfo[SPECIES_WOBBUFFET].growthRate][10];
+
+    PARAMETRIZE { noExp = CE_NO_EXP_OFF; }
+    PARAMETRIZE { noExp = CE_NO_EXP_BATTLE; }
+    PARAMETRIZE { noExp = CE_NO_EXP_ALL; }
+
+    GIVEN {
+        ASSUME(gSpeciesInfo[SPECIES_CATERPIE].evYield_HP == 1);
+        rules.noExp = noExp;
+        CeTest_StartRun(&rules);
+        PLAYER(SPECIES_WOBBUFFET) { Level(10); }
+        OPPONENT(SPECIES_CATERPIE) { Level(10); HP(1); }
+    } WHEN {
+        TURN { MOVE(player, MOVE_SCRATCH); }
+    } SCENE {
+        MESSAGE("The wild Caterpie fainted!");
+        if (noExp == CE_NO_EXP_OFF)
+            EXPERIENCE_BAR(player);
+        else
+            NOT EXPERIENCE_BAR(player);
+    } THEN {
+        if (noExp == CE_NO_EXP_OFF)
+            EXPECT_GT(GetMonData(&gParties[B_TRAINER_PLAYER][0], MON_DATA_EXP), startExp);
+        else
+            EXPECT_EQ(GetMonData(&gParties[B_TRAINER_PLAYER][0], MON_DATA_EXP), startExp);
+        EXPECT_EQ(GetMonData(&gParties[B_TRAINER_PLAYER][0], MON_DATA_HP_EV), 1);
+    }
+}
+
+WILD_BATTLE_TEST("CE: No-experience mode: no Exp. through the party Exp. Share either")
+{
+    struct CeModesConfig rules = { .noExp = CE_NO_EXP_BATTLE };
+    u32 startExp = gExperienceTables[gSpeciesInfo[SPECIES_WYNAUT].growthRate][40];
+
+    GIVEN {
+        CeTest_SetQol(CE_QOL_EXP_SHARE_ALL, CE_QOL_MODE_ON);
+        CeTest_StartRun(&rules);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WYNAUT) { Level(40); }
+        OPPONENT(SPECIES_CATERPIE) { Level(10); HP(1); }
+    } WHEN {
+        TURN { MOVE(player, MOVE_SCRATCH); }
+    } SCENE {
+        MESSAGE("The wild Caterpie fainted!");
+        NOT MESSAGE("The rest of your team gained Exp. Points thanks to the Exp. Share!");
+    } THEN {
+        EXPECT_EQ(GetMonData(&gParties[B_TRAINER_PLAYER][1], MON_DATA_EXP), startExp);
+        EXPECT_EQ(GetMonData(&gParties[B_TRAINER_PLAYER][1], MON_DATA_HP_EV), 1);
     }
 }
 

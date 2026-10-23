@@ -2288,6 +2288,7 @@ static void Cmd_getexp(void)
                     gBattleStruct->wildVictorySong++;
                 }
 
+                if (CeModes_NoBattleExp()) { if (IsValidForBattle(&gParties[B_TRAINER_PLAYER][*expMonId])) MonGainEVs(&gParties[B_TRAINER_PLAYER][*expMonId], faintedSpecies); gBattleStruct->battlerExpReward = 0; gBattleScripting.getexpState = 5; break; } // CE: no-experience mode, EVs only (after the victory music)
                 if (IsValidForBattle(&gParties[B_TRAINER_PLAYER][*expMonId]))
                 {
                     if (wasSentOut)
