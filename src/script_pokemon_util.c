@@ -69,6 +69,7 @@ u8 ScriptGiveEgg(enum Species species)
     struct Pokemon mon;
     u8 isEgg;
 
+    if (CeTeam_RefusesNewMons()) return MON_CANT_GIVE; // CE: static team, no gift eggs
     CreateEgg(&mon, species, TRUE);
     isEgg = TRUE;
     SetMonData(&mon, MON_DATA_IS_EGG, &isEgg);

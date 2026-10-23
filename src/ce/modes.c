@@ -10,6 +10,7 @@
 #include "string_util.h"
 #include "ce/modes.h"
 #include "ce/rom_config.h"
+#include "ce/team.h"
 #include "constants/battle.h"
 #include "constants/flags.h"
 #include "constants/layouts.h"
@@ -133,6 +134,8 @@ enum CeCatchBlock CeModes_CurrentCatchBlock(void)
 {
     struct Pokemon *mon;
 
+    if (CeTeam_BlocksCatching())
+        return CE_CATCH_STATIC_TEAM;
     if (!CeModes_SaveHasRules())
         return CE_CATCH_OK;
     mon = GetBattlerMon(GetCatchingBattler());
@@ -155,6 +158,8 @@ const u8 *CeModes_CatchBlockedText(void)
     case CE_CATCH_SPECIES:
         StringCopy(gStringVar1, GetSpeciesName(CeModes_FamilyRoot(rules->onlySpecies)));
         return sText_Species;
+    case CE_CATCH_STATIC_TEAM:
+        return CeTeam_CatchBlockedText();
     default:
         return NULL;
     }
@@ -185,6 +190,11 @@ bool32 CeModes_BlocksBattleItem(u16 item)
 const u8 *CeModes_NoItemsText(void)
 {
     return sText_NoItems;
+}
+
+bool32 CeModes_NoEvolution(void)
+{
+    return CeModes_Rules()->noEvolution;
 }
 
 bool32 CeModes_ForcesSetStyle(void)

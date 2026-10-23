@@ -23,7 +23,7 @@ void CeStart_OnNewGame(void)
         CpuFastFill(0, gSaveBlock1Ptr->pcItems, sizeof(gSaveBlock1Ptr->pcItems));
         for (i = 0; i < CE_START_PC_ITEMS && config->pc[i].item != ITEM_NONE; i++)
         {
-            if (IsValidEntry(&config->pc[i]))
+            if (IsValidEntry(&config->pc[i]) && config->pcBadges[i] == 0)
                 AddPCItem(config->pc[i].item, min(config->pc[i].quantity, MAX_PC_ITEM_CAPACITY));
         }
     }

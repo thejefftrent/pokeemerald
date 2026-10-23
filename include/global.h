@@ -27,6 +27,7 @@
 #include "constants/moves.h"
 #include "config/save.h"
 #include "ce/modes.h" // CE: struct CeModesSave lives in struct Pokedex
+#include "ce/team.h" // CE: struct CeTeamSave lives in struct Pokedex
 
 // Prevent cross-jump optimization.
 #define BLOCK_CROSS_JUMP asm("");
@@ -289,8 +290,9 @@ struct Pokedex
     /*0x10*/ u32 ceQolChosen[2]; // CE: bit n set = the player picked QoL feature n themselves
     /*0x18*/ u32 ceQolValue[2];  // CE: bit n = that pick; ignored while the chosen bit is clear
     /*0x20*/ struct CeModesSave ceModes; // CE: game-mode rules of this run (ce/modes.h)
+    /*0x54*/ struct CeTeamSave ceTeam; // CE: static team and badge-timed PC deliveries (ce/team.h)
 #if FREE_EXTRA_SEEN_FLAGS_SAVEBLOCK2 == FALSE
-    /*0x54*/ u8 filler[0x24]; // Previously Dex Flags, feel free to remove. CE: was 0x68, never written
+    /*0x64*/ u8 filler[0x14]; // Previously Dex Flags, feel free to remove. CE: was 0x68, never written
 #endif //FREE_EXTRA_SEEN_FLAGS_SAVEBLOCK2
 };
 

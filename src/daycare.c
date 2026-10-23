@@ -605,6 +605,7 @@ u32 GetChildNature(struct DayCare *daycare)
 
 static void _TriggerPendingDaycareEgg(struct DayCare *daycare)
 {
+    if (CeTeam_RefusesNewMons()) return; // CE: static team, the Day Care never finds an egg
     FlagSet(FLAG_PENDING_DAYCARE_EGG);
 }
 

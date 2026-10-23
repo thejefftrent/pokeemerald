@@ -4408,6 +4408,7 @@ enum Species GetEvolutionTargetSpecies(struct Pokemon *mon, enum EvolutionMode m
 
     if (evolutions == NULL)
         return SPECIES_NONE;
+    if (CeModes_NoEvolution()) return SPECIES_NONE; // CE: no-evolution mode, every method
 
     holdEffect = GetItemHoldEffect(heldItem);
 
@@ -6663,6 +6664,7 @@ u32 GiveScriptedMonToPlayer(struct Pokemon *mon, u8 slot)
 {
     u32 sentToPc;
     u32 i = 0;
+    if (CeTeam_RefusesNewMons()) return MON_CANT_GIVE; // CE: static team, no gift Pokémon
     if (slot < PARTY_SIZE)
     {
         CopyMon(&gParties[B_TRAINER_PLAYER][slot], mon, sizeof(struct Pokemon));
