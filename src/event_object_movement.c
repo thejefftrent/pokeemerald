@@ -2419,7 +2419,7 @@ bool32 IsFollowerVisible(void)
 
 static bool8 SpeciesHasType(enum Species species, u8 type)
 {
-    return GetSpeciesType(species, 0) == type || GetSpeciesType(species, 1) == type;
+    return CeSpecies_IsOfType(species, type); // CE: counts the third type
 }
 
 // Display an emote above an object event

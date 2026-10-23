@@ -843,7 +843,7 @@ static inline bool32 IsBattleMoveStatus(enum Move move)
 {                                                                                    \
     gBattleMons[battler].types[0] = GetSpeciesType(gBattleMons[battler].species, 0); \
     gBattleMons[battler].types[1] = GetSpeciesType(gBattleMons[battler].species, 1); \
-    gBattleMons[battler].types[2] = TYPE_MYSTERY;                                    \
+    gBattleMons[battler].types[2] = CeSpecies_GetThirdType(gBattleMons[battler].species); /* CE: innate third type */ \
 }
 
 // NOTE: The members of this struct have hard-coded offsets

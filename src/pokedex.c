@@ -4984,7 +4984,7 @@ static int DoPokedexSearch(u8 dexMode, u8 order, u8 abcGroup, enum BodyColor bod
 
                     types[0] = GetSpeciesType(species, 0);
                     types[1] = GetSpeciesType(species, 1);
-                    if (types[0] == type1 || types[1] == type1)
+                    if (types[0] == type1 || types[1] == type1 || CeSpecies_GetThirdType(species) == type1) // CE: search finds third types
                     {
                         sPokedexView->pokedexList[resultsCount] = sPokedexView->pokedexList[i];
                         resultsCount++;
@@ -5002,7 +5002,7 @@ static int DoPokedexSearch(u8 dexMode, u8 order, u8 abcGroup, enum BodyColor bod
 
                     types[0] = GetSpeciesType(species, 0);
                     types[1] = GetSpeciesType(species, 1);
-                    if ((types[0] == type1 && types[1] == type2) || (types[0] == type2 && types[1] == type1))
+                    if ((types[0] == type1 && types[1] == type2) || (types[0] == type2 && types[1] == type1) || (CeSpecies_GetThirdType(species) != TYPE_MYSTERY && CeSpecies_IsOfType(species, type1) && CeSpecies_IsOfType(species, type2))) // CE: search finds third types
                     {
                         sPokedexView->pokedexList[resultsCount] = sPokedexView->pokedexList[i];
                         resultsCount++;

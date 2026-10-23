@@ -382,6 +382,7 @@ void SetBattlerData(enum BattlerId battlerId)
             {
                 gBattleMons[battlerId].types[0] = GetSpeciesType(illusionSpecies, 0);
                 gBattleMons[battlerId].types[1] = GetSpeciesType(illusionSpecies, 1);
+                if (gBattleMons[battlerId].types[2] == CeSpecies_GetThirdType(species)) gBattleMons[battlerId].types[2] = CeSpecies_GetThirdType(illusionSpecies); // CE: disguise's third type
             }
             species = illusionSpecies;
         }
