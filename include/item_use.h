@@ -57,6 +57,7 @@ enum {
     BALL_THROW_UNABLE_SEMI_INVULNERABLE,
     BALL_THROW_ABLE,
     BALL_THROW_UNABLE_DISABLED_FLAG,
+    BALL_THROW_UNABLE_CE_RULES, // CE: game-mode catch rules
 };
 
 bool32 CanThrowBall(void);

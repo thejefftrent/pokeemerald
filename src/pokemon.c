@@ -2952,7 +2952,7 @@ u8 GiveCapturedMonToPlayer(struct Pokemon *mon)
             break;
     }
 
-    if (i >= PARTY_SIZE)
+    if (i >= CeModes_PartyLimit()) // CE: single-Pokémon party limit
         return CopyMonToPC(mon);
 
     CopyMon(&gParties[B_TRAINER_PLAYER][i], mon, sizeof(*mon));
@@ -3461,6 +3461,7 @@ bool8 PokemonUseItemEffects(struct Pokemon *mon, enum Item item, u8 partyIndex, 
     // Determine the EV cap to use
     u32 maxAllowedEVs = !B_EV_ITEMS_CAP ? MAX_TOTAL_EVS : GetCurrentEVCap();
 
+    if (CeModes_IsDead(mon)) return TRUE; // CE: Nuzlocke, items don't work on the dead
     // Get item hold effect
     heldItem = GetMonData(mon, MON_DATA_HELD_ITEM);
     holdEffect = GetItemHoldEffect(heldItem);
@@ -6454,6 +6455,7 @@ void HealPokemon(struct Pokemon *mon)
 {
     u32 data;
 
+    if (CeModes_IsDead(mon)) return; // CE: Nuzlocke, the dead stay fainted
     data = GetMonData(mon, MON_DATA_MAX_HP);
     SetMonData(mon, MON_DATA_HP, &data);
 
@@ -6467,6 +6469,7 @@ void HealBoxPokemon(struct BoxPokemon *boxMon)
 {
     u32 data;
 
+    if (CeModes_IsDeadBox(boxMon)) return; // CE: Nuzlocke, the dead stay fainted
     data = 0;
     SetBoxMonData(boxMon, MON_DATA_HP_LOST, &data);
 
@@ -6671,7 +6674,7 @@ u32 GiveScriptedMonToPlayer(struct Pokemon *mon, u8 slot)
             if (GetMonData(&gParties[B_TRAINER_PLAYER][i], MON_DATA_SPECIES) == SPECIES_NONE)
                 break;
         }
-        if (i >= PARTY_SIZE)
+        if (i >= CeModes_PartyLimit()) // CE: single-Pokémon party limit
         {
             sentToPc = CopyMonToPC(mon);
         }

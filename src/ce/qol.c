@@ -71,12 +71,14 @@ bool32 CeOptions_IsLocked(enum CeVanillaOption option)
 #if TESTING
     return FALSE;
 #else
+    if (option == CE_VOPT_BATTLE_STYLE && CeModes_ForcesSetStyle()) return TRUE; // CE modes: hard mode, from the save
     return option < CE_VOPT_COUNT && gCeRomConfig.body.qol.vanillaOptionLock[option] != 0;
 #endif
 }
 
 u32 CeOptions_Effective(enum CeVanillaOption option, u32 saved)
 {
+    if (option == CE_VOPT_BATTLE_STYLE && CeModes_ForcesSetStyle()) return OPTIONS_BATTLE_STYLE_SET; // CE modes: hard mode, from the save
     if (!CeOptions_IsLocked(option))
         return saved;
     return gCeRomConfig.body.qol.vanillaOptionLock[option] - 1;
