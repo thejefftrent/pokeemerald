@@ -1,5 +1,6 @@
 #include "global.h"
 #include "malloc.h"
+#include "ce/qol.h" // CE: following Pokémon gate
 #include "battle_anim.h"
 #include "battle_pyramid.h"
 #include "battle_util.h"
@@ -2353,6 +2354,7 @@ void UpdateFollowingPokemon(void)
     // 4. a follower NPC is present
     if (OW_POKEMON_OBJECT_EVENTS == FALSE
      || OW_FOLLOWERS_ENABLED == FALSE
+     || !CeQol_IsOn(CE_QOL_FOLLOWERS) // CE: following Pokémon are a QoL feature, off in the base ROM
      || FlagGet(B_FLAG_FOLLOWERS_DISABLED)
      || !GetFollowerInfo(&species, &shiny, &female)
      || SpeciesToGraphicsInfo(species, shiny, female) == NULL

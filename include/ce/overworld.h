@@ -13,6 +13,7 @@
 //   src/trainer_see.c          CheckForTrainersWantingBattle  CE_QOL_NO_TRAINER_SIGHT
 //   src/overworld.c            LoadMapFromCameraTransition    CE_QOL_HIDE_REPEAT_MAP_POPUP
 //   src/overworld.c            ScriptShow/HideItemDescription CE_QOL_ITEM_DESCRIPTIONS
+//   src/event_object_movement.c UpdateFollowingPokemon        CE_QOL_FOLLOWERS (spawns nothing while off)
 // The gates are read on every step, frame, map change or script command, never cached, so a
 // feature flipped from the options menu takes effect on the next step.
 
