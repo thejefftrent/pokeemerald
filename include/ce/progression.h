@@ -8,7 +8,10 @@
 //   src/item.c                  GetItemImportance               CE_QOL_REUSABLE_TMS
 //   src/item.c                  GetItemType, GetItemFieldFunc   CE_QOL_TRADE_EVOS_WITHOUT_TRADE
 //   src/shop.c                  CB2_InitBuyMenu                 CE_QOL_NATURE_MINTS,
-//                                                               CE_QOL_TRADE_EVOS_WITHOUT_TRADE
+//                                                               CE_QOL_TRADE_EVOS_WITHOUT_TRADE,
+//                                                               CE_QOL_MEGA_STONES, CE_QOL_Z_CRYSTALS,
+//                                                               CE_QOL_GEMS_PLATES_MEMORIES
+//   data/maps/LittlerootTown_BrendansHouse_2F, _MaysHouse_2F  OnTransition  CE_QOL_ROOM_SELLERS
 //   src/battle_util.c           GetAttackerObedienceForAction   CE_QOL_ALWAYS_OBEY
 //   src/battle_util.c           IsGen6ExpShareEnabled           CE_QOL_EXP_SHARE_ALL
 //   src/battle_main.c           ClearSetBScriptingStruct        CE_QOL_CATCH_EXP
@@ -35,9 +38,30 @@ bool32 CeProgression_IsBagEvoItem(enum Item itemId);
 bool32 CeProgression_InFrontierChallenge(void);
 
 // CB2_InitBuyMenu, normal marts: upstream's dynamic list, plus the items an enabled feature
-// sells in this map's mart (nature mints in the Lavaridge Herb Shop, the Linking Cord in the
-// Mauville Poké Mart). The list is on the heap and TryFreeDynamicShopItemList frees it.
+// sells in this map's mart: nature mints in the Lavaridge Herb Shop, the Linking Cord in the
+// Mauville Poké Mart, Gems, Plates and Memories in Slateport's, Z-Crystals in Fortree's and
+// Mega Stones in Mossdeep's. The list is on the heap and TryFreeDynamicShopItemList frees it.
 void CeProgression_BuildShopItemList(const u16 **itemList, u16 *itemCount);
+
+// The QoL shops' stock (ITEM_NONE-terminated). The town marts above add them, and with
+// CE_QOL_ROOM_SELLERS a seller in the player's room sells each (data/scripts/ce/room_sellers.inc):
+//   gCeShopNatureMints         CE_QOL_NATURE_MINTS
+//   gCeShopEvolutionItems      CE_QOL_TRADE_EVOS_WITHOUT_TRADE (Mauville adds the Linking Cord only)
+//   gCeShopMegaStones          CE_QOL_MEGA_STONES, with the Mega Ring
+//   gCeShopZCrystals           CE_QOL_Z_CRYSTALS, with the Z-Power Ring
+//   gCeShopGemsPlatesMemories  CE_QOL_GEMS_PLATES_MEMORIES
+extern const u16 gCeShopNatureMints[];
+extern const u16 gCeShopEvolutionItems[];
+extern const u16 gCeShopMegaStones[];
+extern const u16 gCeShopZCrystals[];
+extern const u16 gCeShopGemsPlatesMemories[];
+
+// The bedrooms' OnTransition (callnative CeProgression_ScriptUpdateRoomSellers): a seller stands
+// in the player's own bedroom while CE_QOL_ROOM_SELLERS and its feature are on; every other one
+// (and all of them in the rival's room) gets its hide flag, a temp flag the next map load clears.
+void CeProgression_UpdateRoomSellers(void);
+struct ScriptContext;
+void CeProgression_ScriptUpdateRoomSellers(struct ScriptContext *ctx);
 
 // TryToHatchEgg: steps per Egg cycle. With CE_QOL_FAST_EGG_HATCHING a cycle takes a quarter of
 // the steps, so every Egg hatches four times as fast (Flame Body still halves it again).
