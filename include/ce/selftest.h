@@ -24,5 +24,6 @@ void CeSelfTest_ProbeItems(void) __attribute__((weak));
 void CeSelfTest_ProbeStart(void) __attribute__((weak));
 void CeSelfTest_ProbeSeedHash(void) __attribute__((weak));
 void CeSelfTest_ProbeTeam(void) __attribute__((weak));
+void CeSelfTest_ProbeLogic(void) __attribute__((weak));
 
 #endif // GUARD_CE_SELFTEST_H
