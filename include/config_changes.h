@@ -24,7 +24,8 @@ struct ConfigChanges
 extern struct ConfigChanges *gConfigChangesTestOverride;
 #define GET_CONFIG_VALUE(_field, _default) (gConfigChangesTestOverride == NULL ? (_default) : gConfigChangesTestOverride->_field)
 #else
-#define GET_CONFIG_VALUE(_field, _default) (_default)
+extern const struct ConfigChanges sConfigChanges; // CE: defined CE_PATCHABLE in config_changes.c
+#define GET_CONFIG_VALUE(_field, _default) (sConfigChanges._field) // CE: read battle settings from ROM so the website can patch them
 #endif
 
 #define UNPACK_BATTLE_CONFIG_GETTER(_name, _field, ...) static inline u32 GetConfig_##_name(void) { return GET_CONFIG_VALUE(_field, _name); }
