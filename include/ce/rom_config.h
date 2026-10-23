@@ -91,4 +91,18 @@ struct CeRomConfig
 
 extern const struct CeRomConfig gCeRomConfig;
 
+#if TESTING
+// Test builds (make check) read the config through a RAM copy that tests edit (ce/test.h),
+// the way expansion's gConfigChangesTestOverride works for battle settings. TestInitConfigData
+// makes the copy before each test and TestFreeConfigData frees it; while there is none, reads
+// fall through to the ROM table. Release builds read gCeRomConfig directly.
+extern struct CeRomConfig *gCeRomConfigTestOverride;
+void CeTest_InitRomConfig(void);
+void CeTest_FreeRomConfig(void);
+// Files that need the ROM table itself (its definition, pointers to it) define this first.
+#ifndef CE_ROM_CONFIG_NO_TEST_OVERRIDE
+#define gCeRomConfig (*(gCeRomConfigTestOverride != NULL ? (const struct CeRomConfig *)gCeRomConfigTestOverride : &gCeRomConfig))
+#endif
+#endif
+
 #endif // GUARD_CE_ROM_CONFIG_H

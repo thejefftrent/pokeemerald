@@ -41,6 +41,7 @@
 #include "window.h"
 #include "mystery_gift_menu.h"
 #include "ce/seed_hash.h" // CE:
+#include "ce/rules_warning.h" // CE:
 
 /*
  * Main menu state machine
@@ -666,6 +667,7 @@ static void Task_MainMenuCheckSaveFile(u8 taskId)
             if (IsMysteryGiftEnabled())
                 tMenuType++;
             gTasks[taskId].func = Task_MainMenuCheckBattery;
+            if (CeRulesWarning_ShouldShow()) { CreateMainMenuErrorWindow(CeRulesWarning_Text()); gTasks[taskId].func = Task_WaitForSaveFileErrorWindow; } // CE: once, if this ROM's challenge rules differ from the save's
             break;
         case SAVE_STATUS_CORRUPT:
             CreateMainMenuErrorWindow(gText_SaveFileErased);

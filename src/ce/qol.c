@@ -33,11 +33,13 @@ bool32 CeQol_IsPlayerChoice(enum CeQolFeature feature)
 
 bool32 CeQol_IsOn(enum CeQolFeature feature)
 {
-#if TESTING
-    return feature < CE_QOL_COUNT && sCeQolUpstream[feature];
-#else
     u32 word = feature / 32, bit = 1u << (feature % 32);
 
+#if TESTING
+    // Outside a test's setUp/tearDown there is no config copy (ce/rom_config.h).
+    if (gCeRomConfigTestOverride == NULL)
+        return feature < CE_QOL_COUNT && sCeQolUpstream[feature];
+#endif
     switch (CeQol_GetMode(feature))
     {
     case CE_QOL_MODE_ON:
@@ -50,7 +52,6 @@ bool32 CeQol_IsOn(enum CeQolFeature feature)
     default:
         return FALSE;
     }
-#endif
 }
 
 void CeQol_SetPlayerValue(enum CeQolFeature feature, bool32 on)

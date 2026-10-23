@@ -14,7 +14,8 @@
 // APPEND ONLY: a feature's index is its bit in the save file and its byte in the config.
 //
 // X(id, upstream): upstream = whether pokeemerald-expansion's own config enables the
-// behaviour; TESTING builds use it so upstream's test suite keeps passing.
+// behaviour; TESTING builds start every test with it so upstream's test suite keeps passing
+// (CE tests switch features with CeTest_SetQol, ce/test.h).
 #define CE_QOL_FEATURES(X)                          \
     X(CE_QOL_LEVEL_CAPS,             FALSE)         \
     X(CE_QOL_RUN_INDOORS,            TRUE)          \
@@ -62,7 +63,8 @@ enum CeQolFeature
 };
 #undef CE_QOL_ENUM_ENTRY
 
-// Room reserved in the config block and the save; CE_QOL_COUNT must never exceed it.
+// Room reserved in the config block and the save; CE_QOL_COUNT must stay below it (the save's
+// last value bit is the rules warning's, ce/rules_warning.h).
 #define CE_QOL_MAX 64
 
 enum CeQolMode
