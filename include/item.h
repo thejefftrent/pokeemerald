@@ -133,36 +133,18 @@ static inline enum TMHMIndex GetItemTMHMIndex(enum Item item)
 
 static inline enum Move GetItemTMHMMoveId(enum Item item)
 {
-    switch (item)
-    {
-    /* Expands to:
-        * case ITEM_TM_FOCUS_PUNCH:
-        *     return MOVE_FOCUS_PUNCH;
-        * case ITEM_TM_DRAGON_CLAW:
-        *      return MOVE_DRAGON_CLAW;
-        * etc */
-    FOREACH_TM(UNPACK_ITEM_TO_TM_MOVE_ID)
-    FOREACH_HM(UNPACK_ITEM_TO_HM_MOVE_ID)
-    default:
-        return MOVE_NONE;
-    }
+    return gTMHMItemMoveIds[GetItemTMHMIndex(item)].moveId; // CE: TM moves come from the patchable table
 }
 
 static inline enum Item GetTMHMItemIdFromMoveId(enum Move move)
 {
-    switch (move)
+    // CE: search the patchable table, so a TM the website reassigns is found by its new move.
+    for (u32 i = 1; i <= NUM_ALL_MACHINES; i++)
     {
-    /* Expands to:
-        * case MOVE_FOCUS_PUNCH:
-        *     return ITEM_TM_FOCUS_PUNCH;
-        * case MOVE_DRAGON_CLAW:
-        *      return ITEM_TM_DRAGON_CLAW;
-        * etc */
-    FOREACH_TM(UNPACK_TM_MOVE_TO_ITEM_ID)
-    FOREACH_HM(UNPACK_HM_MOVE_TO_ITEM_ID)
-    default:
-        return ITEM_NONE;
+        if (move != MOVE_NONE && gTMHMItemMoveIds[i].moveId == move)
+            return gTMHMItemMoveIds[i].itemId;
     }
+    return ITEM_NONE;
 }
 
 #undef UNPACK_ITEM_TO_TM_INDEX

@@ -996,9 +996,9 @@ static u32 GetRelearnerTutorMoves(struct BoxPokemon *mon, u16 *moves)
     enum Species species = GetBoxMonData(mon, MON_DATA_SPECIES);
     u32 numMoves = 0;
 
-    for (u32 i = 0; gTutorMoves[i] != MOVE_UNAVAILABLE; i++)
+    for (u32 i = 0; i < CE_TUTOR_SLOTS; i++) // CE: patchable tutor list
     {
-        enum Move move = gTutorMoves[i];
+        enum Move move = gCeTutorMoves[i];
 
         if (!CanLearnTeachableMove(species, move))
             continue;
@@ -1106,9 +1106,9 @@ static bool32 HasRelearnerTMMoves(struct BoxPokemon *boxMon)
 static bool32 HasRelearnerTutorMoves(struct BoxPokemon *boxMon)
 {
     enum Species species = GetBoxMonData(boxMon, MON_DATA_SPECIES);
-    for (u32 i = 0; gTutorMoves[i] != MOVE_UNAVAILABLE; i++)
+    for (u32 i = 0; i < CE_TUTOR_SLOTS; i++) // CE: patchable tutor list
     {
-        enum Move move = gTutorMoves[i];
+        enum Move move = gCeTutorMoves[i];
 
         if (!CanLearnTeachableMove(species, move))
             continue;

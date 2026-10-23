@@ -2207,9 +2207,8 @@ static bool8 CalculateMoves(void)
         numLevelUpMoves++;
 
     // TM and Tutor moves
-    const u16 *teachableLearnset = GetSpeciesTeachableLearnset(species);
-    for (i = 0; teachableLearnset[i] != MOVE_UNAVAILABLE; i++)
-        numTeachableMoves++;
+    u16 teachableLearnset[CE_TEACHABLE_SLOTS];
+    numTeachableMoves = CeTeachable_GetMoves(species, teachableLearnset); // CE: from the teachable bitset
 
     sPokedexView->numEggMoves = numEggMoves;
     sPokedexView->numLevelUpMoves = numLevelUpMoves;
@@ -2234,8 +2233,9 @@ static enum Move GetSelectedMove(enum Species species, u32 selected)
     if (selected < sPokedexView->numLevelUpMoves)
         return GetSpeciesLevelUpLearnset(species)[selected].move;
     selected -= sPokedexView->numLevelUpMoves;
-    if (selected < sPokedexView->numTeachableMoves)
-        return GetSpeciesTeachableLearnset(species)[selected];
+    u16 teachableLearnset[CE_TEACHABLE_SLOTS];
+    if (selected < CeTeachable_GetMoves(species, teachableLearnset)) // CE: from the teachable bitset
+        return teachableLearnset[selected];
     return MOVE_NONE; //It should never get here but it allows us to visually see errors
 }
 
