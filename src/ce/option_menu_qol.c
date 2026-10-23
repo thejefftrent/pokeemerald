@@ -96,6 +96,10 @@ static const u8 *const sFeatureNames[CE_QOL_COUNT] =
     [CE_QOL_FAST_EGG_HATCHING]        = COMPOUND_STRING("FAST HATCHING"),
     [CE_QOL_SHINY_CHARM]              = COMPOUND_STRING("SHINY CHARM"),
     [CE_QOL_FOLLOWERS]                = COMPOUND_STRING("FOLLOWERS"),
+    [CE_QOL_MEGA_STONES]              = COMPOUND_STRING("MEGA STONES"),
+    [CE_QOL_Z_CRYSTALS]               = COMPOUND_STRING("Z-CRYSTALS"),
+    [CE_QOL_GEMS_PLATES_MEMORIES]     = COMPOUND_STRING("GEMS AND PLATES"),
+    [CE_QOL_ROOM_SELLERS]             = COMPOUND_STRING("ROOM SELLERS"),
 };
 
 static bool32 IsVisible(enum CeQolFeature feature)
