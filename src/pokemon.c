@@ -1,4 +1,5 @@
 #include "global.h"
+#include "ce/qol.h" // CE:
 #include "malloc.h"
 #include "apprentice.h"
 #include "battle.h"
@@ -882,7 +883,7 @@ bool32 ComputePlayerShinyOdds(u32 personality, u32 value)
 
     u32 totalRerolls = 0;
 
-    if (CheckBagHasItem(ITEM_SHINY_CHARM, 1))
+    if (CheckBagHasItem(ITEM_SHINY_CHARM, 1) || CeQol_IsOn(CE_QOL_SHINY_CHARM)) // CE: Shiny Charm odds QoL
         totalRerolls += I_SHINY_CHARM_ADDITIONAL_ROLLS;
 
     if (LURE_STEP_COUNT != 0)

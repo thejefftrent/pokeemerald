@@ -145,3 +145,12 @@ void CeProgression_BuildShopItemList(const u16 **itemList, u16 *itemCount)
     *itemList = list;
     *itemCount = count;
 }
+
+#define CE_FAST_EGG_CYCLE_DIVISOR 4
+
+u32 CeProgression_EggCycleLength(u32 steps)
+{
+    if (CeQol_IsOn(CE_QOL_FAST_EGG_HATCHING))
+        return steps / CE_FAST_EGG_CYCLE_DIVISOR;
+    return steps;
+}

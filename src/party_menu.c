@@ -1,4 +1,5 @@
 #include "global.h"
+#include "ce/field_moves.h" // CE:
 #include "malloc.h"
 #include "battle.h"
 #include "battle_anim.h"
@@ -2969,6 +2970,7 @@ static void SetPartyMonFieldSelectionActions(struct Pokemon *mons, u8 slotId)
             }
         }
     }
+    CeFieldMoves_AddPartyMenuActions(sPartyMenuInternal->actions, &sPartyMenuInternal->numActions, ARRAY_COUNT(sPartyMenuInternal->actions), MENU_FIELD_MOVES); // CE: field moves without HMs
 
     if (!InBattlePike())
     {
@@ -4309,7 +4311,7 @@ bool32 SetUpFieldMove_Fly(void)
     if (!CheckFollowerNPCFlag(FOLLOWER_NPC_FLAG_CAN_LEAVE_ROUTE))
         return FALSE;
 
-    if (Overworld_MapTypeAllowsTeleportAndFly(gMapHeader.mapType) == TRUE)
+    if (CeFly_AllowedHere()) // CE: fly from anywhere (was Overworld_MapTypeAllowsTeleportAndFly)
         return TRUE;
     else
         return FALSE;

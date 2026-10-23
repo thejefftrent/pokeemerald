@@ -1,5 +1,6 @@
 #include "global.h"
 #include "ce/overworld.h" // CE:
+#include "ce/field_moves.h" // CE:
 #include "main.h"
 #include "bike.h"
 #include "event_data.h"
@@ -1618,6 +1619,7 @@ bool8 PartyHasMonWithSurf(void)
 {
     u8 i;
 
+    if (CeFieldMoves_CanSurfWithoutMove()) return TRUE; // CE: field moves without HMs
     if (!TestPlayerAvatarFlags(PLAYER_AVATAR_FLAG_SURFING))
     {
         for (i = 0; i < PARTY_SIZE; i++)

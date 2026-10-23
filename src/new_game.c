@@ -1,5 +1,6 @@
 #include "global.h"
 #include "ce/qol.h" // CE:
+#include "ce/start.h" // CE:
 #include "clock.h"
 #include "new_game.h"
 #include "random.h"
@@ -235,6 +236,7 @@ void NewGameInitData(void)
     ResetItemFlags();
     ResetDexNav();
     ClearFollowerNPCData();
+    CeStart_OnNewGame(); // CE: starting items and money
     CeQol_OnNewGame(); // CE: give QoL key items
     CeModes_OnNewGame(); // CE: copy the game-mode rules into the save
 }

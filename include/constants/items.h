@@ -1054,6 +1054,7 @@ enum __attribute__((packed)) Item
     ITEM_CE_CANDY_JAR = 874, // CE: CE_QOL_CANDY_JAR key item; ids are saved in bag slots, never renumber
     ITEM_CE_MOVE_RELEARNER = 875, // CE: CE_QOL_RELEARNER_ITEM key item
     ITEM_CE_MOVE_DELETER = 876, // CE: CE_QOL_DELETER_ITEM key item
+    ITEM_CE_INFINITE_REPEL = 877, // CE: CE_QOL_INFINITE_REPEL key item
 
     ITEMS_COUNT,
     ITEM_FIELD_ARROW = ITEMS_COUNT,

@@ -1,4 +1,5 @@
 #include "global.h"
+#include "ce/progression.h" // CE:
 #include "pokemon.h"
 #include "battle.h"
 #include "daycare.h"
@@ -1131,7 +1132,7 @@ static u32 GetEggCyclesToSubtract(void)
 static bool32 TryToHatchEgg(struct DayCare *daycare)
 {
     daycare->stepCounter++;
-    if (daycare->stepCounter < GetEggCycleLength())
+    if (daycare->stepCounter < CeProgression_EggCycleLength(GetEggCycleLength())) // CE: faster egg hatching QoL
         return FALSE;
     daycare->stepCounter = 0;
 

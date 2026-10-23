@@ -14,6 +14,8 @@
 //   src/battle_main.c           ClearSetBScriptingStruct        CE_QOL_CATCH_EXP
 //   src/pokemon_summary_screen.c ShouldShowIvEvPrompt           CE_QOL_SUMMARY_IV_EV
 //   src/pokemon_summary_screen.c ShouldShowMoveRelearner        CE_QOL_SUMMARY_RELEARNER
+//   src/daycare.c               TryToHatchEgg                   CE_QOL_FAST_EGG_HATCHING
+//   src/pokemon.c               ComputePlayerShinyOdds          CE_QOL_SHINY_CHARM
 // Nothing is cached outside a battle or a menu that is open, so a feature flipped from the
 // options menu takes effect the next time the bag, a mart, a summary or a battle opens.
 
@@ -36,5 +38,13 @@ bool32 CeProgression_InFrontierChallenge(void);
 // sells in this map's mart (nature mints in the Lavaridge Herb Shop, the Linking Cord in the
 // Mauville Poké Mart). The list is on the heap and TryFreeDynamicShopItemList frees it.
 void CeProgression_BuildShopItemList(const u16 **itemList, u16 *itemCount);
+
+// TryToHatchEgg: steps per Egg cycle. With CE_QOL_FAST_EGG_HATCHING a cycle takes a quarter of
+// the steps, so every Egg hatches four times as fast (Flame Body still halves it again).
+u32 CeProgression_EggCycleLength(u32 steps);
+
+// ComputePlayerShinyOdds: CE_QOL_SHINY_CHARM gives the Shiny Charm's extra rolls
+// (I_SHINY_CHARM_ADDITIONAL_ROLLS) without the item, so a Shiny Charm found or given
+// elsewhere still works the same and is never taken away.
 
 #endif // GUARD_CE_PROGRESSION_H

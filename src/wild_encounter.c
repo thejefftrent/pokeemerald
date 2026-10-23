@@ -23,6 +23,7 @@
 #include "tv.h"
 #include "wild_encounter.h"
 #include "ce/wild.h" // CE:
+#include "ce/key_items.h" // CE:
 #include "battle_debug.h"
 #include "battle_pike.h"
 #include "battle_pyramid.h"
@@ -923,6 +924,7 @@ bool8 UpdateRepelCounter(void)
         return FALSE;
     if (InUnionRoom() == TRUE)
         return FALSE;
+    if (CeKeyItems_IsInfiniteRepelOn()) return FALSE; // CE: the Infinite Repel never wears off
 
     if (steps != 0)
     {

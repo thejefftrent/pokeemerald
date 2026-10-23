@@ -1,19 +1,24 @@
 #include "global.h"
 #include "battle_pyramid.h"
 #include "event_data.h"
+#include "event_object_lock.h"
 #include "field_screen_effect.h"
 #include "field_weather.h"
 #include "item.h"
 #include "item_menu.h"
 #include "item_use.h"
+#include "menu.h"
 #include "overworld.h"
 #include "pokemon.h"
 #include "script.h"
+#include "sound.h"
 #include "task.h"
 #include "ce/key_items.h"
 #include "ce/qol.h"
+#include "constants/item.h"
 #include "constants/items.h"
 #include "constants/map_types.h"
+#include "constants/songs.h"
 
 struct CeKeyItem
 {
@@ -28,6 +33,7 @@ static const struct CeKeyItem sCeKeyItems[] =
     { ITEM_POKEMON_BOX_LINK,  CE_QOL_PC_ITEM },
     { ITEM_CE_MOVE_RELEARNER, CE_QOL_RELEARNER_ITEM },
     { ITEM_CE_MOVE_DELETER,   CE_QOL_DELETER_ITEM },
+    { ITEM_CE_INFINITE_REPEL, CE_QOL_INFINITE_REPEL },
 };
 
 // item.c sends every bag call to the Pyramid's own bag in this state.
@@ -77,6 +83,9 @@ void CeKeyItems_Sync(void)
             TakeKeyItem(item);
         }
     }
+
+    if (!CeQol_IsOn(CE_QOL_INFINITE_REPEL) && CeKeyItems_IsInfiniteRepelOn())
+        VarSet(VAR_REPEL_STEP_COUNT, 0);
 }
 
 // Called from inside AddBagItem/CheckBagHasSpace, after their Pyramid redirect, so the
@@ -170,6 +179,43 @@ void CeItemUse_MoveDeleter(u8 taskId)
         DisplayDadsAdviceCannotUseItemMessage(taskId, gTasks[taskId].tUsingRegisteredKeyItem);
     else
         UseServiceItem(taskId, FieldCB_StartDeleterScript, CE_EventScript_MoveDeleterItem);
+}
+
+STATIC_ASSERT(CE_INFINITE_REPEL_STEPS < REPEL_LURE_MASK, CeInfiniteRepelIsARepel);
+
+bool32 CeKeyItems_IsInfiniteRepelOn(void)
+{
+    return VarGet(VAR_REPEL_STEP_COUNT) == CE_INFINITE_REPEL_STEPS;
+}
+
+static void Task_CloseFieldMessage(u8 taskId)
+{
+    ClearDialogWindowAndFrame(0, TRUE);
+    DestroyTask(taskId);
+    ScriptUnfreezeObjectEvents();
+    UnlockPlayerFieldControls();
+}
+
+void CeItemUse_InfiniteRepel(u8 taskId)
+{
+    const u8 *text;
+
+    if (CeKeyItems_IsInfiniteRepelOn())
+    {
+        VarSet(VAR_REPEL_STEP_COUNT, 0);
+        PlaySE(SE_PC_OFF);
+        text = COMPOUND_STRING("The Infinite Repel was turned off.{PAUSE_UNTIL_PRESS}");
+    }
+    else
+    {
+        VarSet(VAR_REPEL_STEP_COUNT, CE_INFINITE_REPEL_STEPS);
+        PlaySE(SE_REPEL);
+        text = COMPOUND_STRING("The Infinite Repel was turned on.{PAUSE_UNTIL_PRESS}");
+    }
+    if (gTasks[taskId].tUsingRegisteredKeyItem)
+        DisplayItemMessageOnField(taskId, text, Task_CloseFieldMessage);
+    else
+        DisplayItemMessage(taskId, FONT_NORMAL, text, CloseItemMessage);
 }
 
 #undef tUsingRegisteredKeyItem
