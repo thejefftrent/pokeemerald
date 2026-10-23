@@ -6435,16 +6435,7 @@ static void DeleteInvalidFusionMoves(struct Pokemon *mon, enum Species species)
         }
         if (!toDelete)
             continue;
-        const u16 *learnset2 = GetSpeciesTeachableLearnset(species);
-        for (u32 j = 0; learnset2[j] != MOVE_UNAVAILABLE;j++)
-        {
-            if (learnset2[j] == move)
-            {
-                toDelete = FALSE;
-                break;
-            }
-        }
-        if (!toDelete)
+        if (CanLearnTeachableMove(species, move)) // CE: teachable bitset
             continue;
         const u16 *learnset3 = GetSpeciesEggMoves(species);
         for (u32 j = 0; learnset3[j] != MOVE_UNAVAILABLE;j++)

@@ -481,11 +481,8 @@ static void AssignDefaultMove(enum Species species, u32 level, enum Move *moves,
 
 static void AssignRandomTeachableMove(enum Species species, enum Move *moves, u32 i)
 {
-    u32 teachableCount = 0;
-    const u16 *teachableLearnset = GetSpeciesTeachableLearnset(species);
-
-    while (teachableLearnset[teachableCount] != MOVE_UNAVAILABLE)
-        teachableCount++;
+    u16 teachableLearnset[CE_TEACHABLE_SLOTS];
+    u32 teachableCount = CeTeachable_GetMoves(species, teachableLearnset); // CE: from the teachable bitset
 
     bool32 noCandidateFlag;
     enum Move candidate;

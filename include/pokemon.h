@@ -4,6 +4,7 @@
 #include "contest_effect.h"
 #include "sprite.h"
 #include "wild_encounter_ow.h"
+#include "ce/teachable.h" // CE: teachable bitset size
 #include "constants/battle.h"
 #include "constants/cries.h"
 #include "constants/egg_ids.h"
@@ -503,7 +504,7 @@ struct SpeciesInfo /*0xC4*/
     enum EggIds eggId:12;
     // Move Data
     const struct LevelUpMove *levelUpLearnset;
-    const u16 *teachableLearnset;
+    u8 teachableLearnset[CE_TEACHABLE_BYTES]; // CE: TM/HM/tutor bitset, see ce/teachable.h
     const u16 *eggMoveLearnset;
     const struct Evolution *evolutions;
     const u16 *formSpeciesIdTable;
@@ -862,7 +863,6 @@ u32 GetSpeciesBaseSpeed(enum Species species);
 u32 GetSpeciesBaseStat(enum Species species, u32 statIndex);
 u32 GetSpeciesBaseStatTotal(enum Species species);
 const struct LevelUpMove *GetSpeciesLevelUpLearnset(enum Species species);
-const u16 *GetSpeciesTeachableLearnset(enum Species species);
 const u16 *GetSpeciesEggMoves(enum Species species);
 bool32 SpeciesHasEggMove(enum Species species, enum Move move);
 const struct Evolution *GetSpeciesEvolutions(enum Species species);

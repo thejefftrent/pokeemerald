@@ -3288,14 +3288,6 @@ const struct LevelUpMove *GetSpeciesLevelUpLearnset(enum Species species)
     return learnset;
 }
 
-const u16 *GetSpeciesTeachableLearnset(enum Species species)
-{
-    const u16 *learnset = gSpeciesInfo[SanitizeSpeciesId(species)].teachableLearnset;
-    if (learnset == NULL)
-        return gSpeciesInfo[SPECIES_NONE].teachableLearnset;
-    return learnset;
-}
-
 const u16 *GetSpeciesEggMoves(enum Species species)
 {
     const u16 *learnset = gSpeciesInfo[SanitizeSpeciesId(species)].eggMoveLearnset;
@@ -5023,15 +5015,7 @@ bool8 TryIncrementMonLevel(struct Pokemon *mon)
 
 bool32 CanLearnTeachableMove(enum Species species, enum Move move)
 {
-    const u16 *teachableLearnset = GetSpeciesTeachableLearnset(species);
-    if (species == SPECIES_EGG)
-        return FALSE;
-    for (u32 i = 0; teachableLearnset[i] != MOVE_UNAVAILABLE; i++)
-    {
-        if (teachableLearnset[i] == move)
-            return TRUE;
-    }
-    return FALSE;
+    return CeTeachable_CanLearn(species, move); // CE: bitset over the TM/HM and tutor slots
 }
 
 u16 SpeciesToPokedexNum(enum Species species)
