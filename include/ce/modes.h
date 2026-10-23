@@ -38,7 +38,9 @@ struct CeModesConfig
     u8 noRestHeal;      // Mom, beds and rest stops don't heal
     // No evolutions
     u8 noEvolution;     // no Pokémon evolves, by any method (GetEvolutionTargetSpecies)
-    u8 reserved[2];
+    // Nuzlocke (in what was reserved space, so saves from before it read 0 = off)
+    u8 whiteoutEndsRun; // whiting out ends the run: the game says so and erases the save
+    u8 reserved[1];
 };
 
 // Spare SaveBlock2 space: struct Pokedex's old dex-flag filler (see global.h), next to the
@@ -99,7 +101,7 @@ const struct CeModesConfig *CeModes_Rules(void);
 bool32 CeModes_SaveHasRules(void);
 
 // Hooks: NewGameInitData (copy the rules), HandleEndTurn_FinishBattle (deaths and areas),
-// ReturnFromBattleToOverworld (release the dead).
+// ReturnFromBattleToOverworld (release the dead), CB2_WhiteOut (the run is lost).
 void CeModes_OnNewGame(void);
 void CeModes_OnBattleEnd(void);
 void CeModes_AfterBattle(void);
@@ -126,6 +128,11 @@ u32 CeModes_MarkFaintedDead(u32 slotMask);
 // Nuzlocke with releaseDead only: release dead party Pokémon (their held items go to the bag),
 // unless no living Pokémon would remain. Returns how many were released.
 u32 CeModes_ReleaseDead(void);
+// Nuzlocke with whiteoutEndsRun only (src/ce/run_lost.c). CB2_WhiteOut asks first: then the
+// run-lost screen erases the save and resets to the title screen instead of the whiteout warp.
+bool32 CeModes_WhiteoutEndsRun(void);
+bool32 CeModes_TryEndRunOnWhiteout(void);
+void CB2_CeRunLost(void);
 
 // Hard mode.
 bool32 CeModes_NoBagInTrainerBattles(void);
