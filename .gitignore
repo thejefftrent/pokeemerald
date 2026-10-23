@@ -69,3 +69,7 @@ __pycache__
 
 # CE: generated build info
 include/ce/build_info.h
+
+# CE: generated from ce/encounters.json
+include/constants/ce_encounters.h
+src/data/ce_encounters.h

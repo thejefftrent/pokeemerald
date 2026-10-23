@@ -122,11 +122,12 @@ BattleFrontier_OutsideEast_EventScript_WaterSudowoodo::
 	msgbox gText_Sudowoodo_Attacked, MSGBOX_DEFAULT
 	closemessage
 	waitse
-	playmoncry SPECIES_SUDOWOODO, CRY_MODE_ENCOUNTER
+	ce_loadenc CE_ENC_SUDOWOODO
+	playmoncry VAR_CE_ENC_SPECIES, CRY_MODE_ENCOUNTER
 	delay 40
 	waitmoncry
 	setvar VAR_LAST_TALKED, LOCALID_FRONTIER_SUDOWOODO
-	setwildbattle SPECIES_SUDOWOODO, 40
+	setwildbattle_ce CE_ENC_SUDOWOODO
 	setflag FLAG_SYS_CTRL_OBJ_DELETE
 	dowildbattle
 	clearflag FLAG_SYS_CTRL_OBJ_DELETE

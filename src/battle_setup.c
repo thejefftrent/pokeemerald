@@ -59,6 +59,7 @@
 #include "constants/trainers.h"
 #include "constants/trainer_hill.h"
 #include "constants/weather.h"
+#include "ce/encounters.h" // CE: gift/static/starter encounter table
 
 enum TransitionType
 {
@@ -513,7 +514,7 @@ static void DoBattlePyramidTrainerHillBattle(void)
 // Initiates battle where Wally catches Ralts
 void StartWallyTutorialBattle(void)
 {
-    CreateMaleMon(&gParties[B_TRAINER_OPPONENT_A][0], SPECIES_RALTS, 5);
+    CreateMaleMon(&gParties[B_TRAINER_OPPONENT_A][0], CeEnc_Species(CE_ENC_WALLY_RALTS), CeEnc_Level(CE_ENC_WALLY_RALTS)); // CE:
     LockPlayerFieldControls();
     gMain.savedCallback = CB2_ReturnToFieldContinueScriptPlayMapMusic;
     gBattleTypeFlags = BATTLE_TYPE_CATCH_TUTORIAL;
@@ -1010,7 +1011,7 @@ static void CB2_GiveStarter(void)
 
     *GetVarPointer(VAR_STARTER_MON) = gSpecialVar_Result;
     starterMon = GetStarterPokemon(gSpecialVar_Result);
-    ScriptGiveMon(starterMon, 5, ITEM_NONE);
+    CeEnc_GiveStarter(starterMon, gSpecialVar_Result); // CE: level, item and flags from the table
     ResetTasks();
     PlayBattleBGM();
     SetMainCallback2(CB2_StartFirstBattle);

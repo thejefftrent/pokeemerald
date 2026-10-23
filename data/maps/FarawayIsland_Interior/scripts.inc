@@ -119,7 +119,8 @@ FarawayIsland_Interior_EventScript_Mew::
 	special SetMewAboveGrass
 	message FarawayIsland_Interior_Text_Mew
 	waitse
-	playmoncry SPECIES_MEW, CRY_MODE_ENCOUNTER
+	ce_loadenc CE_ENC_MEW
+	playmoncry VAR_CE_ENC_SPECIES, CRY_MODE_ENCOUNTER
 	call_if_eq VAR_FACING, DIR_NORTH, FarawayIsland_Interior_EventScript_FoundMewNorth
 	call_if_eq VAR_FACING, DIR_SOUTH, FarawayIsland_Interior_EventScript_FoundMewSouth
 	call_if_eq VAR_FACING, DIR_WEST, FarawayIsland_Interior_EventScript_FoundMewWest
@@ -127,7 +128,7 @@ FarawayIsland_Interior_EventScript_Mew::
 	special DestroyMewEmergingGrassSprite
 	delay 40
 	waitmoncry
-	seteventmon SPECIES_MEW, 30
+	seteventmon_ce CE_ENC_MEW
 	setflag FLAG_SYS_CTRL_OBJ_DELETE
 	special BattleSetup_StartLegendaryBattle
 	clearflag FLAG_SYS_CTRL_OBJ_DELETE
@@ -142,12 +143,14 @@ FarawayIsland_Interior_EventScript_Mew::
 
 FarawayIsland_Interior_EventScript_MewDefeated::
 	setflag FLAG_DEFEATED_MEW
-	setvar VAR_0x8004, SPECIES_MEW
+	ce_loadenc CE_ENC_MEW
+	copyvar VAR_0x8004, VAR_CE_ENC_SPECIES
 	goto Common_EventScript_LegendaryFlewAway
 	end
 
 FarawayIsland_Interior_EventScript_PlayerOrMewRan::
-	setvar VAR_0x8004, SPECIES_MEW
+	ce_loadenc CE_ENC_MEW
+	copyvar VAR_0x8004, VAR_CE_ENC_SPECIES
 	goto Common_EventScript_LegendaryFlewAway
 	end
 

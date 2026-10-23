@@ -51,6 +51,7 @@
 #include "constants/rgb.h"
 #include "constants/songs.h"
 #include "constants/union_room.h"
+#include "ce/encounters.h" // CE: in-game trades read species, request and item from the table
 
 // IDs for RunTradeMenuCallback
 enum {
@@ -3342,7 +3343,7 @@ static void BufferTradeSceneStrings(void)
     {
         ingameTrade = &sIngameTrades[gSpecialVar_0x8005];
         StringCopy(gStringVar1, ingameTrade->otName);
-        StringCopy_Nickname(gStringVar3, ingameTrade->nickname);
+        StringCopy_Nickname(gStringVar3, CeEnc_TradeNickname(gSpecialVar_0x8005, ingameTrade->species, ingameTrade->nickname)); // CE:
         if (gSpecialVar_0x8004 == PC_MON_CHOSEN)
             GetMonData(&gParties[B_TRAINER_OPPONENT_A][TRADEMON_FROM_PC], MON_DATA_NICKNAME, name);
         else
@@ -4545,9 +4546,9 @@ static void SpriteCB_BouncingPokeballArrive(struct Sprite *sprite)
 u16 GetInGameTradeSpeciesInfo(void)
 {
     const struct InGameTrade *inGameTrade = &sIngameTrades[gSpecialVar_0x8005];
-    StringCopy(gStringVar1, GetSpeciesName(inGameTrade->requestedSpecies));
-    StringCopy(gStringVar2, GetSpeciesName(inGameTrade->species));
-    return inGameTrade->requestedSpecies;
+    StringCopy(gStringVar1, GetSpeciesName(CeEnc_TradeRequest(gSpecialVar_0x8005, inGameTrade->requestedSpecies))); // CE:
+    StringCopy(gStringVar2, GetSpeciesName(CeEnc_TradeSpecies(gSpecialVar_0x8005, inGameTrade->species))); // CE:
+    return CeEnc_TradeRequest(gSpecialVar_0x8005, inGameTrade->requestedSpecies); // CE:
 }
 
 static void BufferInGameTradeMonName(void)
@@ -4556,7 +4557,7 @@ static void BufferInGameTradeMonName(void)
     const struct InGameTrade *inGameTrade = &sIngameTrades[gSpecialVar_0x8005];
     GetMonData(&gParties[B_TRAINER_PLAYER][gSpecialVar_0x8005], MON_DATA_NICKNAME, nickname);
     StringCopy_Nickname(gStringVar1, nickname);
-    StringCopy(gStringVar2, GetSpeciesName(inGameTrade->species));
+    StringCopy(gStringVar2, GetSpeciesName(CeEnc_TradeSpecies(gSpecialVar_0x8005, inGameTrade->species))); // CE:
 }
 
 static void CreateInGameTradePokemonInternal(u8 whichPlayerMon, u8 whichInGameTrade)
@@ -4570,7 +4571,7 @@ static void CreateInGameTradePokemonInternal(u8 whichPlayerMon, u8 whichInGameTr
     u8 mailNum;
     struct Pokemon *pokemon = &gParties[B_TRAINER_OPPONENT_A][0];
 
-    CreateMon(pokemon, inGameTrade->species, level, inGameTrade->personality, OTID_STRUCT_PRESET(inGameTrade->otId));
+    CreateMon(pokemon, CeEnc_TradeSpecies(whichInGameTrade, inGameTrade->species), level, inGameTrade->personality, OTID_STRUCT_PRESET(inGameTrade->otId)); // CE:
     GiveMonInitialMoveset(pokemon);
 
     SetMonData(pokemon, MON_DATA_HP_IV, &inGameTrade->ivs[0]);
@@ -4579,7 +4580,7 @@ static void CreateInGameTradePokemonInternal(u8 whichPlayerMon, u8 whichInGameTr
     SetMonData(pokemon, MON_DATA_SPEED_IV, &inGameTrade->ivs[3]);
     SetMonData(pokemon, MON_DATA_SPATK_IV, &inGameTrade->ivs[4]);
     SetMonData(pokemon, MON_DATA_SPDEF_IV, &inGameTrade->ivs[5]);
-    SetMonData(pokemon, MON_DATA_NICKNAME, inGameTrade->nickname);
+    SetMonData(pokemon, MON_DATA_NICKNAME, CeEnc_TradeNickname(whichInGameTrade, inGameTrade->species, inGameTrade->nickname)); // CE:
     SetMonData(pokemon, MON_DATA_OT_NAME, inGameTrade->otName);
     SetMonData(pokemon, MON_DATA_OT_GENDER, &inGameTrade->otGender);
     SetMonData(pokemon, MON_DATA_ABILITY_NUM, &inGameTrade->abilityNum);
@@ -4606,6 +4607,7 @@ static void CreateInGameTradePokemonInternal(u8 whichPlayerMon, u8 whichInGameTr
             SetMonData(pokemon, MON_DATA_HELD_ITEM, &inGameTrade->heldItem);
         }
     }
+    CeEnc_FinishTradeMon(pokemon, whichInGameTrade, inGameTrade->heldItem); // CE: the table's held item and flags
     CalculateMonStats(&gParties[B_TRAINER_OPPONENT_A][0]);
 }
 

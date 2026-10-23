@@ -43,10 +43,11 @@ SkyPillar_Top_EventScript_RayquazaFaceDown::
 SkyPillar_Top_EventScript_Rayquaza::
 	lockall
 	waitse
-	playmoncry SPECIES_RAYQUAZA, CRY_MODE_ENCOUNTER
+	ce_loadenc CE_ENC_RAYQUAZA
+	playmoncry VAR_CE_ENC_SPECIES, CRY_MODE_ENCOUNTER
 	delay 40
 	waitmoncry
-	setwildbattle SPECIES_RAYQUAZA, 70
+	setwildbattle_ce CE_ENC_RAYQUAZA
 	setflag FLAG_SYS_CTRL_OBJ_DELETE
 	special BattleSetup_StartLegendaryBattle
 	clearflag FLAG_SYS_CTRL_OBJ_DELETE
@@ -64,7 +65,8 @@ SkyPillar_Top_EventScript_DefeatedRayquaza::
 	end
 
 SkyPillar_Top_EventScript_RanFromRayquaza::
-	setvar VAR_0x8004, SPECIES_RAYQUAZA
+	ce_loadenc CE_ENC_RAYQUAZA
+	copyvar VAR_0x8004, VAR_CE_ENC_SPECIES
 	goto SkyPillar_Top_EventScript_RanFromRayquaza2
 	end
 

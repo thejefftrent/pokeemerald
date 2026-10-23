@@ -79,6 +79,7 @@
 #include "battle_util.h"
 #include "naming_screen.h"
 #include "chooseboxmon.h"
+#include "ce/encounters.h" // CE: gift/static/starter encounter table
 
 #define TAG_ITEM_ICON 5500
 
@@ -1528,7 +1529,7 @@ void SetShoalItemFlag(u16 unused)
 void LoadWallyZigzagoon(void)
 {
     u16 monData;
-    CreateRandomMon(&gParties[B_TRAINER_PLAYER][0], SPECIES_ZIGZAGOON, 7);
+    CreateRandomMon(&gParties[B_TRAINER_PLAYER][0], CeEnc_Species(CE_ENC_WALLY_ZIGZAGOON), CeEnc_Level(CE_ENC_WALLY_ZIGZAGOON)); // CE:
     monData = TRUE;
     SetMonData(&gParties[B_TRAINER_PLAYER][0], MON_DATA_ABILITY_NUM, &monData);
     monData = MOVE_TACKLE;

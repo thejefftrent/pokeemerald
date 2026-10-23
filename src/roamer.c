@@ -4,6 +4,7 @@
 #include "pokemon.h"
 #include "random.h"
 #include "roamer.h"
+#include "ce/encounters.h" // CE: gift/static/starter encounter table
 
 // Despite having a variable to track it, the roamer is
 // hard-coded to only ever be in map group 0
@@ -156,9 +157,9 @@ bool8 TryAddRoamer(enum Species species, u8 level)
 void InitRoamer(void)
 {
     if (gSpecialVar_0x8004 == 0) // Red
-        TryAddRoamer(SPECIES_LATIAS, 40);
+        TryAddRoamer(CeEnc_Species(CE_ENC_ROAMER_LATIAS), CeEnc_Level(CE_ENC_ROAMER_LATIAS)); // CE:
     else
-        TryAddRoamer(SPECIES_LATIOS, 40);
+        TryAddRoamer(CeEnc_Species(CE_ENC_ROAMER_LATIOS), CeEnc_Level(CE_ENC_ROAMER_LATIOS)); // CE:
 }
 
 void UpdateLocationHistoryForRoamer(void)

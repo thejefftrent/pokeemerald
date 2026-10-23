@@ -36,6 +36,7 @@
 #include "constants/songs.h"
 #include "test/battle.h"
 #include "test/test.h"
+#include "ce/encounters.h" // CE: gift/static/starter encounter table
 
 static EWRAM_DATA u8 sLinkSendTaskId = 0;
 static EWRAM_DATA u8 sLinkReceiveTaskId = 0;
@@ -161,7 +162,7 @@ void SetUpBattleVarsAndBirchZigzagoon(void)
     BattleAI_SetupFlags();
 
     if (!IS_FRLG && gBattleTypeFlags & BATTLE_TYPE_FIRST_BATTLE)
-        CreateWildMon(SPECIES_ZIGZAGOON, 2);
+        CreateWildMon(CeEnc_Species(CE_ENC_BIRCH_ZIGZAGOON), CeEnc_Level(CE_ENC_BIRCH_ZIGZAGOON)); // CE:
 }
 
 void InitBattleControllers(void)
