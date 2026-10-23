@@ -20,5 +20,7 @@ void CeSelfTest_ProbeWild(void) __attribute__((weak));
 void CeSelfTest_ProbeStatics(void) __attribute__((weak));
 void CeSelfTest_ProbeModes(void) __attribute__((weak));
 void CeSelfTest_ProbeBattleConfig(void) __attribute__((weak));
+void CeSelfTest_ProbeItems(void) __attribute__((weak));
+void CeSelfTest_ProbeStart(void) __attribute__((weak));
 
 #endif // GUARD_CE_SELFTEST_H

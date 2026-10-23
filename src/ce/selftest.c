@@ -247,6 +247,10 @@ void CeSelfTest_RunIfEnabled(void)
         CeSelfTest_ProbeModes();
     if (CeSelfTest_ProbeBattleConfig != NULL)
         CeSelfTest_ProbeBattleConfig();
+    if (CeSelfTest_ProbeItems != NULL)
+        CeSelfTest_ProbeItems();
+    if (CeSelfTest_ProbeStart != NULL)
+        CeSelfTest_ProbeStart();
 
     LineStart();
     Put("CE:{\"probe\":\"done\"}");
