@@ -378,8 +378,8 @@ PetalburgCity_Gym_EventScript_NormanBattle::
 	setflag FLAG_DEFEATED_PETALBURG_GYM
 	setvar VAR_PETALBURG_GYM_STATE, 7
 	setflag FLAG_BADGE05_GET
-	special ResetHealLocationFromDewford
-	call EventScript_HideMrBriney
+	callnative CeLogic_ScriptNormanResetHealLocation @ CE: the key-item logic keeps Mr. Briney sailing
+	callnative CeLogic_ScriptNormanHideMrBriney @ CE: the key-item logic keeps Mr. Briney sailing
 	setflag FLAG_HIDE_MAUVILLE_GYM_WATTSON
 	clearflag FLAG_HIDE_MAUVILLE_CITY_WATTSON
 	setvar VAR_0x8008, 5
