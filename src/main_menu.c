@@ -40,6 +40,7 @@
 #include "title_screen.h"
 #include "window.h"
 #include "mystery_gift_menu.h"
+#include "ce/seed_hash.h" // CE:
 
 /*
  * Main menu state machine
@@ -891,6 +892,7 @@ static void Task_DisplayMainMenu(u8 taskId)
             }
             break;
         }
+        CeSeedHash_ShowOnMainMenu(tItemCount); // CE: seed hash icons under the menu
         gTasks[taskId].func = Task_HighlightSelectedMainMenuItem;
     }
 }
