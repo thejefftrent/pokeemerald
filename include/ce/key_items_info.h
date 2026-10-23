@@ -57,3 +57,20 @@
         .iconPic = gItemIcon_TMCase,
         .iconPalette = gItemIconPalette_TMCase,
     },
+
+    // Switches a Repel that never wears off: CeKeyItems_IsInfiniteRepelOn.
+    [ITEM_CE_INFINITE_REPEL] =
+    {
+        .name = ITEM_NAME("Infinite Repel"),
+        .price = 0,
+        .description = COMPOUND_STRING(
+            "Repels weak wild\n"
+            "Pokémon. Use it to\n"
+            "switch it on/off."),
+        .importance = 1,
+        .pocket = POCKET_KEY_ITEMS,
+        .type = ITEM_USE_FIELD,
+        .fieldUseFunc = CeItemUse_InfiniteRepel,
+        .iconPic = gItemIcon_Repel,
+        .iconPalette = gItemIconPalette_MaxRepel,
+    },

@@ -16099,7 +16099,7 @@ const struct ItemInfo gItemsInfo[] CE_PATCHABLE = // CE:
         .iconPic = gItemIcon_PokeshiDoll,
         .iconPalette = gItemIconPalette_PokeshiDoll,
     },
-#include "ce/key_items_info.h" // CE: Candy Jar, Move Relearner and Move Deleter entries
+#include "ce/key_items_info.h" // CE: Candy Jar, Move Relearner, Move Deleter and Infinite Repel entries
 };
 
 #undef ITEM_NAME

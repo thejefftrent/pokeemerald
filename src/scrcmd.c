@@ -1,4 +1,5 @@
 #include "global.h"
+#include "ce/field_moves.h" // CE:
 #include "frontier_util.h"
 #include "battle_setup.h"
 #include "battle_util.h"
@@ -2316,6 +2317,7 @@ bool8 ScrCmd_checkfieldmove(struct ScriptContext *ctx)
             break;
         }
     }
+    CeFieldMoves_CheckFieldMove(fieldMove); // CE: field moves without HMs
 
     return FALSE;
 }

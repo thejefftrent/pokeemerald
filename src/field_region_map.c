@@ -1,4 +1,5 @@
 #include "global.h"
+#include "ce/field_moves.h" // CE:
 #include "bg.h"
 #include "event_data.h"
 #include "field_effect.h"
@@ -187,8 +188,7 @@ static void FieldUpdateRegionMap(void)
                 sFieldRegionMapHandler->state++;
                 break;
         case MAP_INPUT_R_BUTTON:
-                if (sFieldRegionMapHandler->regionMap.mapSecType == MAPSECTYPE_CITY_CANFLY
-                    && FlagGet(OW_FLAG_POKE_RIDER) && Overworld_MapTypeAllowsTeleportAndFly(gMapHeader.mapType) == TRUE)
+                if (sFieldRegionMapHandler->regionMap.mapSecType == MAPSECTYPE_CITY_CANFLY && CeFly_CanFlyFromMap()) // CE: fly from anywhere (was OW_FLAG_POKE_RIDER and outdoors)
                 {
                     PlaySE(SE_SELECT);
                     SetFlyDestination(&sFieldRegionMapHandler->regionMap);
@@ -241,8 +241,7 @@ static void PrintTitleWindowText(void)
 
     FillWindowPixelBuffer(WIN_TITLE, PIXEL_FILL(1));
 
-    if (sFieldRegionMapHandler->regionMap.mapSecType == MAPSECTYPE_CITY_CANFLY
-        && FlagGet(OW_FLAG_POKE_RIDER) && Overworld_MapTypeAllowsTeleportAndFly(gMapHeader.mapType) == TRUE)
+    if (sFieldRegionMapHandler->regionMap.mapSecType == MAPSECTYPE_CITY_CANFLY && CeFly_CanFlyFromMap()) // CE: fly from anywhere (was OW_FLAG_POKE_RIDER and outdoors)
     {
         AddTextPrinterParameterized(WIN_TITLE, FONT_NORMAL, FlyPromptText, flyOffset, 1, 0, NULL);
         ScheduleBgCopyTilemapToVram(WIN_TITLE);
