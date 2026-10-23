@@ -53,11 +53,23 @@ struct CeLevelCapConfig
     u16 bosses[CE_LEVEL_CAP_MAX_BOSSES];  // trainer ids in progression order
 };
 
+#define CE_TRAINER_PROBES 4
+#define CE_PRICE_PROBES   2
+
+// Trainers area. Trainer data itself is edited in gTrainers (CE_PATCHABLE); this only holds
+// what CeSelfTest_ProbeTrainers checks, and is only read when hdr.selfTestMode != 0.
+struct CeTrainerConfig
+{
+    u16 probeTrainers[CE_TRAINER_PROBES]; // trainers whose parties to build; TRAINER_NONE ends the list
+    u16 probeItems[CE_PRICE_PROBES];      // items whose price to report; ITEM_NONE ends the list
+};
+
 struct CeRomConfigBody
 {
     struct CeSelfTestConfig selfTest;
     struct CeQolConfig qol;
     struct CeLevelCapConfig levelCaps;
+    struct CeTrainerConfig trainers;
 };
 
 struct CeRomConfig
