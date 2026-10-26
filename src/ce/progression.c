@@ -310,7 +310,7 @@ static const struct CePcSeller
     { FLAG_TEMP_8, CE_QOL_Z_CRYSTALS,               TRUE,  NULL }, // gCeShopZCrystals
     { FLAG_TEMP_9, CE_QOL_GEMS_PLATES_MEMORIES,     TRUE,  NULL }, // gCeShopGemsPlatesMemories
     { FLAG_TEMP_A, CE_QOL_BATTLE_ITEMS,             FALSE, NULL }, // gCeShopBattleItems
-    { FLAG_TEMP_B, CE_QOL_COUNT,                    FALSE, NULL }, // tutor and egg moves (later)
+    { FLAG_TEMP_B, CE_QOL_TUTOR_SELLER,             FALSE, NULL }, // egg and tutor moves (ce/relearner.h)
     { FLAG_TEMP_C, CE_QOL_COUNT,                    FALSE, NULL }, // Wonder Trade (later)
 };
 

@@ -8,6 +8,9 @@
 //   CE_QOL_RELEARNER_EGG_TUTOR  The Fallarbor Town Move Relearner, and the Move Relearner key
 //                               item, first ask for level-up, egg or tutor moves. Fallarbor still
 //                               takes a Heart Scale per move; the key item stays free.
+//   CE_QOL_TUTOR_SELLER         A free move tutor upstairs in every Pokémon Center (the FLAG_TEMP_B
+//                               seller, CE_EventScript_PcSellerRelearner, shown by sPcSellers in
+//                               src/ce/progression.c) teaches egg or tutor moves.
 //
 // They run upstream's relearner in script mode with its own states, MOVE_RELEARNER_EGG_MOVES and
 // MOVE_RELEARNER_TUTOR_MOVES (script mode ignores the states' isActive, so the summary screen's

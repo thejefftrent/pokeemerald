@@ -44,6 +44,73 @@ CE_EventScript_RelearnerAskCancelled:
 	setvar VAR_RESULT, FALSE
 	return
 
+@ CE_QOL_TUTOR_SELLER: the move tutor upstairs in every Pokemon Center (the FLAG_TEMP_B seller of
+@ sPcSellers, src/ce/progression.c; its object is at the end of each 2F map.json). Free and
+@ unlimited: the player picks egg moves or tutor moves, then Pokemon from the party or the PC,
+@ until cancelling the Pokemon goes back to the question and cancelling the question ends.
+CE_EventScript_PcSellerRelearner::
+	lockall
+	faceplayer
+	msgbox CE_Text_PcRelearner_Hello, MSGBOX_DEFAULT
+CE_EventScript_PcRelearner_Ask:
+	message CE_Text_Relearner_WhichList
+	waitmessage
+	dynmultipush CE_Text_Relearner_EggMoves, MOVE_RELEARNER_EGG_MOVES
+	dynmultipush CE_Text_Relearner_TutorMoves, MOVE_RELEARNER_TUTOR_MOVES
+	dynmultipush CE_Text_Relearner_Cancel, MULTI_B_PRESSED
+	dynmultistack 0, 0, FALSE, 3, FALSE, 0, DYN_MULTICHOICE_CB_NONE
+	closemessage
+	goto_if_eq VAR_RESULT, MULTI_B_PRESSED, CE_EventScript_PcRelearner_Bye
+	setmoverelearnerstate VAR_RESULT
+CE_EventScript_PcRelearner_ChooseMon:
+	msgbox CE_Text_PcRelearner_WhichMon, MSGBOX_DEFAULT
+	chooseboxmon SELECT_PC_MON_MOVE_RELEARNER
+	waitstate
+	goto_if_eq VAR_0x8004, PARTY_NOTHING_CHOSEN, CE_EventScript_PcRelearner_Ask
+	special IsSelectedMonEgg
+	goto_if_eq VAR_RESULT, TRUE, CE_EventScript_PcRelearner_Egg
+	special Special_HasMoveToRelearn
+	goto_if_eq VAR_RESULT, FALSE, CE_EventScript_PcRelearner_NoMove
+	msgbox CE_Text_PcRelearner_WhichMove, MSGBOX_DEFAULT
+	special TeachMoveRelearnerMove
+	goto CE_EventScript_PcRelearner_ChooseMon
+	end
+
+CE_EventScript_PcRelearner_Egg:
+	msgbox CE_Text_PcRelearner_Egg, MSGBOX_DEFAULT
+	goto CE_EventScript_PcRelearner_ChooseMon
+	end
+
+CE_EventScript_PcRelearner_NoMove:
+	msgbox CE_Text_PcRelearner_NoMove, MSGBOX_DEFAULT
+	goto CE_EventScript_PcRelearner_ChooseMon
+	end
+
+CE_EventScript_PcRelearner_Bye:
+	msgbox CE_Text_PcRelearner_Bye, MSGBOX_DEFAULT
+	releaseall
+	end
+
+CE_Text_PcRelearner_Hello:
+	.string "EGG moves or tutor moves, I teach\n"
+	.string "them all, free of charge!$"
+
+CE_Text_PcRelearner_WhichMon:
+	.string "Which POKéMON should learn a move?$"
+
+CE_Text_PcRelearner_WhichMove:
+	.string "Which move should it learn?$"
+
+CE_Text_PcRelearner_Egg:
+	.string "An EGG can't learn any moves yet.$"
+
+CE_Text_PcRelearner_NoMove:
+	.string "I have no move of that kind\n"
+	.string "to teach that POKéMON.$"
+
+CE_Text_PcRelearner_Bye:
+	.string "Come back any time!$"
+
 CE_Text_Relearner_WhichList:
 	.string "Which kind of move?$"
 

@@ -67,14 +67,10 @@ CE_EventScript_PcSellerBattleItems::
 	release
 	end
 
-@ Placeholders for the tutor and egg move relearner and for Wonder Trade. Their sPcSellers entry
-@ has no feature yet, so they never show; the feature that fills one in replaces its script.
-CE_EventScript_PcSellerRelearner::
-	lock
-	faceplayer
-	release
-	end
+@ The move tutor (CE_EventScript_PcSellerRelearner) is in data/scripts/ce/relearner.inc.
 
+@ Placeholder for Wonder Trade. Its sPcSellers entry has no feature yet, so it never shows; the
+@ feature that fills it in replaces its script.
 CE_EventScript_PcSellerWonderTrade::
 	lock
 	faceplayer
