@@ -4,6 +4,9 @@
 @ The lists are upstream relearner states, set with setmoverelearnerstate before chooseboxmon:
 @ MOVE_RELEARNER_LEVEL_UP_MOVES, MOVE_RELEARNER_EGG_MOVES (every stage of the evolution line)
 @ and MOVE_RELEARNER_TUTOR_MOVES. The relearner screen runs them in script mode.
+@ VAR_0x8006 keeps the chosen list across chooseboxmon, and each script sets the state from it
+@ again after waitstate: SUMMARY in the PC view (ShowPokemonSummaryScreen) resets the state to
+@ level-up moves. The PC view, the summary screen and the relearner never write VAR_0x8006.
 
 @ CE_QOL_RELEARNER_EGG_TUTOR. Called from the Fallarbor Town Move Relearner
 @ (FallarborTown_MoveRelearnersHouse ChooseMon) where it set the level-up list: with the feature
@@ -37,6 +40,7 @@ CE_EventScript_RelearnerAskLevelUpEggTutor:
 	closemessage
 	goto_if_eq VAR_RESULT, MULTI_B_PRESSED, CE_EventScript_RelearnerAskCancelled
 	setmoverelearnerstate VAR_RESULT
+	copyvar VAR_0x8006, VAR_RESULT
 	setvar VAR_RESULT, TRUE
 	return
 
@@ -61,11 +65,13 @@ CE_EventScript_PcRelearner_Ask:
 	dynmultistack 0, 0, FALSE, 3, FALSE, 0, DYN_MULTICHOICE_CB_NONE
 	closemessage
 	goto_if_eq VAR_RESULT, MULTI_B_PRESSED, CE_EventScript_PcRelearner_Bye
-	setmoverelearnerstate VAR_RESULT
+	copyvar VAR_0x8006, VAR_RESULT
 CE_EventScript_PcRelearner_ChooseMon:
 	msgbox CE_Text_PcRelearner_WhichMon, MSGBOX_DEFAULT
+	setmoverelearnerstate VAR_0x8006
 	chooseboxmon SELECT_PC_MON_MOVE_RELEARNER
 	waitstate
+	setmoverelearnerstate VAR_0x8006
 	goto_if_eq VAR_0x8004, PARTY_NOTHING_CHOSEN, CE_EventScript_PcRelearner_Ask
 	special IsSelectedMonEgg
 	goto_if_eq VAR_RESULT, TRUE, CE_EventScript_PcRelearner_Egg

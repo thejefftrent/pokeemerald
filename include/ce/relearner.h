@@ -23,7 +23,8 @@
 //   src/pokemon_summary_screen.c     UpdateMoveRelearnerState: a script relearner keeps its list
 //                                    through the forget-a-move screen
 //   data/maps/FallarborTown_MoveRelearnersHouse/scripts.inc  ChooseMon: call
-//                                    CE_EventScript_RelearnerFallarborList
+//                                    CE_EventScript_RelearnerFallarborList; after the
+//                                    Pokémon is chosen, setmoverelearnerstate VAR_0x8006
 //   data/event_scripts.s             #include "data/scripts/ce/relearner.inc"
 
 // Room in the relearner's list (heap, while the relearner screen is open). MAX_RELEARNER_MOVES
@@ -52,7 +53,8 @@ u32 CeRelearner_GetListMoves(struct BoxPokemon *mon, enum MoveRelearnerStates st
 bool32 CeRelearner_OffersEggTutor(void);
 
 // Script native (callnative, requests_effects=1) for data/scripts/ce/relearner.inc: sets the
-// level-up list, as Fallarbor always did, and VAR_RESULT = CeRelearner_OffersEggTutor().
+// level-up list, as Fallarbor always did (the state and VAR_0x8006, which keeps the list across
+// chooseboxmon), and VAR_RESULT = CeRelearner_OffersEggTutor().
 void CeRelearner_ScriptStartList(struct ScriptContext *ctx);
 
 #endif // GUARD_CE_RELEARNER_H

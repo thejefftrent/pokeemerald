@@ -12,6 +12,7 @@ CE_EventScript_MoveRelearnerItem_ChooseMon:
 	call CE_EventScript_RelearnerKeyItemList
 	chooseboxmon SELECT_PC_MON_MOVE_RELEARNER
 	waitstate
+	setmoverelearnerstate VAR_0x8006
 	goto_if_eq VAR_0x8004, PARTY_NOTHING_CHOSEN, CE_EventScript_KeyItemDone
 	special IsSelectedMonEgg
 	goto_if_eq VAR_RESULT, TRUE, CE_EventScript_MoveRelearnerItem_Egg

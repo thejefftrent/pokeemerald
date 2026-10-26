@@ -118,5 +118,6 @@ void CeRelearner_ScriptStartList(struct ScriptContext *ctx)
 {
     Script_RequestEffects(SCREFF_V1);
     gMoveRelearnerState = MOVE_RELEARNER_LEVEL_UP_MOVES;
+    gSpecialVar_0x8006 = MOVE_RELEARNER_LEVEL_UP_MOVES;
     gSpecialVar_Result = CeRelearner_OffersEggTutor();
 }

@@ -25,6 +25,7 @@ FallarborTown_MoveRelearnersHouse_EventScript_ChooseMon::
 	call CE_EventScript_RelearnerFallarborList @ CE: level-up moves, or with the QoL the list the player picks
 	chooseboxmon SELECT_PC_MON_MOVE_RELEARNER
 	waitstate
+	setmoverelearnerstate VAR_0x8006 @ CE: the list again, SUMMARY in the PC view resets it to level-up moves
 	goto_if_eq VAR_0x8004, PARTY_NOTHING_CHOSEN, FallarborTown_MoveRelearnersHouse_EventScript_ComeBackWithHeartScale
 	special IsSelectedMonEgg
 	goto_if_eq VAR_RESULT, TRUE, FallarborTown_MoveRelearnersHouse_EventScript_CantTeachEgg

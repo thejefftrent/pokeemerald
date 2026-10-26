@@ -165,10 +165,14 @@ TEST("CE: the Fallarbor relearner and the key item ask which list only with egg 
     gSaveBlock2Ptr->pokedex.ceQolChosen[1] = gSaveBlock2Ptr->pokedex.ceQolValue[1] = 0;
     CeTest_SetQol(CE_QOL_RELEARNER_EGG_TUTOR, mode);
     gMoveRelearnerState = MOVE_RELEARNER_TUTOR_MOVES;
+    gSpecialVar_0x8006 = MOVE_RELEARNER_TUTOR_MOVES;
     gSpecialVar_Result = 0xFFFF;
     CeRelearner_ScriptStartList(&ctx);
     // The level-up list first, as Fallarbor always set; the script then asks only when on.
+    // VAR_0x8006 keeps the list across chooseboxmon: SUMMARY in the PC view resets the state, and
+    // the scripts set it from VAR_0x8006 again after waitstate.
     EXPECT_EQ(gMoveRelearnerState, MOVE_RELEARNER_LEVEL_UP_MOVES);
+    EXPECT_EQ(gSpecialVar_0x8006, MOVE_RELEARNER_LEVEL_UP_MOVES);
     EXPECT_EQ(gSpecialVar_Result, (mode == CE_QOL_MODE_ON || mode == CE_QOL_MODE_PLAYER_ON));
     EXPECT_EQ(CeRelearner_OffersEggTutor(), CeQol_IsOn(CE_QOL_RELEARNER_EGG_TUTOR));
 }
