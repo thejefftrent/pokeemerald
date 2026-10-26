@@ -26,6 +26,7 @@
 #include "trainer_tower.h"
 #include "window.h"
 #include "line_break.h"
+#include "ce/rival_names.h" // CE: rival names
 #include "constants/abilities.h"
 #include "constants/battle_dome.h"
 #include "constants/battle_string_ids.h"
@@ -2965,6 +2966,7 @@ static const u8 *BattleStringGetOpponentNameByTrainerId(u16 trainerId, u8 *text,
             toCpy = GetExpandedPlaceholder(PLACEHOLDER_ID_RIVAL);
         else
             toCpy = GetTrainerNameFromId(trainerId);
+        toCpy = CeRivalNames_OpponentName(trainerId, toCpy); // CE: the website's names for Brendan and May
     }
 
     assertf(DoesStringProperlyTerminate(toCpy, TRAINER_NAME_LENGTH + 1),"Opponent needs a valid name")
