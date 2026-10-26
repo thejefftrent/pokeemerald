@@ -173,19 +173,6 @@ static void ProbeScenario(void)
     CeSelfTest_PutField("caveNum", MAP_NUM(MAP_GRANITE_CAVE_1F));
     CeSelfTest_LineEmit();
 
-    // The bedrooms with the QoL sellers (tools/canary/room-sellers.ts), and where the save keeps
-    // the player's gender and the player's own QoL picks (bit = feature id).
-    CeSelfTest_LineStart("scenarioRoom");
-    CeSelfTest_PutField("brendanGroup", MAP_GROUP(MAP_LITTLEROOT_TOWN_BRENDANS_HOUSE_2F));
-    CeSelfTest_PutField("brendanNum", MAP_NUM(MAP_LITTLEROOT_TOWN_BRENDANS_HOUSE_2F));
-    CeSelfTest_PutField("mayGroup", MAP_GROUP(MAP_LITTLEROOT_TOWN_MAYS_HOUSE_2F));
-    CeSelfTest_PutField("mayNum", MAP_NUM(MAP_LITTLEROOT_TOWN_MAYS_HOUSE_2F));
-    CeSelfTest_PutField("gender", offsetof(struct SaveBlock2, playerGender));
-    CeSelfTest_PutField("qolChosen", offsetof(struct SaveBlock2, pokedex.ceQolChosen));
-    CeSelfTest_PutField("qolValue", offsetof(struct SaveBlock2, pokedex.ceQolValue));
-    CeSelfTest_PutField("zCrystals", CE_QOL_Z_CRYSTALS);
-    CeSelfTest_LineEmit();
-
     CreateMon(&mon, SPECIES_ZIGZAGOON, 20, 0, OTID_STRUCT_PRESET(0));
     SetMonData(&mon, MON_DATA_MOVE1, &move);
     SetMonData(&mon, MON_DATA_PP1, &pp);
