@@ -1,10 +1,14 @@
 #include "global.h"
+#include "event_data.h"
 #include "malloc.h"
 #include "move_relearner.h"
 #include "party_menu.h"
 #include "pokemon.h"
+#include "script.h"
 #include "test/test.h"
+#include "ce/qol.h"
 #include "ce/relearner.h"
+#include "ce/test.h"
 #include "ce/teachable.h"
 #include "constants/moves.h"
 
@@ -146,4 +150,25 @@ TEST("CE: the tutor move relearner lists every tutor move the species can learn,
     else
         EXPECT_GT(count, 0);
     Free(moves);
+}
+
+TEST("CE: the Fallarbor relearner and the key item ask which list only with egg and tutor moves on")
+{
+    struct ScriptContext ctx = {0};
+    enum CeQolMode mode = CE_QOL_MODE_OFF;
+
+    PARAMETRIZE { mode = CE_QOL_MODE_OFF; }
+    PARAMETRIZE { mode = CE_QOL_MODE_ON; }
+    PARAMETRIZE { mode = CE_QOL_MODE_PLAYER_OFF; }
+    PARAMETRIZE { mode = CE_QOL_MODE_PLAYER_ON; }
+
+    gSaveBlock2Ptr->pokedex.ceQolChosen[1] = gSaveBlock2Ptr->pokedex.ceQolValue[1] = 0;
+    CeTest_SetQol(CE_QOL_RELEARNER_EGG_TUTOR, mode);
+    gMoveRelearnerState = MOVE_RELEARNER_TUTOR_MOVES;
+    gSpecialVar_Result = 0xFFFF;
+    CeRelearner_ScriptStartList(&ctx);
+    // The level-up list first, as Fallarbor always set; the script then asks only when on.
+    EXPECT_EQ(gMoveRelearnerState, MOVE_RELEARNER_LEVEL_UP_MOVES);
+    EXPECT_EQ(gSpecialVar_Result, (mode == CE_QOL_MODE_ON || mode == CE_QOL_MODE_PLAYER_ON));
+    EXPECT_EQ(CeRelearner_OffersEggTutor(), CeQol_IsOn(CE_QOL_RELEARNER_EGG_TUTOR));
 }

@@ -2,12 +2,14 @@
 @ Included by data/event_scripts.s.
 
 @ The Fallarbor Move Tutor (FallarborTown_MoveRelearnersHouse) without the Heart Scale:
-@ level-up moves, Pokemon from the party or the PC, repeated until the player cancels.
+@ level-up moves, or with CE_QOL_RELEARNER_EGG_TUTOR the list the player picks (level-up, egg or
+@ tutor moves, data/scripts/ce/relearner.inc), Pokemon from the party or the PC, repeated until
+@ the player cancels.
 CE_EventScript_MoveRelearnerItem::
 	lockall
 CE_EventScript_MoveRelearnerItem_ChooseMon:
 	msgbox CE_Text_MoveRelearnerItem_WhichMon, MSGBOX_DEFAULT
-	setmoverelearnerstate MOVE_RELEARNER_LEVEL_UP_MOVES
+	call CE_EventScript_RelearnerKeyItemList
 	chooseboxmon SELECT_PC_MON_MOVE_RELEARNER
 	waitstate
 	goto_if_eq VAR_0x8004, PARTY_NOTHING_CHOSEN, CE_EventScript_KeyItemDone

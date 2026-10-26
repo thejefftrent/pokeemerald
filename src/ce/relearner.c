@@ -1,8 +1,11 @@
 #include "global.h"
+#include "event_data.h"
 #include "item.h"
 #include "move_relearner.h"
 #include "party_menu.h"
 #include "pokemon.h"
+#include "script.h"
+#include "ce/qol.h"
 #include "ce/relearner.h"
 #include "ce/teachable.h"
 #include "constants/moves.h"
@@ -104,4 +107,16 @@ bool32 CeRelearner_HasEggMoves(struct BoxPokemon *mon)
             return TRUE;
     }
     return FALSE;
+}
+
+bool32 CeRelearner_OffersEggTutor(void)
+{
+    return CeQol_IsOn(CE_QOL_RELEARNER_EGG_TUTOR);
+}
+
+void CeRelearner_ScriptStartList(struct ScriptContext *ctx)
+{
+    Script_RequestEffects(SCREFF_V1);
+    gMoveRelearnerState = MOVE_RELEARNER_LEVEL_UP_MOVES;
+    gSpecialVar_Result = CeRelearner_OffersEggTutor();
 }

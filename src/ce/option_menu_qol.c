@@ -103,6 +103,7 @@ static const u8 *const sFeatureNames[CE_QOL_COUNT] =
     [CE_QOL_BATTLE_ITEMS]             = COMPOUND_STRING("BATTLE ITEMS"),
     [CE_QOL_ALWAYS_CATCH]             = COMPOUND_STRING("ALWAYS CATCH"),
     [CE_QOL_POKEDEX_PLUS]             = COMPOUND_STRING("POKéDEX PLUS"),
+    [CE_QOL_RELEARNER_EGG_TUTOR]      = COMPOUND_STRING("EGG/TUTOR RELEARN"),
 };
 
 static bool32 IsVisible(enum CeQolFeature feature)

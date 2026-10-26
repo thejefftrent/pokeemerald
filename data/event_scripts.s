@@ -1172,6 +1172,7 @@ EventScript_SetBrineyLocation_Route109::
 #include "data/scripts/ce/modes.inc" // CE: game-mode scripts (no-heal refusals)
 #include "data/scripts/ce/team.inc" // CE: static team and PC delivery scripts
 #include "data/scripts/ce/pc_sellers.inc" // CE: QoL sellers upstairs in Pokémon Centers
+#include "data/scripts/ce/relearner.inc" // CE: egg and tutor move relearner lists
 
 @ scripts/notices.inc? signs.inc? See comment about text/notices.inc
 Common_EventScript_ShowPokemartSign::

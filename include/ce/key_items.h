@@ -4,7 +4,9 @@
 // QoL key items. Having the item in the bag is the feature: CeKeyItems_Sync gives it while
 // its feature is on and takes it back while it is off, so nothing else reads the gate.
 //   ITEM_CE_CANDY_JAR       CE_QOL_CANDY_JAR       a Rare Candy that is never used up
-//   ITEM_CE_MOVE_RELEARNER  CE_QOL_RELEARNER_ITEM  the Fallarbor relearner (level-up moves), free
+//   ITEM_CE_MOVE_RELEARNER  CE_QOL_RELEARNER_ITEM  the Fallarbor relearner, free: level-up moves,
+//                                                  or with CE_QOL_RELEARNER_EGG_TUTOR also egg
+//                                                  and tutor moves (ce/relearner.h)
 //   ITEM_CE_MOVE_DELETER    CE_QOL_DELETER_ITEM    the Lilycove move deleter
 //   ITEM_POKEMON_BOX_LINK   CE_QOL_PC_ITEM         upstream's Pokémon Storage System item
 //   ITEM_CE_INFINITE_REPEL  CE_QOL_INFINITE_REPEL  a Repel the player switches on and off

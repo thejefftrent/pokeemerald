@@ -1930,6 +1930,7 @@ static void UpdateMoveRelearnerState(void)
 {
     u32 state;
     sMonSummaryScreen->hasRelearnableMoves = FALSE;
+    if (sMonSummaryScreen->mode == SUMMARY_MODE_SELECT_MOVE && gRelearnMode == RELEARN_MODE_SCRIPT) { UpdateRelearnPrompt(); return; } // CE: a script relearner's egg or tutor list survives the forget-a-move screen
     for (u32 i = 0; i < MOVE_RELEARNER_COUNT; i++)
     {
         state = (gMoveRelearnerState + i) % MOVE_RELEARNER_COUNT;

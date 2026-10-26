@@ -61,7 +61,8 @@
     X(CE_QOL_ROOM_SELLERS,           FALSE)         \
     X(CE_QOL_BATTLE_ITEMS,           FALSE)         \
     X(CE_QOL_ALWAYS_CATCH,           FALSE)         \
-    X(CE_QOL_POKEDEX_PLUS,           FALSE)
+    X(CE_QOL_POKEDEX_PLUS,           FALSE)         \
+    X(CE_QOL_RELEARNER_EGG_TUTOR,    FALSE)
 
 #define CE_QOL_ENUM_ENTRY(id, upstream) id,
 enum CeQolFeature
