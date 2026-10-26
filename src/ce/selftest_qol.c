@@ -172,6 +172,17 @@ static void ProbePokedexPlus(void)
     CeSelfTest_PutField("inUseMask", inUseMask);
     CeSelfTest_PutField("qolPokedexPlus", CE_QOL_POKEDEX_PLUS);
     CeSelfTest_LineEmit();
+
+    // Fields of the dex's view: the list's Pokémon sprites (whose x tells the HGSS list from the
+    // classic one) and the Evos page's pre-evolutions and rows.
+    CeSelfTest_LineStart("scenarioDexView");
+    CeSelfTest_PutField("viewMonSprites", offsetof(struct PokedexView, monSpriteIds));
+    CeSelfTest_PutField("viewMonSpriteCount", MAX_MONS_ON_SCREEN);
+    CeSelfTest_PutField("spriteX", offsetof(struct Sprite, x));
+    CeSelfTest_PutField("viewPreEvos", offsetof(struct PokedexView, numPreEvolutions));
+    CeSelfTest_PutField("viewEvoTargets", offsetof(struct PokedexView, sEvoScreenData.targetSpecies));
+    CeSelfTest_PutField("evoTargetSize", sizeof(sPokedexView->sEvoScreenData.targetSpecies[0]));
+    CeSelfTest_LineEmit();
 }
 
 void CeSelfTest_ProbeQolExtras(void)

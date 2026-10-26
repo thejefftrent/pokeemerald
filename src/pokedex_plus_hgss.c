@@ -3446,7 +3446,7 @@ static u8 PrintPreEvolutions(u8 taskId, enum Species species)
                     if (!HasTwoPreEvolutions(species))
                         break;
                 }
-                else
+                else if (i != preEvolutionOne) // CE: a species with two methods into Gholdengo is one source
                 {
                     preEvolutionTwo = i;
                     numPreEvolutions += 1;
@@ -3456,7 +3456,7 @@ static u8 PrintPreEvolutions(u8 taskId, enum Species species)
         }
     }
 
-    if (HasTwoPreEvolutions(species))
+    if (HasTwoPreEvolutions(species) && numPreEvolutions == 2) // CE: edited or randomized data can leave Gholdengo fewer than two sources
     {
         CreateCaughtBallEvolutionScreen(preEvolutionOne, base_x - 9, base_y + base_y_offset*0, 0);
         HandlePreEvolutionSpeciesPrint(taskId, preEvolutionOne, species, base_x, base_y, base_y_offset, 0);

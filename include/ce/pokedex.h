@@ -31,8 +31,9 @@
 //
 // Bounds for edited data (the website can give a species any evolutions): at most
 // CE_DEX_EVO_ROWS rows and CE_DEX_EVO_MAX_DEPTH levels below the viewed species (a loop of
-// evolutions stops there), one pre-evolution row (two for Gholdengo, which upstream special-cases)
-// and one grandparent row, and CE_DEX_FORM_ICONS alternate forms. Vanilla stays inside them
+// evolutions stops there), one pre-evolution row (two for Gholdengo, which upstream special-cases,
+// only while two different species evolve into it; with fewer it gets the usual rows) and one
+// grandparent row, and CE_DEX_FORM_ICONS alternate forms. Vanilla stays inside them
 // except Eevee (10 evolution entries) and Milcery, which upstream wrote one row past the arrays,
 // Burmy's three forms all evolving into Mothim, and Pikachu, Unown, Vivillon, Minior, Arceus,
 // Silvally and Alcremie, whose forms upstream wrote past the task's data.
