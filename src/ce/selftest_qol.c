@@ -89,8 +89,21 @@ static void ProbeScenario(void)
     CeSelfTest_LineEmit();
 }
 
+// Poké Balls always catch: the hook in SetBallThrowShakes (battle_script_commands.c) reads
+// CeQol_IsOn(CE_QOL_ALWAYS_CATCH) when a ball is thrown, so the game must see the mode the website
+// wrote, after the player's pick. The catch itself is covered by test/ce/battles.c.
+static void ProbeAlwaysCatch(void)
+{
+    CeSelfTest_LineStart("alwaysCatch");
+    CeSelfTest_PutField("id", CE_QOL_ALWAYS_CATCH);
+    CeSelfTest_PutField("mode", CeQol_GetMode(CE_QOL_ALWAYS_CATCH));
+    CeSelfTest_PutField("on", CeQol_IsOn(CE_QOL_ALWAYS_CATCH));
+    CeSelfTest_LineEmit();
+}
+
 void CeSelfTest_ProbeQolExtras(void)
 {
     ProbePcSellers();
     ProbeScenario();
+    ProbeAlwaysCatch();
 }
