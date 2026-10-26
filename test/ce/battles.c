@@ -1,4 +1,5 @@
 #include "global.h"
+#include "pokedex.h"
 #include "test/battle.h"
 #include "ce/test.h"
 
@@ -167,5 +168,100 @@ SINGLE_BATTLE_TEST("CE: Battle config: B_BURN_DAMAGE changes burn damage in batt
         TURN {}
     } SCENE {
         HP_BAR(player, damage: GetMonData(&PLAYER_PARTY[0], MON_DATA_MAX_HP) / divisor);
+    }
+}
+
+// Poké Balls always catch (CE_QOL_ALWAYS_CATCH). Mewtwo's catch rate is 3, so a Poké Ball at
+// full HP has a catch chance of 1 in 255 and a shake roll of MAX_u16 fails the first shake. The
+// Gen 9 badge malus would bring a level-100 Mewtwo's chance down to 0 with no badges, so these
+// tests use the Gen 7 rule (no malus), as test/battle/capture.c does.
+WILD_BATTLE_TEST("CE: Poké Balls always catch: a full-HP Mewtwo is caught by a Poké Ball", u32 odds)
+{
+    enum CeQolMode mode = CE_QOL_MODE_OFF;
+
+    PARAMETRIZE { mode = CE_QOL_MODE_OFF; }
+    PARAMETRIZE { mode = CE_QOL_MODE_ON; }
+    PARAMETRIZE { mode = CE_QOL_MODE_PLAYER_OFF; }
+    PARAMETRIZE { mode = CE_QOL_MODE_PLAYER_ON; }
+
+    GIVEN {
+        ASSUME(gSpeciesInfo[SPECIES_MEWTWO].catchRate == 3);
+        WITH_CONFIG(B_MISSING_BADGE_CATCH_MALUS, GEN_7);
+        CeTest_SetQol(CE_QOL_ALWAYS_CATCH, mode);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_MEWTWO) { Moves(MOVE_CELEBRATE); }
+    } WHEN {
+        TURN { USE_ITEM(player, ITEM_POKE_BALL, WITH_RNG(RNG_BALLTHROW_SHAKE, MAX_u16)); }
+    } SCENE {
+        MESSAGE("You used Poké Ball!");
+        CATCHING_CHANCE(&results[i].odds);
+        ANIMATION(ANIM_TYPE_SPECIAL, B_ANIM_BALL_THROW, player);
+    } THEN {
+        // The catch chance is still computed and recorded: always-catch doesn't change it.
+        EXPECT_GT(results[i].odds, 0);
+        EXPECT_LT(results[i].odds, 255);
+        if (mode == CE_QOL_MODE_ON || mode == CE_QOL_MODE_PLAYER_ON)
+        {
+            EXPECT_EQ(GetMonData(&gParties[B_TRAINER_PLAYER][1], MON_DATA_SPECIES), SPECIES_MEWTWO);
+            EXPECT_EQ(GetMonData(&gParties[B_TRAINER_PLAYER][1], MON_DATA_POKEBALL), GetItemSecondaryId(ITEM_POKE_BALL));
+        }
+        else
+        {
+            EXPECT_EQ(GetMonData(&gParties[B_TRAINER_PLAYER][1], MON_DATA_SPECIES), SPECIES_NONE);
+        }
+    }
+}
+
+WILD_BATTLE_TEST("CE: Poké Balls always catch: an owned species shows the critical capture throw")
+{
+    GIVEN {
+        WITH_CONFIG(B_MISSING_BADGE_CATCH_MALUS, GEN_7);
+        WITH_CONFIG(B_CRITICAL_CAPTURE_IF_OWNED, GEN_9);
+        CeTest_SetQol(CE_QOL_ALWAYS_CATCH, CE_QOL_MODE_ON);
+        GetSetPokedexFlag(NATIONAL_DEX_MEWTWO, FLAG_SET_CAUGHT);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_MEWTWO) { Moves(MOVE_CELEBRATE); }
+    } WHEN {
+        TURN { USE_ITEM(player, ITEM_POKE_BALL, WITH_RNG(RNG_BALLTHROW_SHAKE, MAX_u16)); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_SPECIAL, B_ANIM_CRITICAL_CAPTURE_THROW, player);
+        NOT ANIMATION(ANIM_TYPE_SPECIAL, B_ANIM_BALL_THROW, player);
+    } THEN {
+        EXPECT_EQ(GetMonData(&gParties[B_TRAINER_PLAYER][1], MON_DATA_SPECIES), SPECIES_MEWTWO);
+    }
+}
+
+GHOST_BATTLE_TEST("CE: Poké Balls always catch: the ghost still dodges")
+{
+    GIVEN {
+        CeTest_SetQol(CE_QOL_ALWAYS_CATCH, CE_QOL_MODE_ON);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_MAROWAK);
+    } WHEN {
+        TURN { USE_ITEM(player, ITEM_POKE_BALL, WITH_RNG(RNG_BALLTHROW_SHAKE, MAX_u16)); }
+        TURN { USE_ITEM(player, ITEM_MASTER_BALL); }
+    } SCENE {
+        MESSAGE("You used Poké Ball!");
+        MESSAGE("It dodged your thrown Poké Ball! This Pokémon can't be caught!");
+        MESSAGE("You used Master Ball!");
+        MESSAGE("It dodged your thrown Poké Ball! This Pokémon can't be caught!");
+    } THEN {
+        EXPECT_EQ(GetMonData(&gParties[B_TRAINER_PLAYER][1], MON_DATA_SPECIES), SPECIES_NONE);
+    }
+}
+
+SINGLE_BATTLE_TEST("CE: Poké Balls always catch: trainers still block the ball")
+{
+    GIVEN {
+        CeTest_SetQol(CE_QOL_ALWAYS_CATCH, CE_QOL_MODE_ON);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_CELEBRATE); }
+    } WHEN {
+        TURN { USE_ITEM(player, ITEM_POKE_BALL); }
+    } SCENE {
+        MESSAGE("The Trainer blocked your Poké Ball!");
+        MESSAGE("Don't be a thief!");
+    } THEN {
+        EXPECT_EQ(GetMonData(&gParties[B_TRAINER_PLAYER][1], MON_DATA_SPECIES), SPECIES_NONE);
     }
 }

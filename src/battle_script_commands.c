@@ -8177,6 +8177,7 @@ static void SetBallThrowShakes(void)
 
     gBattleSpritesDataPtr->animationData->isCriticalCapture = FALSE;
     gBattleSpritesDataPtr->animationData->criticalCaptureSuccess = FALSE;
+    if (CeQol_IsOn(CE_QOL_ALWAYS_CATCH)) { FinalizeCapture(); return; } // CE: always-catch QoL (trainer/ghost/Wally branches and the GetBallThrowableState catch gates run before this)
 
     // Master Ball check occurs before critical capture check
     if (odds == CAPTURE_GUARANTEED || IsVictoryCatchGuaranteed())

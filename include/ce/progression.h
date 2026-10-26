@@ -17,12 +17,22 @@
 //   src/battle_util.c           GetAttackerObedienceForAction   CE_QOL_ALWAYS_OBEY
 //   src/battle_util.c           IsGen6ExpShareEnabled           CE_QOL_EXP_SHARE_ALL
 //   src/battle_main.c           ClearSetBScriptingStruct        CE_QOL_CATCH_EXP
+//   src/battle_script_commands.c SetBallThrowShakes             CE_QOL_ALWAYS_CATCH
 //   src/pokemon_summary_screen.c ShouldShowIvEvPrompt           CE_QOL_SUMMARY_IV_EV
 //   src/pokemon_summary_screen.c ShouldShowMoveRelearner        CE_QOL_SUMMARY_RELEARNER
 //   src/daycare.c               TryToHatchEgg                   CE_QOL_FAST_EGG_HATCHING
 //   src/pokemon.c               ComputePlayerShinyOdds          CE_QOL_SHINY_CHARM
 // Nothing is cached outside a battle or a menu that is open, so a feature flipped from the
 // options menu takes effect the next time the bag, a mart, a summary or a battle opens.
+
+// SetBallThrowShakes: with CE_QOL_ALWAYS_CATCH every ball that is thrown at a wild Pokémon
+// catches it, as a Master Ball does (3 shakes, or the critical-capture throw for an owned species
+// under B_CRITICAL_CAPTURE_IF_OWNED). The catch chance is still computed and recorded for tests,
+// but no shake or critical-capture random number is drawn. Whatever refuses a ball runs earlier
+// and still does: trainers, the ghost and Wally's tutorial in Cmd_handleballthrow, and the catch
+// gates when the ball is chosen (GetBallThrowableState in src/item_use.c: two Pokémon out, no
+// room, a semi-invulnerable target, the bag rule and the game modes' catch rules). Battles the
+// modes exempt (the Safari Zone, Birch's rescue) have no gates, so there a catch is certain.
 
 // GetItemImportance: with CE_QOL_REUSABLE_TMS every TM is important, as with upstream's
 // I_REUSABLE_TMS. Teaching does not use it up; it shows no quantity, cannot be sold, tossed,
