@@ -8,16 +8,19 @@
 #include "pokemon.h"
 #include "pokemon_storage_system.h"
 #include "script.h"
+#include "string_util.h"
 #include "ce/pokedex.h"
 #include "ce/progression.h"
 #include "ce/qol.h"
 #include "ce/relearner.h"
 #include "ce/selftest.h"
+#include "ce/wonder_trade.h"
 #include "config/pokedex_plus_hgss.h"
 #include "constants/flags.h"
 #include "constants/map_groups.h"
 #include "constants/moves.h"
 #include "constants/pokedex.h"
+#include "constants/species.h"
 #include "constants/vars.h"
 
 extern struct PokedexView *sPokedexView;
@@ -265,6 +268,80 @@ static void ProbeRelearnerScenario(void)
     }
 }
 
+// Wonder Trade: the pool the attendant draws from, read through the game's own rule, so the canary
+// can compare it with the engine's (the battle-only list must match BATTLE_ONLY_FORMS, and the
+// Pokédex entries in the pool, for any type and for the run's, the engine's prediction). spots:
+// bit i = sWonderTradeSpots[i] is in the pool (any type). picks: of 20 picks for the run's type,
+// how many were in that pool. block and allowed: the gate and the attendant's visibility with
+// the ROM's own rules, after the player's pick. The trade itself is covered by
+// test/ce/wonder_trade.c and played by tools/canary/wonder-trade.ts.
+static const u16 sWonderTradeSpots[] =
+{
+    SPECIES_VENUSAUR_MEGA, SPECIES_KYOGRE_PRIMAL, SPECIES_MIMIKYU_BUSTED, SPECIES_ARCEUS_FIRE,
+    SPECIES_KYUREM_WHITE, SPECIES_ROTOM_WASH, SPECIES_DARMANITAN_GALAR_ZEN,
+    SPECIES_MEWTWO, SPECIES_VULPIX_ALOLA, SPECIES_DARMANITAN_GALAR_STANDARD, SPECIES_ARCEUS_NORMAL, SPECIES_ROTOM,
+};
+
+static void ProbeWonderTrade(void)
+{
+    u32 i, sum = 0, spots = 0, picks = 0, type = CeModes_Rules()->monotype;
+
+    for (i = 0; i < CeWonderTrade_BattleOnlyCount(); i++)
+        sum += CeWonderTrade_BattleOnlyForm(i);
+    for (i = 0; i < ARRAY_COUNT(sWonderTradeSpots); i++)
+    {
+        if (CeWonderTrade_InPool(sWonderTradeSpots[i], TYPE_NONE))
+            spots |= 1u << i;
+    }
+    for (i = 0; i < 20; i++)
+    {
+        if (CeWonderTrade_InPool(CeWonderTrade_PickSpecies(type), type))
+            picks++;
+    }
+
+    CeSelfTest_LineStart("wonderTrade");
+    CeSelfTest_PutField("id", CE_QOL_WONDER_TRADE);
+    CeSelfTest_PutField("mode", CeQol_GetMode(CE_QOL_WONDER_TRADE));
+    CeSelfTest_PutField("on", CeQol_IsOn(CE_QOL_WONDER_TRADE));
+    CeSelfTest_PutField("block", CeWonderTrade_Block());
+    CeSelfTest_PutField("allowed", CeWonderTrade_IsAllowed());
+    CeSelfTest_PutField("battleOnly", CeWonderTrade_BattleOnlyCount());
+    CeSelfTest_PutField("battleOnlySum", sum);
+    CeSelfTest_PutField("groups", CeWonderTrade_CountGroups(TYPE_NONE));
+    CeSelfTest_PutField("runType", type);
+    CeSelfTest_PutField("runGroups", CeWonderTrade_CountGroups(type));
+    CeSelfTest_PutField("spots", spots);
+    CeSelfTest_PutField("picks", picks);
+    CeSelfTest_LineEmit();
+}
+
+// For tools/canary/wonder-trade.ts, which plays Wonder Trades in headless mGBA: the special flag
+// set while the scene plays (its byte and bit), the string buffers the attendant fills (the
+// received Pokémon's name and OT, and the box), where a party Pokémon keeps its level and HP and
+// a box Pokémon its personality and OT id (unencrypted fields), and where the save keeps the
+// player's trainer id.
+static void ProbeWonderTradeScenario(void)
+{
+    CeSelfTest_LineStart("scenarioWonderTrade");
+    CeSelfTest_PutField("wonderTrade", CE_QOL_WONDER_TRADE);
+    CeSelfTest_PutField("tradeFlag", FLAG_CE_WONDER_TRADE);
+    CeSelfTest_PutField("tradeFlagByte", (u32)GetFlagPointer(FLAG_CE_WONDER_TRADE));
+    CeSelfTest_PutField("tradeFlagMask", 1u << (FLAG_CE_WONDER_TRADE & 7));
+    CeSelfTest_PutField("stringVar1", (u32)gStringVar1);
+    CeSelfTest_PutField("stringVar2", (u32)gStringVar2);
+    CeSelfTest_PutField("stringVar3", (u32)gStringVar3);
+    CeSelfTest_LineEmit();
+
+    CeSelfTest_LineStart("scenarioWonderTradeMon");
+    CeSelfTest_PutField("monLevel", offsetof(struct Pokemon, level));
+    CeSelfTest_PutField("monHp", offsetof(struct Pokemon, hp));
+    CeSelfTest_PutField("monMaxHp", offsetof(struct Pokemon, maxHP));
+    CeSelfTest_PutField("personality", offsetof(struct BoxPokemon, personality));
+    CeSelfTest_PutField("otId", offsetof(struct BoxPokemon, otId));
+    CeSelfTest_PutField("playerId", offsetof(struct SaveBlock2, playerTrainerId));
+    CeSelfTest_LineEmit();
+}
+
 void CeSelfTest_ProbeQolExtras(void)
 {
     ProbePcSellers();
@@ -273,4 +350,6 @@ void CeSelfTest_ProbeQolExtras(void)
     ProbePokedexPlus();
     ProbeRelearner();
     ProbeRelearnerScenario();
+    ProbeWonderTrade();
+    ProbeWonderTradeScenario();
 }
