@@ -28,3 +28,12 @@ AUTO_GEN_TARGETS += $(CE_FIELD_ITEMS_OUT)
 
 $(CE_FIELD_ITEMS_OUT): tools/ce/gen_field_items.py ce-force
 	@python3 tools/ce/gen_field_items.py $@
+
+# Pokémon Center 2F sellers: the 17 maps on LAYOUT_POKEMON_CENTER_2F end with the same eight
+# seller objects and the bedrooms keep their hidden placeholders. Always runs with the other
+# generated targets; the check fails the build when a map drifts.
+.PHONY: ce-check-pc-sellers
+AUTO_GEN_TARGETS += ce-check-pc-sellers
+
+ce-check-pc-sellers:
+	@python3 tools/ce/check_pc_sellers.py

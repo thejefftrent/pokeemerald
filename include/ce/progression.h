@@ -11,7 +11,9 @@
 //                                                               CE_QOL_TRADE_EVOS_WITHOUT_TRADE,
 //                                                               CE_QOL_MEGA_STONES, CE_QOL_Z_CRYSTALS,
 //                                                               CE_QOL_GEMS_PLATES_MEMORIES
-//   data/maps/LittlerootTown_BrendansHouse_2F, _MaysHouse_2F  OnTransition  CE_QOL_ROOM_SELLERS
+//   data/scripts/cable_club.inc CableClub_OnTransition          CE_QOL_ROOM_SELLERS, CE_QOL_BATTLE_ITEMS
+//   data/maps/LittlerootTown_BrendansHouse_2F, _MaysHouse_2F  OnTransition  (hides the old
+//                                                               bedroom sellers' placeholders)
 //   src/battle_util.c           GetAttackerObedienceForAction   CE_QOL_ALWAYS_OBEY
 //   src/battle_util.c           IsGen6ExpShareEnabled           CE_QOL_EXP_SHARE_ALL
 //   src/battle_main.c           ClearSetBScriptingStruct        CE_QOL_CATCH_EXP
@@ -40,28 +42,42 @@ bool32 CeProgression_InFrontierChallenge(void);
 // CB2_InitBuyMenu, normal marts: upstream's dynamic list, plus the items an enabled feature
 // sells in this map's mart: nature mints in the Lavaridge Herb Shop, the Linking Cord in the
 // Mauville Poké Mart, Gems, Plates and Memories in Slateport's, Z-Crystals in Fortree's and
-// Mega Stones in Mossdeep's. The list is on the heap and TryFreeDynamicShopItemList frees it.
+// Mega Stones in Mossdeep's. Battle items have no town mart: only their Pokémon Center seller
+// sells them. The list is on the heap and TryFreeDynamicShopItemList frees it.
 void CeProgression_BuildShopItemList(const u16 **itemList, u16 *itemCount);
 
-// The QoL shops' stock (ITEM_NONE-terminated). The town marts above add them, and with
-// CE_QOL_ROOM_SELLERS a seller in the player's room sells each (data/scripts/ce/room_sellers.inc):
-//   gCeShopNatureMints         CE_QOL_NATURE_MINTS
+// The QoL shops' stock (ITEM_NONE-terminated). The town marts above add some, and the sellers
+// upstairs in every Pokémon Center sell each whole (data/scripts/ce/pc_sellers.inc):
+//   gCeShopNatureMints         CE_QOL_NATURE_MINTS, the Lavaridge Herb Shop only (21 mints)
+//   gCeShopTrainingItems       CE_QOL_NATURE_MINTS, the training seller: the mints, Ability
+//                              Capsule and Patch, the six vitamins and the six Power items
 //   gCeShopEvolutionItems      CE_QOL_TRADE_EVOS_WITHOUT_TRADE (Mauville adds the Linking Cord only)
 //   gCeShopMegaStones          CE_QOL_MEGA_STONES, with the Mega Ring
 //   gCeShopZCrystals           CE_QOL_Z_CRYSTALS, with the Z-Power Ring
 //   gCeShopGemsPlatesMemories  CE_QOL_GEMS_PLATES_MEMORIES
+//   gCeShopBattleItems         CE_QOL_BATTLE_ITEMS, the battle items seller only
 extern const u16 gCeShopNatureMints[];
+extern const u16 gCeShopTrainingItems[];
 extern const u16 gCeShopEvolutionItems[];
 extern const u16 gCeShopMegaStones[];
 extern const u16 gCeShopZCrystals[];
 extern const u16 gCeShopGemsPlatesMemories[];
+extern const u16 gCeShopBattleItems[];
 
-// The bedrooms' OnTransition (callnative CeProgression_ScriptUpdateRoomSellers): a seller stands
-// in the player's own bedroom while CE_QOL_ROOM_SELLERS and its feature are on; every other one
-// (and all of them in the rival's room) gets its hide flag, a temp flag the next map load clears.
-void CeProgression_UpdateRoomSellers(void);
+// The sellers upstairs in every Pokémon Center, hidden by FLAG_TEMP_5..FLAG_TEMP_C (temp flags,
+// which every map load clears first). On the 2F (onPcSecondFloor), a seller stands while its
+// feature is on and, for the five shop sellers a town mart also stocks, CE_QOL_ROOM_SELLERS is
+// on too; the battle items seller needs only CE_QOL_BATTLE_ITEMS. Everything else, and every
+// seller anywhere else, gets its hide flag.
+void CeProgression_UpdatePcSellers(bool32 onPcSecondFloor);
+// CableClub_OnTransition (all 17 maps on LAYOUT_POKEMON_CENTER_2F) and the bedrooms'
+// OnTransition, whose placeholders it always hides (callnative, requests_effects=1).
 struct ScriptContext;
-void CeProgression_ScriptUpdateRoomSellers(struct ScriptContext *ctx);
+void CeProgression_ScriptUpdatePcSellers(struct ScriptContext *ctx);
+// The self-test's view of the seller table: the index-th seller's hide flag, feature
+// (CE_QOL_COUNT for a placeholder) and whether it also needs CE_QOL_ROOM_SELLERS. FALSE past
+// the last seller.
+bool32 CeProgression_GetPcSeller(u32 index, u16 *flag, u32 *feature, bool32 *needsCenterSellers);
 
 // TryToHatchEgg: steps per Egg cycle. With CE_QOL_FAST_EGG_HATCHING a cycle takes a quarter of
 // the steps, so every Egg hatches four times as fast (Flame Body still halves it again).

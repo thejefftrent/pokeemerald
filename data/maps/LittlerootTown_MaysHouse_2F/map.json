@@ -235,7 +235,7 @@
       "movement_range_y": 0,
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
-      "script": "CE_EventScript_RoomSellerMints",
+      "script": "CE_EventScript_PcSellerTraining",
       "flag": "FLAG_TEMP_5"
     },
     {
@@ -248,7 +248,7 @@
       "movement_range_y": 0,
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
-      "script": "CE_EventScript_RoomSellerEvolutionItems",
+      "script": "CE_EventScript_PcSellerEvolutionItems",
       "flag": "FLAG_TEMP_6"
     },
     {
@@ -261,7 +261,7 @@
       "movement_range_y": 0,
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
-      "script": "CE_EventScript_RoomSellerMegaStones",
+      "script": "CE_EventScript_PcSellerMegaStones",
       "flag": "FLAG_TEMP_7"
     },
     {
@@ -274,7 +274,7 @@
       "movement_range_y": 0,
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
-      "script": "CE_EventScript_RoomSellerZCrystals",
+      "script": "CE_EventScript_PcSellerZCrystals",
       "flag": "FLAG_TEMP_8"
     },
     {
@@ -287,7 +287,7 @@
       "movement_range_y": 0,
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
-      "script": "CE_EventScript_RoomSellerGemsPlatesMemories",
+      "script": "CE_EventScript_PcSellerGemsPlatesMemories",
       "flag": "FLAG_TEMP_9"
     }
   ],

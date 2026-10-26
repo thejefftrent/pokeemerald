@@ -1,6 +1,7 @@
 #include "global.h"
 #include "event_data.h"
 #include "item.h"
+#include "item_use.h"
 #include "shop_criteria.h"
 #include "test/test.h"
 #include "ce/progression.h"
@@ -10,8 +11,8 @@
 #include "constants/items.h"
 #include "constants/maps.h"
 
-// QoL shops (ce/progression.h): town marts that add a feature's stock, and the sellers in the
-// player's room.
+// QoL shops (ce/progression.h): town marts that add a feature's stock, and the sellers upstairs
+// in every Pokémon Center.
 
 static void SetLocation(u16 map)
 {
@@ -66,6 +67,7 @@ TEST("CE: A town mart adds its QoL stock after its own while the feature is on")
     CeTest_SetQol(CE_QOL_GEMS_PLATES_MEMORIES, CE_QOL_MODE_OFF);
     CeTest_SetQol(CE_QOL_Z_CRYSTALS, CE_QOL_MODE_OFF);
     CeTest_SetQol(CE_QOL_MEGA_STONES, CE_QOL_MODE_OFF);
+    CeTest_SetQol(CE_QOL_BATTLE_ITEMS, CE_QOL_MODE_OFF);
     CeTest_SetQol(feature, sells ? CE_QOL_MODE_ON : CE_QOL_MODE_OFF);
     SetLocation(map);
     CeProgression_BuildShopItemList(&list, &count);
@@ -91,6 +93,7 @@ TEST("CE: Another town's mart adds none of a QoL shop's stock")
     CeTest_SetQol(CE_QOL_GEMS_PLATES_MEMORIES, CE_QOL_MODE_ON);
     CeTest_SetQol(CE_QOL_Z_CRYSTALS, CE_QOL_MODE_ON);
     CeTest_SetQol(CE_QOL_MEGA_STONES, CE_QOL_MODE_ON);
+    CeTest_SetQol(CE_QOL_BATTLE_ITEMS, CE_QOL_MODE_ON);
     SetLocation(MAP_OLDALE_TOWN_MART);
     CeProgression_BuildShopItemList(&list, &count);
     EXPECT_EQ(count, 1);
@@ -120,31 +123,153 @@ TEST("CE: The Mega Stone and Z-Crystal stock is every one of them, after the rin
     }
 }
 
-TEST("CE: Room sellers stand in the player's own bedroom while Room sellers and their feature are on")
+TEST("CE: No town mart sells battle items, only their Pokémon Center seller")
 {
-    u8 gender = MALE;
-    u16 map = MAP_LITTLEROOT_TOWN_BRENDANS_HOUSE_2F;
-    enum CeQolMode room = CE_QOL_MODE_OFF, mints = CE_QOL_MODE_OFF;
-    bool32 open = FALSE;
+    static const u16 sScriptList[] = { ITEM_POKE_BALL, ITEM_NONE };
+    u16 map = MAP_OLDALE_TOWN_MART;
+    const u16 *list = sScriptList;
+    u16 count = 0;
 
-    PARAMETRIZE { gender = MALE;   map = MAP_LITTLEROOT_TOWN_BRENDANS_HOUSE_2F; room = CE_QOL_MODE_ON;  mints = CE_QOL_MODE_ON;  open = TRUE; }
-    PARAMETRIZE { gender = FEMALE; map = MAP_LITTLEROOT_TOWN_MAYS_HOUSE_2F;     room = CE_QOL_MODE_ON;  mints = CE_QOL_MODE_ON;  open = TRUE; }
-    // The other house's bedroom is the rival's.
-    PARAMETRIZE { gender = FEMALE; map = MAP_LITTLEROOT_TOWN_BRENDANS_HOUSE_2F; room = CE_QOL_MODE_ON;  mints = CE_QOL_MODE_ON;  open = FALSE; }
-    PARAMETRIZE { gender = MALE;   map = MAP_LITTLEROOT_TOWN_MAYS_HOUSE_2F;     room = CE_QOL_MODE_ON;  mints = CE_QOL_MODE_ON;  open = FALSE; }
-    PARAMETRIZE { gender = MALE;   map = MAP_LITTLEROOT_TOWN_BRENDANS_HOUSE_2F; room = CE_QOL_MODE_OFF; mints = CE_QOL_MODE_ON;  open = FALSE; }
-    PARAMETRIZE { gender = MALE;   map = MAP_LITTLEROOT_TOWN_BRENDANS_HOUSE_2F; room = CE_QOL_MODE_ON;  mints = CE_QOL_MODE_OFF; open = FALSE; }
+    PARAMETRIZE { map = MAP_LAVARIDGE_TOWN_HERB_SHOP; }
+    PARAMETRIZE { map = MAP_MAUVILLE_CITY_MART; }
+    PARAMETRIZE { map = MAP_SLATEPORT_CITY_MART; }
+    PARAMETRIZE { map = MAP_FORTREE_CITY_MART; }
+    PARAMETRIZE { map = MAP_MOSSDEEP_CITY_MART; }
+    PARAMETRIZE { map = MAP_SOOTOPOLIS_CITY_MART; }
+    PARAMETRIZE { map = MAP_OLDALE_TOWN_MART; }
 
-    gSaveBlock2Ptr->playerGender = gender;
+    CeTest_SetQol(CE_QOL_NATURE_MINTS, CE_QOL_MODE_OFF);
+    CeTest_SetQol(CE_QOL_TRADE_EVOS_WITHOUT_TRADE, CE_QOL_MODE_OFF);
+    CeTest_SetQol(CE_QOL_GEMS_PLATES_MEMORIES, CE_QOL_MODE_OFF);
+    CeTest_SetQol(CE_QOL_Z_CRYSTALS, CE_QOL_MODE_OFF);
+    CeTest_SetQol(CE_QOL_MEGA_STONES, CE_QOL_MODE_OFF);
+    CeTest_SetQol(CE_QOL_BATTLE_ITEMS, CE_QOL_MODE_ON);
     SetLocation(map);
-    CeTest_SetQol(CE_QOL_ROOM_SELLERS, room);
-    CeTest_SetQol(CE_QOL_NATURE_MINTS, mints);
+    CeProgression_BuildShopItemList(&list, &count);
+    EXPECT_EQ(count, 1);
+    TryFreeDynamicShopItemList(&list);
+}
+
+TEST("CE: PC sellers stand on a Pokémon Center 2F while their feature (and Center sellers, for a shop seller) is on")
+{
+    bool32 onPc = FALSE;
+    enum CeQolMode center = CE_QOL_MODE_OFF, training = CE_QOL_MODE_OFF, battle = CE_QOL_MODE_OFF;
+    bool32 trainingOpen, battleOpen;
+
+    // onPc FALSE is anywhere else, such as the bedrooms that keep the old sellers as placeholders.
+    PARAMETRIZE { onPc = TRUE;  center = CE_QOL_MODE_ON;  training = CE_QOL_MODE_ON;  battle = CE_QOL_MODE_ON;  }
+    PARAMETRIZE { onPc = TRUE;  center = CE_QOL_MODE_ON;  training = CE_QOL_MODE_ON;  battle = CE_QOL_MODE_OFF; }
+    PARAMETRIZE { onPc = TRUE;  center = CE_QOL_MODE_ON;  training = CE_QOL_MODE_OFF; battle = CE_QOL_MODE_ON;  }
+    PARAMETRIZE { onPc = TRUE;  center = CE_QOL_MODE_ON;  training = CE_QOL_MODE_OFF; battle = CE_QOL_MODE_OFF; }
+    PARAMETRIZE { onPc = TRUE;  center = CE_QOL_MODE_OFF; training = CE_QOL_MODE_ON;  battle = CE_QOL_MODE_ON;  }
+    PARAMETRIZE { onPc = TRUE;  center = CE_QOL_MODE_OFF; training = CE_QOL_MODE_ON;  battle = CE_QOL_MODE_OFF; }
+    PARAMETRIZE { onPc = TRUE;  center = CE_QOL_MODE_OFF; training = CE_QOL_MODE_OFF; battle = CE_QOL_MODE_ON;  }
+    PARAMETRIZE { onPc = TRUE;  center = CE_QOL_MODE_OFF; training = CE_QOL_MODE_OFF; battle = CE_QOL_MODE_OFF; }
+    PARAMETRIZE { onPc = FALSE; center = CE_QOL_MODE_ON;  training = CE_QOL_MODE_ON;  battle = CE_QOL_MODE_ON;  }
+    PARAMETRIZE { onPc = FALSE; center = CE_QOL_MODE_ON;  training = CE_QOL_MODE_ON;  battle = CE_QOL_MODE_OFF; }
+    PARAMETRIZE { onPc = FALSE; center = CE_QOL_MODE_ON;  training = CE_QOL_MODE_OFF; battle = CE_QOL_MODE_ON;  }
+    PARAMETRIZE { onPc = FALSE; center = CE_QOL_MODE_ON;  training = CE_QOL_MODE_OFF; battle = CE_QOL_MODE_OFF; }
+    PARAMETRIZE { onPc = FALSE; center = CE_QOL_MODE_OFF; training = CE_QOL_MODE_ON;  battle = CE_QOL_MODE_ON;  }
+    PARAMETRIZE { onPc = FALSE; center = CE_QOL_MODE_OFF; training = CE_QOL_MODE_ON;  battle = CE_QOL_MODE_OFF; }
+    PARAMETRIZE { onPc = FALSE; center = CE_QOL_MODE_OFF; training = CE_QOL_MODE_OFF; battle = CE_QOL_MODE_ON;  }
+    PARAMETRIZE { onPc = FALSE; center = CE_QOL_MODE_OFF; training = CE_QOL_MODE_OFF; battle = CE_QOL_MODE_OFF; }
+
+    CeTest_SetQol(CE_QOL_ROOM_SELLERS, center);
+    CeTest_SetQol(CE_QOL_NATURE_MINTS, training);
+    CeTest_SetQol(CE_QOL_BATTLE_ITEMS, battle);
     CeTest_SetQol(CE_QOL_MEGA_STONES, CE_QOL_MODE_OFF);
     FlagClear(FLAG_TEMP_5);
     FlagClear(FLAG_TEMP_7);
-    CeProgression_UpdateRoomSellers();
-    // The mint seller's hide flag (FLAG_TEMP_5 in map.json) is clear only while it's open.
-    EXPECT_EQ(FlagGet(FLAG_TEMP_5), !open);
+    FlagClear(FLAG_TEMP_A);
+    FlagClear(FLAG_TEMP_B);
+    FlagClear(FLAG_TEMP_C);
+    CeProgression_UpdatePcSellers(onPc);
+
+    // A shop seller that a town mart also stocks needs Center sellers too; the battle items
+    // seller, found nowhere else, needs only its own feature.
+    trainingOpen = onPc && center == CE_QOL_MODE_ON && training == CE_QOL_MODE_ON;
+    battleOpen = onPc && battle == CE_QOL_MODE_ON;
+    EXPECT_EQ(FlagGet(FLAG_TEMP_5), !trainingOpen);
+    EXPECT_EQ(FlagGet(FLAG_TEMP_A), !battleOpen);
     // Mega Stones are off, so their seller is hidden either way.
     EXPECT(FlagGet(FLAG_TEMP_7));
+    // The tutor seller's and Wonder Trade's placeholders never show.
+    EXPECT(FlagGet(FLAG_TEMP_B));
+    EXPECT(FlagGet(FLAG_TEMP_C));
+}
+
+TEST("CE: The PC seller table hides with FLAG_TEMP_5 onwards, in the maps' object order")
+{
+    static const u8 sFeatures[] =
+    {
+        CE_QOL_NATURE_MINTS, CE_QOL_TRADE_EVOS_WITHOUT_TRADE, CE_QOL_MEGA_STONES, CE_QOL_Z_CRYSTALS,
+        CE_QOL_GEMS_PLATES_MEMORIES, CE_QOL_BATTLE_ITEMS, CE_QOL_COUNT, CE_QOL_COUNT,
+    };
+    u32 i, feature;
+    u16 flag;
+    bool32 needsCenterSellers;
+
+    for (i = 0; CeProgression_GetPcSeller(i, &flag, &feature, &needsCenterSellers); i++)
+    {
+        EXPECT_LT(i, ARRAY_COUNT(sFeatures));
+        EXPECT_EQ(flag, FLAG_TEMP_5 + i);
+        EXPECT_EQ(feature, sFeatures[i]);
+        EXPECT_EQ(needsCenterSellers, i < 5);
+        // Never the follower's flag.
+        EXPECT_NE(flag, FLAG_TEMP_HIDE_FOLLOWER);
+    }
+    EXPECT_EQ(i, ARRAY_COUNT(sFeatures));
+}
+
+TEST("CE: The training stock is the mints, Ability Capsule and Patch, the vitamins and every Power item")
+{
+    static const u16 sOthers[] =
+    {
+        ITEM_ABILITY_CAPSULE, ITEM_ABILITY_PATCH,
+        ITEM_HP_UP, ITEM_PROTEIN, ITEM_IRON, ITEM_CALCIUM, ITEM_ZINC, ITEM_CARBOS,
+    };
+    u32 i, mints = CountShopItems(gCeShopNatureMints), powerItems = 0;
+
+    EXPECT_EQ(mints, 21);
+    for (i = 0; i < mints; i++)
+        EXPECT_EQ(gCeShopTrainingItems[i], gCeShopNatureMints[i]);
+    for (i = 0; i < ARRAY_COUNT(sOthers); i++)
+        EXPECT(IsInShop(gCeShopTrainingItems, sOthers[i]));
+    for (i = ITEM_NONE + 1; i < ITEMS_COUNT; i++)
+    {
+        if (GetItemFieldFunc(i) == ItemUseOutOfBattle_Mint)
+            EXPECT(IsInShop(gCeShopNatureMints, i));
+        if (GetItemHoldEffect(i) == HOLD_EFFECT_POWER_ITEM)
+        {
+            EXPECT(IsInShop(gCeShopTrainingItems, i));
+            powerItems++;
+        }
+    }
+    EXPECT_EQ(powerItems, 6);
+    EXPECT_EQ(CountShopItems(gCeShopTrainingItems), mints + ARRAY_COUNT(sOthers) + powerItems);
+    for (i = 0; gCeShopTrainingItems[i] != ITEM_NONE; i++)
+        EXPECT_GT(GetItemPrice(gCeShopTrainingItems[i]), 0);
+}
+
+TEST("CE: Every battle item has a hold effect and a price, and no other QoL shop sells it")
+{
+    static const u16 *const sOtherShops[] =
+    {
+        gCeShopTrainingItems, gCeShopEvolutionItems, gCeShopMegaStones, gCeShopZCrystals,
+        gCeShopGemsPlatesMemories,
+    };
+    u32 i, j, k;
+
+    EXPECT_EQ(CountShopItems(gCeShopBattleItems), 55);
+    for (i = 0; gCeShopBattleItems[i] != ITEM_NONE; i++)
+    {
+        u16 item = gCeShopBattleItems[i];
+
+        EXPECT_NE(GetItemHoldEffect(item), HOLD_EFFECT_NONE);
+        EXPECT_GT(GetItemPrice(item), 0);
+        for (j = 0; j < ARRAY_COUNT(sOtherShops); j++)
+            EXPECT(!IsInShop(sOtherShops[j], item));
+        for (k = 0; k < i; k++)
+            EXPECT_NE(gCeShopBattleItems[k], item);
+    }
 }

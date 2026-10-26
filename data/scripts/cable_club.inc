@@ -1,4 +1,5 @@
 CableClub_OnTransition:
+	callnative CeProgression_ScriptUpdatePcSellers, requests_effects=1 @ CE: QoL sellers upstairs in every Pokémon Center
 	call CableClub_EventScript_HideOrShowMysteryGiftMan
 	end
 

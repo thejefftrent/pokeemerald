@@ -1171,7 +1171,7 @@ EventScript_SetBrineyLocation_Route109::
 #include "data/scripts/ce/key_items.inc" // CE: QoL key item scripts (cpp include: .include allows no trailing comment)
 #include "data/scripts/ce/modes.inc" // CE: game-mode scripts (no-heal refusals)
 #include "data/scripts/ce/team.inc" // CE: static team and PC delivery scripts
-#include "data/scripts/ce/room_sellers.inc" // CE: QoL sellers in the player's room
+#include "data/scripts/ce/pc_sellers.inc" // CE: QoL sellers upstairs in Pokémon Centers
 
 @ scripts/notices.inc? signs.inc? See comment about text/notices.inc
 Common_EventScript_ShowPokemartSign::

@@ -11,6 +11,7 @@
 #include "ce/qol.h"
 #include "constants/flags.h"
 #include "constants/items.h"
+#include "constants/layouts.h"
 #include "constants/maps.h"
 
 bool32 CeProgression_IsReusableTm(enum Item itemId)
@@ -55,15 +56,33 @@ bool32 CeProgression_InFrontierChallenge(void)
 }
 
 // The QoL shops' stock, each list ended by ITEM_NONE. A town's mart adds one to its own list
-// (sMartExtras), and a seller in the player's room sells it whole (pokemart gCeShop..., in
-// data/scripts/ce/room_sellers.inc). Prices are the items' own, which the website edits.
+// (sMartExtras), and a seller upstairs in every Pokémon Center sells one whole (pokemart
+// gCeShop..., in data/scripts/ce/pc_sellers.inc). Prices are the items' own, which the
+// website edits.
+#define CE_NATURE_MINT_ITEMS                                                                    \
+    ITEM_LONELY_MINT, ITEM_ADAMANT_MINT, ITEM_NAUGHTY_MINT, ITEM_BRAVE_MINT, ITEM_BOLD_MINT,     \
+    ITEM_IMPISH_MINT, ITEM_LAX_MINT, ITEM_RELAXED_MINT, ITEM_MODEST_MINT, ITEM_MILD_MINT,       \
+    ITEM_RASH_MINT, ITEM_QUIET_MINT, ITEM_CALM_MINT, ITEM_GENTLE_MINT, ITEM_CAREFUL_MINT,       \
+    ITEM_SASSY_MINT, ITEM_TIMID_MINT, ITEM_HASTY_MINT, ITEM_JOLLY_MINT, ITEM_NAIVE_MINT,       \
+    ITEM_SERIOUS_MINT
+
+// The Lavaridge Town Herb Shop's extra: the 21 mints only.
 const u16 gCeShopNatureMints[] =
 {
-    ITEM_LONELY_MINT, ITEM_ADAMANT_MINT, ITEM_NAUGHTY_MINT, ITEM_BRAVE_MINT, ITEM_BOLD_MINT,
-    ITEM_IMPISH_MINT, ITEM_LAX_MINT, ITEM_RELAXED_MINT, ITEM_MODEST_MINT, ITEM_MILD_MINT,
-    ITEM_RASH_MINT, ITEM_QUIET_MINT, ITEM_CALM_MINT, ITEM_GENTLE_MINT, ITEM_CAREFUL_MINT,
-    ITEM_SASSY_MINT, ITEM_TIMID_MINT, ITEM_HASTY_MINT, ITEM_JOLLY_MINT, ITEM_NAIVE_MINT,
-    ITEM_SERIOUS_MINT,
+    CE_NATURE_MINT_ITEMS,
+    ITEM_NONE,
+};
+
+// The Pokémon Center training seller (CE_QOL_NATURE_MINTS): the mints, then the Ability
+// Capsule and Patch, the six vitamins and the six Power items (both in HP, Attack, Defense,
+// Sp. Atk, Sp. Def, Speed order).
+const u16 gCeShopTrainingItems[] =
+{
+    CE_NATURE_MINT_ITEMS,
+    ITEM_ABILITY_CAPSULE, ITEM_ABILITY_PATCH,
+    ITEM_HP_UP, ITEM_PROTEIN, ITEM_IRON, ITEM_CALCIUM, ITEM_ZINC, ITEM_CARBOS,
+    ITEM_POWER_WEIGHT, ITEM_POWER_BRACER, ITEM_POWER_BELT, ITEM_POWER_LENS, ITEM_POWER_BAND,
+    ITEM_POWER_ANKLET,
     ITEM_NONE,
 };
 
@@ -152,6 +171,28 @@ const u16 gCeShopGemsPlatesMemories[] =
     ITEM_FLYING_MEMORY, ITEM_PSYCHIC_MEMORY, ITEM_BUG_MEMORY, ITEM_ROCK_MEMORY,
     ITEM_GHOST_MEMORY, ITEM_DRAGON_MEMORY, ITEM_DARK_MEMORY, ITEM_STEEL_MEMORY,
     ITEM_FAIRY_MEMORY,
+    ITEM_NONE,
+};
+
+// The Pokémon Center battle items seller (CE_QOL_BATTLE_ITEMS): held items for battle, the
+// staples first, then utility items. Every one has a hold effect and a price. Left out: Booster
+// Energy (price 0), Bright Powder and Lax Incense (evasion), Focus Band (luck), King's Rock and
+// Razor Claw (gCeShopEvolutionItems sells them), and the seeds, type boosters, species items
+// and Berries.
+const u16 gCeShopBattleItems[] =
+{
+    ITEM_LIFE_ORB, ITEM_CHOICE_BAND, ITEM_CHOICE_SPECS, ITEM_CHOICE_SCARF, ITEM_FOCUS_SASH,
+    ITEM_LEFTOVERS, ITEM_BLACK_SLUDGE, ITEM_ASSAULT_VEST, ITEM_ROCKY_HELMET, ITEM_EXPERT_BELT,
+    ITEM_WEAKNESS_POLICY, ITEM_EVIOLITE, ITEM_LIGHT_CLAY, ITEM_AIR_BALLOON, ITEM_HEAVY_DUTY_BOOTS,
+    ITEM_MUSCLE_BAND, ITEM_WISE_GLASSES, ITEM_SCOPE_LENS, ITEM_WIDE_LENS, ITEM_ZOOM_LENS,
+    ITEM_METRONOME, ITEM_LOADED_DICE, ITEM_PUNCHING_GLOVE, ITEM_THROAT_SPRAY, ITEM_POWER_HERB,
+    ITEM_BLUNDER_POLICY, ITEM_SHELL_BELL, ITEM_WHITE_HERB, ITEM_MENTAL_HERB, ITEM_MIRROR_HERB,
+    ITEM_SAFETY_GOGGLES, ITEM_PROTECTIVE_PADS, ITEM_UTILITY_UMBRELLA, ITEM_COVERT_CLOAK,
+    ITEM_CLEAR_AMULET, ITEM_ABILITY_SHIELD, ITEM_RED_CARD, ITEM_EJECT_BUTTON, ITEM_EJECT_PACK,
+    ITEM_ROOM_SERVICE, ITEM_SHED_SHELL, ITEM_QUICK_CLAW, ITEM_TERRAIN_EXTENDER,
+    ITEM_HEAT_ROCK, ITEM_DAMP_ROCK, ITEM_SMOOTH_ROCK, ITEM_ICY_ROCK, ITEM_TOXIC_ORB,
+    ITEM_FLAME_ORB, ITEM_BIG_ROOT, ITEM_BINDING_BAND, ITEM_GRIP_CLAW, ITEM_IRON_BALL,
+    ITEM_LAGGING_TAIL, ITEM_STICKY_BARB,
     ITEM_NONE,
 };
 
@@ -250,49 +291,64 @@ void CeProgression_BuildShopItemList(const u16 **itemList, u16 *itemCount)
     *itemCount = count;
 }
 
-// The sellers in the player's room, in the order of their object events in both bedrooms'
-// map.json (LittlerootTown_BrendansHouse_2F, LittlerootTown_MaysHouse_2F), with the temp flag
-// that hides each one and the feature whose stock it sells.
-static const struct CeRoomSeller
+// The sellers upstairs in every Pokémon Center, in the order of the eight object events at the
+// end of the 17 LAYOUT_POKEMON_CENTER_2F maps' map.json (tools/ce/check_pc_sellers.py checks
+// them), with the temp flag that hides each one. The five shop sellers that a town mart also
+// stocks need CE_QOL_ROOM_SELLERS as well as their own feature; the merchants found nowhere
+// else need only theirs. A feature of CE_QOL_COUNT is a placeholder that never shows.
+static const struct CePcSeller
 {
     u16 flag;
-    u8 feature; // enum CeQolFeature
-} sRoomSellers[] =
+    u8 feature;                 // enum CeQolFeature
+    bool8 needsCenterSellers;   // also needs CE_QOL_ROOM_SELLERS
+    bool32 (*isAllowed)(void);  // NULL: always
+} sPcSellers[] =
 {
-    { FLAG_TEMP_5, CE_QOL_NATURE_MINTS },
-    { FLAG_TEMP_6, CE_QOL_TRADE_EVOS_WITHOUT_TRADE },
-    { FLAG_TEMP_7, CE_QOL_MEGA_STONES },
-    { FLAG_TEMP_8, CE_QOL_Z_CRYSTALS },
-    { FLAG_TEMP_9, CE_QOL_GEMS_PLATES_MEMORIES },
+    { FLAG_TEMP_5, CE_QOL_NATURE_MINTS,             TRUE,  NULL }, // gCeShopTrainingItems
+    { FLAG_TEMP_6, CE_QOL_TRADE_EVOS_WITHOUT_TRADE, TRUE,  NULL }, // gCeShopEvolutionItems
+    { FLAG_TEMP_7, CE_QOL_MEGA_STONES,              TRUE,  NULL }, // gCeShopMegaStones
+    { FLAG_TEMP_8, CE_QOL_Z_CRYSTALS,               TRUE,  NULL }, // gCeShopZCrystals
+    { FLAG_TEMP_9, CE_QOL_GEMS_PLATES_MEMORIES,     TRUE,  NULL }, // gCeShopGemsPlatesMemories
+    { FLAG_TEMP_A, CE_QOL_BATTLE_ITEMS,             FALSE, NULL }, // gCeShopBattleItems
+    { FLAG_TEMP_B, CE_QOL_COUNT,                    FALSE, NULL }, // tutor and egg moves (later)
+    { FLAG_TEMP_C, CE_QOL_COUNT,                    FALSE, NULL }, // Wonder Trade (later)
 };
 
-// Each house's 2F is its own child's bedroom, so the other one is the rival's.
-static bool32 InPlayersBedroom(void)
+static bool32 IsPcSellerOpen(const struct CePcSeller *seller)
 {
-    u16 map = gSaveBlock2Ptr->playerGender == MALE ? MAP_LITTLEROOT_TOWN_BRENDANS_HOUSE_2F : MAP_LITTLEROOT_TOWN_MAYS_HOUSE_2F;
-
-    return gSaveBlock1Ptr->location.mapGroup == MAP_GROUP(map)
-        && gSaveBlock1Ptr->location.mapNum == MAP_NUM(map);
+    return seller->feature < CE_QOL_COUNT
+        && CeQol_IsOn(seller->feature)
+        && (!seller->needsCenterSellers || CeQol_IsOn(CE_QOL_ROOM_SELLERS))
+        && (seller->isAllowed == NULL || seller->isAllowed());
 }
 
-void CeProgression_UpdateRoomSellers(void)
+void CeProgression_UpdatePcSellers(bool32 onPcSecondFloor)
 {
     u32 i;
-    bool32 open = CeQol_IsOn(CE_QOL_ROOM_SELLERS) && InPlayersBedroom();
 
-    for (i = 0; i < ARRAY_COUNT(sRoomSellers); i++)
+    for (i = 0; i < ARRAY_COUNT(sPcSellers); i++)
     {
-        if (open && CeQol_IsOn(sRoomSellers[i].feature))
-            FlagClear(sRoomSellers[i].flag);
+        if (onPcSecondFloor && IsPcSellerOpen(&sPcSellers[i]))
+            FlagClear(sPcSellers[i].flag);
         else
-            FlagSet(sRoomSellers[i].flag);
+            FlagSet(sPcSellers[i].flag);
     }
 }
 
-void CeProgression_ScriptUpdateRoomSellers(struct ScriptContext *ctx)
+void CeProgression_ScriptUpdatePcSellers(struct ScriptContext *ctx)
 {
     Script_RequestEffects(SCREFF_V1 | SCREFF_SAVE);
-    CeProgression_UpdateRoomSellers();
+    CeProgression_UpdatePcSellers(gMapHeader.mapLayoutId == LAYOUT_POKEMON_CENTER_2F);
+}
+
+bool32 CeProgression_GetPcSeller(u32 index, u16 *flag, u32 *feature, bool32 *needsCenterSellers)
+{
+    if (index >= ARRAY_COUNT(sPcSellers))
+        return FALSE;
+    *flag = sPcSellers[index].flag;
+    *feature = sPcSellers[index].feature;
+    *needsCenterSellers = sPcSellers[index].needsCenterSellers;
+    return TRUE;
 }
 
 #define CE_FAST_EGG_CYCLE_DIVISOR 4
