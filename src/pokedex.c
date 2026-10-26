@@ -33,6 +33,7 @@
 #include "constants/rgb.h"
 #include "constants/songs.h"
 #include "config/pokedex_plus_hgss.h"
+#include "ce/qol.h" // CE: POKEDEX_PLUS_HGSS is a runtime QoL switch
 
 EWRAM_DATA struct PokedexView *sPokedexView = NULL;
 static EWRAM_DATA u16 sLastSelectedPokemon = 0;

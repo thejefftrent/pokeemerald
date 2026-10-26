@@ -52,6 +52,7 @@
 #include "constants/rgb.h"
 #include "constants/songs.h"
 #include "config/pokedex_plus_hgss.h"
+#include "ce/pokedex.h" // CE: POKEDEX_PLUS_HGSS is a runtime QoL switch; spoiler and bounds helpers
 
 // static .rodata strings
 
@@ -3071,7 +3072,7 @@ static void GetSeenFlagTargetSpecies(void)
     for (i = 0; i < sPokedexView->sEvoScreenData.numAllEvolutions; i++)
     {
         species = sPokedexView->sEvoScreenData.targetSpecies[i];
-        if (GetSetPokedexFlag(SpeciesToNationalPokedexNum(species), FLAG_GET_SEEN))
+        if (CeDex_IsSeen(species)) // CE: empty rows (a Mega page, skipped targets) are never seen
         {
             sPokedexView->sEvoScreenData.seen[i] = TRUE;
             sPokedexView->sEvoScreenData.numSeen += 1;
@@ -3145,6 +3146,7 @@ static void Task_LoadEvolutionScreen(u8 taskId)
         //Print evo info and icons
         gTasks[taskId].data[3] = 0;
         PrintEvolutionTargetSpeciesAndMethod(taskId, NationalPokedexNumToSpeciesForm(sPokedexListItem->dexNum), 0, &depth, alreadyPrintedIcons, &iconDepth, 0);
+        sPokedexView->sEvoScreenData.numAllEvolutions = min(depth, CE_DEX_EVO_ROWS); // CE: count the rows actually printed
         LoadSpritePalette(&gSpritePalette_Arrow);
         TryLoadDarkModeArrowPalette();
         GetSeenFlagTargetSpecies();
@@ -3317,6 +3319,7 @@ static void HandleTargetSpeciesPrintText(enum Species targetSpecies, u32 base_x,
 
 static void HandleTargetSpeciesPrintIcon(u8 taskId, enum Species targetSpecies, u8 base_i, u8 iterations)
 {
+    targetSpecies = CeDex_SeenOrUnknown(targetSpecies); // CE: an unseen evolution gets the ? icon
     u32 personality = GetPokedexMonPersonality(targetSpecies);
     LoadMonIconPalettePersonality(targetSpecies, personality); //Loads pallete for current mon
     if (iterations > 6) // Print icons closer to each other if there are many evolutions
@@ -3342,7 +3345,7 @@ static void HandlePreEvolutionSpeciesPrint(u8 taskId, enum Species preSpecies, e
 {
     bool32 seen = GetSetPokedexFlag(SpeciesToNationalPokedexNum(preSpecies), FLAG_GET_SEEN);
 
-    StringCopy(gStringVar1, GetSpeciesName(species)); //evolution mon name
+    StringCopy(gStringVar1, CeDex_SeenName(species)); // CE: the middle stage may be unseen
 
     if (sPokedexView->sEvoScreenData.isMega)
         StringExpandPlaceholders(gStringVar3, sText_EVO_PreEvo_PE_Mega);
@@ -3362,6 +3365,7 @@ static void HandlePreEvolutionSpeciesPrint(u8 taskId, enum Species preSpecies, e
 
     if (base_i < 3)
     {
+        preSpecies = CeDex_SeenOrUnknown(preSpecies); // CE: an unseen pre-evolution gets the ? icon
         u32 personality = GetPokedexMonPersonality(preSpecies);
         LoadMonIconPalettePersonality(preSpecies, personality); //Loads pallete for current mon
         gTasks[taskId].data[4+base_i] = CreateMonIcon(preSpecies, SpriteCB_MonIcon, 18 + 32*base_i, 31, 4, personality); //Create Pokémon sprite
@@ -3423,6 +3427,7 @@ static u8 PrintPreEvolutions(u8 taskId, enum Species species)
     //Calculate previous evolution
     for (i = 0; i < NUM_SPECIES; i++)
     {
+        if (numPreEvolutions >= (HasTwoPreEvolutions(species) ? 2 : 1)) break; // CE: edited (and Burmy/Mothim) data give a species several pre-evolutions; show one, two for Gholdengo
         if (!IsSpeciesEnabled(i))
             continue;
 
@@ -3472,6 +3477,7 @@ static u8 PrintPreEvolutions(u8 taskId, enum Species species)
     {
         for (i = 0; i < NUM_SPECIES; i++)
         {
+            if (numPreEvolutions >= 2) break; // CE: at most one grandparent row
             if (!IsSpeciesEnabled(i))
                 continue;
 
@@ -3571,11 +3577,12 @@ static void PrintEvolutionTargetSpeciesAndMethod(u8 taskId, enum Species species
         return;
 
     StringCopy(gStringVar1, GetSpeciesName(species));
+    if (depth >= CE_DEX_EVO_MAX_DEPTH || *depth_i >= CE_DEX_EVO_ROWS) return; // CE: edited evolutions can loop or overflow the 10-row page
 
     sPokedexView->sEvoScreenData.arrowSpriteDist[*depth_i] = numLines;
 
     //If there are no evolutions print text and return
-    if (evolutions == NULL)
+    if (evolutions == NULL || evolutions[0].method == EVOLUTIONS_END) // CE: a list the website emptied
     {
         if (depth == 0)
         {
@@ -3600,6 +3607,7 @@ static void PrintEvolutionTargetSpeciesAndMethod(u8 taskId, enum Species species
     //If there are evolutions find out which and print them 1 by 1
     for (i = 0; i < times; i++)
     {
+        if (*depth_i >= CE_DEX_EVO_ROWS) break; // CE: no room for another row
         targetSpecies = evolutions[i].targetSpecies;
         if (!IsSpeciesEnabled(targetSpecies))
             continue;
@@ -3608,7 +3616,7 @@ static void PrintEvolutionTargetSpeciesAndMethod(u8 taskId, enum Species species
 
         bool32 isAlcremie = IsSpeciesAlcremie(targetSpecies);
 
-        u32 speciesNameWidthInChars = GetSpeciesNameWidthInChars(GetSpeciesName(targetSpecies));
+        u32 speciesNameWidthInChars = GetSpeciesNameWidthInChars(CeDex_SeenName(targetSpecies)); // CE: lay out a ??? row by the name shown
         u32 speciesNameCharWidth = GetFontAttribute(GetSpeciesNameFontId(speciesNameWidthInChars), FONTATTR_MAX_LETTER_WIDTH);
 
         u32 speciesNameWidth = (speciesNameWidthInChars * speciesNameCharWidth);
@@ -3665,7 +3673,7 @@ static void PrintEvolutionTargetSpeciesAndMethod(u8 taskId, enum Species species
                 break;
             case EVO_SPLIT_FROM_EVO:
                 StringCopy(gStringVar4, COMPOUND_STRING("Splits from "));
-                StringAppend(gStringVar4, GetSpeciesName(evolutions[i].param)); //mon name
+                StringAppend(gStringVar4, CeDex_SeenName(evolutions[i].param)); // CE: unseen species stay ???
                 break;
             case EVO_BATTLE_END:
                 StringExpandPlaceholders(gStringVar4, COMPOUND_STRING("End battle"));
@@ -3778,7 +3786,7 @@ static void PrintEvolutionTargetSpeciesAndMethod(u8 taskId, enum Species species
                     break;
                 // Gen 4
                 case IF_SPECIES_IN_PARTY:
-                    StringAppend(gStringVar4, GetSpeciesName(evolutions[i].params[j].arg1)); //mon name
+                    StringAppend(gStringVar4, CeDex_SeenName(evolutions[i].params[j].arg1)); // CE: unseen species stay ???
                     StringAppend(gStringVar4, COMPOUND_STRING(" in party"));
                     break;
                 case IF_IN_MAPSEC:
@@ -3798,7 +3806,7 @@ static void PrintEvolutionTargetSpeciesAndMethod(u8 taskId, enum Species species
                 // Gen 5
                 case IF_TRADE_PARTNER_SPECIES:
                     StringAppend(gStringVar4, COMPOUND_STRING("traded with "));
-                    StringAppend(gStringVar4, GetSpeciesName(evolutions[i].params[j].arg1));
+                    StringAppend(gStringVar4, CeDex_SeenName(evolutions[i].params[j].arg1)); // CE: unseen species stay ???
                     break;
                 // Gen 6
                 case IF_TYPE_IN_PARTY:
@@ -3882,7 +3890,7 @@ static void PrintEvolutionTargetSpeciesAndMethod(u8 taskId, enum Species species
                     ConvertIntToDecimalStringN(gStringVar2, evolutions[i].params[j].arg3, STR_CONV_MODE_LEFT_ALIGN, 3);
                     StringAppend(gStringVar4, gStringVar2);
                     StringAppend(gStringVar4, COMPOUND_STRING(" "));
-                    StringAppend(gStringVar4, GetSpeciesName(evolutions[i].params[j].arg1));
+                    StringAppend(gStringVar4, CeDex_SeenName(evolutions[i].params[j].arg1)); // CE: unseen species stay ???
                     StringAppend(gStringVar4, COMPOUND_STRING(" that hold "));
                     CopyItemName(evolutions[i].params[j].arg2, gStringVar2);
                     StringAppend(gStringVar4, gStringVar2);
@@ -3941,7 +3949,7 @@ static void PrintEvolutionTargetSpeciesAndMethod(u8 taskId, enum Species species
 
         numLines = CountLineBreaks(gStringVar4) * fontHeight;
 
-        sPokedexView->sEvoScreenData.arrowSpriteDist[*depth_i + 1] = numLines;
+        if (*depth_i + 1 < CE_DEX_EVO_ROWS) sPokedexView->sEvoScreenData.arrowSpriteDist[*depth_i + 1] = numLines; // CE: vanilla Eevee and Milcery wrote past the array
 
         PrintEvolutionTargetSpeciesAndMethod(taskId, targetSpecies, depth+1, depth_i, alreadyPrintedIcons, icon_depth_i, numLines);
     }//For loop end
@@ -4227,6 +4235,7 @@ static void PrintForms(u8 taskId, enum Species species)
 
     for (i=0; i < 30; i++)
     {
+        if (times >= CE_DEX_FORM_ICONS) break; // CE: icon ids live in task data[5..15]; Pikachu, Unown, Vivillon... wrote into the next task
         speciesForm = GetFormSpeciesId(species, i);
         if (speciesForm == FORM_SPECIES_END)
             break;
