@@ -1173,6 +1173,7 @@ EventScript_SetBrineyLocation_Route109::
 #include "data/scripts/ce/team.inc" // CE: static team and PC delivery scripts
 #include "data/scripts/ce/pc_sellers.inc" // CE: QoL sellers upstairs in Pokémon Centers
 #include "data/scripts/ce/relearner.inc" // CE: egg and tutor move relearner lists
+#include "data/scripts/ce/wonder_trade.inc" // CE: Wonder Trade attendant upstairs in Pokémon Centers
 
 @ scripts/notices.inc? signs.inc? See comment about text/notices.inc
 Common_EventScript_ShowPokemartSign::

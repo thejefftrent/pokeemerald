@@ -105,6 +105,7 @@ static const u8 *const sFeatureNames[CE_QOL_COUNT] =
     [CE_QOL_POKEDEX_PLUS]             = COMPOUND_STRING("POKéDEX PLUS"),
     [CE_QOL_RELEARNER_EGG_TUTOR]      = COMPOUND_STRING("EGG/TUTOR RELEARN"),
     [CE_QOL_TUTOR_SELLER]             = COMPOUND_STRING("CENTER TUTOR"),
+    [CE_QOL_WONDER_TRADE]             = COMPOUND_STRING("WONDER TRADE"),
 };
 
 static bool32 IsVisible(enum CeQolFeature feature)

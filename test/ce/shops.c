@@ -179,6 +179,7 @@ TEST("CE: PC sellers stand on a Pokémon Center 2F while their feature (and Cent
     CeTest_SetQol(CE_QOL_BATTLE_ITEMS, battle);
     CeTest_SetQol(CE_QOL_MEGA_STONES, CE_QOL_MODE_OFF);
     CeTest_SetQol(CE_QOL_TUTOR_SELLER, CE_QOL_MODE_OFF);
+    CeTest_SetQol(CE_QOL_WONDER_TRADE, CE_QOL_MODE_OFF);
     FlagClear(FLAG_TEMP_5);
     FlagClear(FLAG_TEMP_7);
     FlagClear(FLAG_TEMP_A);
@@ -194,7 +195,7 @@ TEST("CE: PC sellers stand on a Pokémon Center 2F while their feature (and Cent
     EXPECT_EQ(FlagGet(FLAG_TEMP_A), !battleOpen);
     // Mega Stones are off, so their seller is hidden either way.
     EXPECT(FlagGet(FLAG_TEMP_7));
-    // The move tutor is off, and Wonder Trade's placeholder never shows.
+    // The move tutor and Wonder Trade are off.
     EXPECT(FlagGet(FLAG_TEMP_B));
     EXPECT(FlagGet(FLAG_TEMP_C));
 }
@@ -220,12 +221,33 @@ TEST("CE: The Pokémon Center move tutor stands upstairs while its feature is on
     EXPECT_EQ(FlagGet(FLAG_TEMP_B), !(onPc && (tutor == CE_QOL_MODE_ON || tutor == CE_QOL_MODE_PLAYER_ON)));
 }
 
+TEST("CE: The Wonder Trade attendant stands upstairs while its feature is on, with or without Center sellers")
+{
+    bool32 onPc = FALSE;
+    enum CeQolMode center = CE_QOL_MODE_OFF, trade = CE_QOL_MODE_OFF;
+
+    PARAMETRIZE { onPc = TRUE;  center = CE_QOL_MODE_ON;  trade = CE_QOL_MODE_ON;  }
+    PARAMETRIZE { onPc = TRUE;  center = CE_QOL_MODE_OFF; trade = CE_QOL_MODE_ON;  }
+    PARAMETRIZE { onPc = TRUE;  center = CE_QOL_MODE_ON;  trade = CE_QOL_MODE_OFF; }
+    PARAMETRIZE { onPc = TRUE;  center = CE_QOL_MODE_OFF; trade = CE_QOL_MODE_PLAYER_ON;  }
+    PARAMETRIZE { onPc = TRUE;  center = CE_QOL_MODE_OFF; trade = CE_QOL_MODE_PLAYER_OFF; }
+    PARAMETRIZE { onPc = FALSE; center = CE_QOL_MODE_ON;  trade = CE_QOL_MODE_ON;  }
+
+    gSaveBlock2Ptr->pokedex.ceQolChosen[1] = gSaveBlock2Ptr->pokedex.ceQolValue[1] = 0;
+    CeTest_SetQol(CE_QOL_ROOM_SELLERS, center);
+    CeTest_SetQol(CE_QOL_WONDER_TRADE, trade);
+    FlagClear(FLAG_TEMP_C);
+    CeProgression_UpdatePcSellers(onPc);
+    // The run's rules can hide it too: test/ce/wonder_trade.c.
+    EXPECT_EQ(FlagGet(FLAG_TEMP_C), !(onPc && (trade == CE_QOL_MODE_ON || trade == CE_QOL_MODE_PLAYER_ON)));
+}
+
 TEST("CE: The PC seller table hides with FLAG_TEMP_5 onwards, in the maps' object order")
 {
     static const u8 sFeatures[] =
     {
         CE_QOL_NATURE_MINTS, CE_QOL_TRADE_EVOS_WITHOUT_TRADE, CE_QOL_MEGA_STONES, CE_QOL_Z_CRYSTALS,
-        CE_QOL_GEMS_PLATES_MEMORIES, CE_QOL_BATTLE_ITEMS, CE_QOL_TUTOR_SELLER, CE_QOL_COUNT,
+        CE_QOL_GEMS_PLATES_MEMORIES, CE_QOL_BATTLE_ITEMS, CE_QOL_TUTOR_SELLER, CE_QOL_WONDER_TRADE,
     };
     u32 i, feature;
     u16 flag;

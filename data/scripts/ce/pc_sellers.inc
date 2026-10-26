@@ -67,15 +67,8 @@ CE_EventScript_PcSellerBattleItems::
 	release
 	end
 
-@ The move tutor (CE_EventScript_PcSellerRelearner) is in data/scripts/ce/relearner.inc.
-
-@ Placeholder for Wonder Trade. Its sPcSellers entry has no feature yet, so it never shows; the
-@ feature that fills it in replaces its script.
-CE_EventScript_PcSellerWonderTrade::
-	lock
-	faceplayer
-	release
-	end
+@ The move tutor (CE_EventScript_PcSellerRelearner) is in data/scripts/ce/relearner.inc, and the
+@ Wonder Trade attendant (CE_EventScript_PcSellerWonderTrade) in data/scripts/ce/wonder_trade.inc.
 
 CE_Text_PcSellerTraining:
 	.string "Mints, vitamins, POWER items\n"

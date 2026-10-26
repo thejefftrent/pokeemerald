@@ -9,6 +9,7 @@
 #include "shop_criteria.h"
 #include "ce/progression.h"
 #include "ce/qol.h"
+#include "ce/wonder_trade.h"
 #include "constants/flags.h"
 #include "constants/items.h"
 #include "constants/layouts.h"
@@ -295,7 +296,8 @@ void CeProgression_BuildShopItemList(const u16 **itemList, u16 *itemCount)
 // end of the 17 LAYOUT_POKEMON_CENTER_2F maps' map.json (tools/ce/check_pc_sellers.py checks
 // them), with the temp flag that hides each one. The five shop sellers that a town mart also
 // stocks need CE_QOL_ROOM_SELLERS as well as their own feature; the merchants found nowhere
-// else need only theirs. A feature of CE_QOL_COUNT is a placeholder that never shows.
+// else need only theirs. isAllowed can hide one in some runs (Wonder Trade under Nuzlocke,
+// single Pokémon and static team). A feature of CE_QOL_COUNT is a placeholder that never shows.
 static const struct CePcSeller
 {
     u16 flag;
@@ -311,7 +313,7 @@ static const struct CePcSeller
     { FLAG_TEMP_9, CE_QOL_GEMS_PLATES_MEMORIES,     TRUE,  NULL }, // gCeShopGemsPlatesMemories
     { FLAG_TEMP_A, CE_QOL_BATTLE_ITEMS,             FALSE, NULL }, // gCeShopBattleItems
     { FLAG_TEMP_B, CE_QOL_TUTOR_SELLER,             FALSE, NULL }, // egg and tutor moves (ce/relearner.h)
-    { FLAG_TEMP_C, CE_QOL_COUNT,                    FALSE, NULL }, // Wonder Trade (later)
+    { FLAG_TEMP_C, CE_QOL_WONDER_TRADE,             FALSE, CeWonderTrade_IsAllowed }, // Wonder Trade (ce/wonder_trade.h)
 };
 
 static bool32 IsPcSellerOpen(const struct CePcSeller *seller)

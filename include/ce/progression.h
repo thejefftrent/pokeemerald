@@ -12,7 +12,7 @@
 //                                                               CE_QOL_MEGA_STONES, CE_QOL_Z_CRYSTALS,
 //                                                               CE_QOL_GEMS_PLATES_MEMORIES
 //   data/scripts/cable_club.inc CableClub_OnTransition          CE_QOL_ROOM_SELLERS, CE_QOL_BATTLE_ITEMS,
-//                                                               CE_QOL_TUTOR_SELLER
+//                                                               CE_QOL_TUTOR_SELLER, CE_QOL_WONDER_TRADE
 //   data/maps/LittlerootTown_BrendansHouse_2F, _MaysHouse_2F  OnTransition  (hides the old
 //                                                               bedroom sellers' placeholders)
 //   src/battle_util.c           GetAttackerObedienceForAction   CE_QOL_ALWAYS_OBEY
@@ -78,9 +78,11 @@ extern const u16 gCeShopBattleItems[];
 // The sellers upstairs in every Pokémon Center, hidden by FLAG_TEMP_5..FLAG_TEMP_C (temp flags,
 // which every map load clears first). On the 2F (onPcSecondFloor), a seller stands while its
 // feature is on and, for the five shop sellers a town mart also stocks, CE_QOL_ROOM_SELLERS is
-// on too; the battle items seller needs only CE_QOL_BATTLE_ITEMS, and the move tutor (egg and
-// tutor moves, ce/relearner.h) only CE_QOL_TUTOR_SELLER. Everything else, and every seller
-// anywhere else, gets its hide flag.
+// on too; the battle items seller needs only CE_QOL_BATTLE_ITEMS, the move tutor (egg and
+// tutor moves, ce/relearner.h) only CE_QOL_TUTOR_SELLER, and the Wonder Trade attendant
+// (ce/wonder_trade.h) only CE_QOL_WONDER_TRADE in a run whose rules allow it (not Nuzlocke,
+// single Pokémon or static team). Everything else, and every seller anywhere else, gets its
+// hide flag.
 void CeProgression_UpdatePcSellers(bool32 onPcSecondFloor);
 // CableClub_OnTransition (all 17 maps on LAYOUT_POKEMON_CENTER_2F) and the bedrooms'
 // OnTransition, whose placeholders it always hides (callnative, requests_effects=1).

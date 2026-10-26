@@ -52,6 +52,7 @@
 #include "constants/songs.h"
 #include "constants/union_room.h"
 #include "ce/encounters.h" // CE: in-game trades read species, request and item from the table
+#include "ce/wonder_trade.h" // CE: Wonder Trade plays the in-game trade scene
 
 // IDs for RunTradeMenuCallback
 enum {
@@ -3341,6 +3342,7 @@ static void BufferTradeSceneStrings(void)
     }
     else
     {
+        if (CeWonderTrade_BufferSceneStrings()) return; // CE: Wonder Trade names its own Pokémon and trainer
         ingameTrade = &sIngameTrades[gSpecialVar_0x8005];
         StringCopy(gStringVar1, ingameTrade->otName);
         StringCopy_Nickname(gStringVar3, CeEnc_TradeNickname(gSpecialVar_0x8005, ingameTrade->species, ingameTrade->nickname)); // CE:
@@ -4555,6 +4557,7 @@ static void BufferInGameTradeMonName(void)
 {
     u8 nickname[max(32, POKEMON_NAME_BUFFER_SIZE)];
     const struct InGameTrade *inGameTrade = &sIngameTrades[gSpecialVar_0x8005];
+    if (CeWonderTrade_BufferMonName()) return; // CE: Wonder Trade has no sIngameTrades entry
     GetMonData(&gParties[B_TRAINER_PLAYER][gSpecialVar_0x8005], MON_DATA_NICKNAME, nickname);
     StringCopy_Nickname(gStringVar1, nickname);
     StringCopy(gStringVar2, GetSpeciesName(CeEnc_TradeSpecies(gSpecialVar_0x8005, inGameTrade->species))); // CE:
