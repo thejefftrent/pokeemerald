@@ -1,7 +1,10 @@
 #include "global.h"
 #include "item.h"
+#include "malloc.h"
+#include "move_relearner.h"
 #include "party_menu.h"
 #include "pokemon.h"
+#include "ce/relearner.h"
 #include "ce/rom_config.h"
 #include "ce/selftest.h"
 #include "ce/teachable.h"
@@ -14,10 +17,13 @@
 //   teach:   bit n = CanLearnTeachableMove(species, move of teachable slot n)
 //   levelUp: the moves a new mon gets at a few levels (CreateMon + GiveMonInitialMoveset)
 //   evo:     GetEvolutionTargetSpecies for each of the first evolutions, set up to meet its method
+//   relearn: the egg and tutor lists the move relearner shows a new mon at RELEARN_LEVEL: how
+//            many moves, a hash of the list in order (h = h * 31 + move), and HasMoveToRelearn
 
 #define TM_MOVES_PER_LINE 8
 #define EVOS_PROBED 4
 #define EVO_NOT_PROBED 0xFFFF
+#define RELEARN_LEVEL 5
 
 static const u8 sLevels[] = { 1, 15, 40, MAX_LEVEL };
 
@@ -118,9 +124,43 @@ static void ProbeEvolutions(u16 species)
     CeSelfTest_LineEmit();
 }
 
+static u32 HashMoves(const u16 *moves, u32 count)
+{
+    u32 hash = 0, i;
+
+    for (i = 0; i < count; i++)
+        hash = hash * 31 + moves[i];
+    return hash;
+}
+
+// The lists through the relearner's own table (CeRelearner_GetListMoves), as its screen builds
+// them. The egg list walks the evolution line back, so it reads the pre-evolutions' egg lists
+// and evolutions too. `moves` holds CE_RELEARNER_MAX_MOVES (heap: IWRAM has no room for it).
+static void ProbeRelearn(u16 species, u16 *moves)
+{
+    struct Pokemon mon;
+    u32 count;
+
+    CreateMon(&mon, species, RELEARN_LEVEL, 0, OTID_STRUCT_PRESET(0));
+    GiveMonInitialMoveset(&mon);
+    CeSelfTest_LineStart("relearn");
+    CeSelfTest_PutField("species", species);
+    CeSelfTest_PutField("level", RELEARN_LEVEL);
+    count = CeRelearner_GetListMoves(&mon.box, MOVE_RELEARNER_EGG_MOVES, moves);
+    CeSelfTest_PutField("egg", count);
+    CeSelfTest_PutField("eggHash", HashMoves(moves, count));
+    CeSelfTest_PutField("eggHas", HasMoveToRelearn(&mon.box, MOVE_RELEARNER_EGG_MOVES));
+    count = CeRelearner_GetListMoves(&mon.box, MOVE_RELEARNER_TUTOR_MOVES, moves);
+    CeSelfTest_PutField("tutor", count);
+    CeSelfTest_PutField("tutorHash", HashMoves(moves, count));
+    CeSelfTest_PutField("tutorHas", HasMoveToRelearn(&mon.box, MOVE_RELEARNER_TUTOR_MOVES));
+    CeSelfTest_LineEmit();
+}
+
 void CeSelfTest_ProbeLearnsets(void)
 {
     const struct CeSelfTestConfig *config = &gCeRomConfig.body.selfTest;
+    u16 *moves = Alloc(CE_RELEARNER_MAX_MOVES * sizeof(u16));
     u32 i;
 
     ProbeTmMoves();
@@ -129,5 +169,7 @@ void CeSelfTest_ProbeLearnsets(void)
         ProbeTeachable(config->species[i]);
         ProbeLevelUp(config->species[i]);
         ProbeEvolutions(config->species[i]);
+        ProbeRelearn(config->species[i], moves);
     }
+    Free(moves);
 }

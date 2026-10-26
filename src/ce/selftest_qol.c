@@ -1,15 +1,22 @@
 #include "global.h"
 #include "event_data.h"
 #include "event_object_movement.h"
+#include "move.h"
+#include "move_relearner.h"
 #include "pokedex.h"
 #include "pokedex_common.h"
+#include "pokemon.h"
+#include "pokemon_storage_system.h"
+#include "script.h"
 #include "ce/pokedex.h"
 #include "ce/progression.h"
 #include "ce/qol.h"
+#include "ce/relearner.h"
 #include "ce/selftest.h"
 #include "config/pokedex_plus_hgss.h"
 #include "constants/flags.h"
 #include "constants/map_groups.h"
+#include "constants/moves.h"
 #include "constants/pokedex.h"
 #include "constants/vars.h"
 
@@ -185,10 +192,85 @@ static void ProbePokedexPlus(void)
     CeSelfTest_LineEmit();
 }
 
+// Egg and tutor moves at the Move Relearner: the Fallarbor relearner and the key item run
+// CeRelearner_ScriptStartList each time, which reads CeQol_IsOn(CE_QOL_RELEARNER_EGG_TUTOR), so
+// the game must see the mode the website wrote, after the player's pick. asks: whether it then
+// asks which list (VAR_RESULT); state: the list it starts from (the level-up one). The Pokémon
+// Center move tutor (CE_QOL_TUTOR_SELLER) is the FLAG_TEMP_B seller of the pcSellers line; the
+// lists themselves are the learnsets probe's relearn lines.
+static void ProbeRelearner(void)
+{
+    struct ScriptContext ctx;
+
+    memset(&ctx, 0, sizeof(ctx));
+    gMoveRelearnerState = MOVE_RELEARNER_TUTOR_MOVES;
+    CeRelearner_ScriptStartList(&ctx);
+    CeSelfTest_LineStart("relearnerEggTutor");
+    CeSelfTest_PutField("id", CE_QOL_RELEARNER_EGG_TUTOR);
+    CeSelfTest_PutField("mode", CeQol_GetMode(CE_QOL_RELEARNER_EGG_TUTOR));
+    CeSelfTest_PutField("on", CeQol_IsOn(CE_QOL_RELEARNER_EGG_TUTOR));
+    CeSelfTest_PutField("asks", gSpecialVar_Result);
+    CeSelfTest_PutField("state", gMoveRelearnerState);
+    CeSelfTest_LineEmit();
+}
+
+// For tools/canary/relearner.ts, which plays both relearners in headless mGBA: the Fallarbor
+// relearner's house, where the game keeps the relearner's list (to read which list is open),
+// the list states, and an Azumarill (personality and OT id 0, so it isn't encrypted and is valid
+// in any run) that knows four moves, so teaching one opens the forget-a-move screen. The canary
+// puts it in the party and in the first slot of the first PC box, where the relearner's PC view
+// opens.
+#define SCENARIO_MON_WORDS_PER_LINE 8
+
+static void ProbeRelearnerScenario(void)
+{
+    static const char *const names[SCENARIO_MON_WORDS_PER_LINE] = { "w0", "w1", "w2", "w3", "w4", "w5", "w6", "w7" };
+    static const u16 sMoves[MAX_MON_MOVES] = { MOVE_TACKLE, MOVE_WATER_GUN, MOVE_DEFENSE_CURL, MOVE_TAIL_WHIP };
+    struct Pokemon mon;
+    const u32 *words = (const u32 *)&mon;
+    u32 i, j;
+
+    CeSelfTest_LineStart("scenarioRelearner");
+    CeSelfTest_PutField("fallarborGroup", MAP_GROUP(MAP_FALLARBOR_TOWN_MOVE_RELEARNERS_HOUSE));
+    CeSelfTest_PutField("fallarborNum", MAP_NUM(MAP_FALLARBOR_TOWN_MOVE_RELEARNERS_HOUSE));
+    CeSelfTest_PutField("relearnerState", (u32)&gMoveRelearnerState);
+    CeSelfTest_PutField("levelUpList", MOVE_RELEARNER_LEVEL_UP_MOVES);
+    CeSelfTest_PutField("eggList", MOVE_RELEARNER_EGG_MOVES);
+    CeSelfTest_PutField("tutorList", MOVE_RELEARNER_TUTOR_MOVES);
+    CeSelfTest_PutField("eggTutor", CE_QOL_RELEARNER_EGG_TUTOR);
+    CeSelfTest_PutField("tutorSeller", CE_QOL_TUTOR_SELLER);
+    CeSelfTest_LineEmit();
+
+    CeSelfTest_LineStart("scenarioRelearnerBox");
+    CeSelfTest_PutField("storagePtr", (u32)&gPokemonStoragePtr);
+    CeSelfTest_PutField("boxes", offsetof(struct PokemonStorage, boxes));
+    CeSelfTest_PutField("boxMonSize", sizeof(struct BoxPokemon));
+    CeSelfTest_LineEmit();
+
+    CreateMon(&mon, SPECIES_AZUMARILL, 50, 0, OTID_STRUCT_PRESET(0));
+    for (i = 0; i < MAX_MON_MOVES; i++)
+    {
+        u8 pp = GetMovePP(sMoves[i]);
+        SetMonData(&mon, MON_DATA_MOVE1 + i, &sMoves[i]);
+        SetMonData(&mon, MON_DATA_PP1 + i, &pp);
+    }
+    CalculateMonStats(&mon);
+    for (i = 0; i < sizeof(mon) / 4; i += SCENARIO_MON_WORDS_PER_LINE)
+    {
+        CeSelfTest_LineStart("scenarioRelearnerMon");
+        CeSelfTest_PutField("i", i);
+        for (j = 0; j < SCENARIO_MON_WORDS_PER_LINE && i + j < sizeof(mon) / 4; j++)
+            CeSelfTest_PutField(names[j], words[i + j]);
+        CeSelfTest_LineEmit();
+    }
+}
+
 void CeSelfTest_ProbeQolExtras(void)
 {
     ProbePcSellers();
     ProbeScenario();
     ProbeAlwaysCatch();
     ProbePokedexPlus();
+    ProbeRelearner();
+    ProbeRelearnerScenario();
 }
