@@ -32,6 +32,7 @@
 #include "constants/rgb.h"
 #include "constants/songs.h"
 #include "data/tutor_moves.h"
+#include "ce/relearner.h" // CE: egg and tutor relearner lists
 
 // The different versions of hearts are selected using animation
 // commands.
@@ -62,8 +63,8 @@ struct RelearnType
 static EWRAM_DATA struct
 {
     u8 heartSpriteIds[16];
-    u16 movesToLearn[MAX_RELEARNER_MOVES];
-    struct ListMenuItem menuItems[MAX_RELEARNER_MOVES + 1];
+    u16 movesToLearn[CE_RELEARNER_MAX_MOVES]; // CE: room for every tutor slot and a whole line's egg moves (heap struct)
+    struct ListMenuItem menuItems[CE_RELEARNER_MAX_MOVES + 1]; // CE: and the Cancel row
     u8 mainTask;
     u8 numMenuChoices;
     u8 numToShowAtOnce;
@@ -946,23 +947,7 @@ static u32 GetRelearnerLevelUpMoves(struct BoxPokemon *mon, u16 *moves)
 
 static u32 GetRelearnerEggMoves(struct BoxPokemon *mon, u16 *moves)
 {
-    enum Species species = GetBoxMonData(mon, MON_DATA_SPECIES);
-    u32 numMoves = 0;
-    while (GetSpeciesPreEvolution(species) != SPECIES_NONE)
-        species = GetSpeciesPreEvolution(species);
-
-    const u16 *eggMoves = GetSpeciesEggMoves(species);
-
-    if (eggMoves[0] == MOVE_UNAVAILABLE)
-        return 0;
-
-    for (u32 i = 0; eggMoves[i] != MOVE_UNAVAILABLE; i++)
-    {
-        if (!BoxMonKnowsMove(mon, eggMoves[i]))
-            moves[numMoves++] = eggMoves[i];
-    }
-
-    return numMoves;
+    return CeRelearner_GetEggMoves(mon, moves); // CE: every stage's egg moves, not only the first stage's
 }
 
 static u32 GetRelearnerTMMoves(struct BoxPokemon *mon, u16 *moves)
@@ -1060,22 +1045,7 @@ static bool32 HasRelearnerLevelUpMoves(struct BoxPokemon *boxMon)
 
 static bool32 HasRelearnerEggMoves(struct BoxPokemon *boxMon)
 {
-    enum Species species = GetBoxMonData(boxMon, MON_DATA_SPECIES);
-    while (GetSpeciesPreEvolution(species) != SPECIES_NONE)
-        species = GetSpeciesPreEvolution(species);
-
-    const u16 *eggMoves = GetSpeciesEggMoves(species);
-
-    if (eggMoves[0] == MOVE_UNAVAILABLE)
-        return FALSE;
-
-    for (u32 i = 0; eggMoves[i] != MOVE_UNAVAILABLE; i++)
-    {
-        if (!BoxMonKnowsMove(boxMon, eggMoves[i]))
-            return TRUE;
-    }
-
-    return FALSE;
+    return CeRelearner_HasEggMoves(boxMon); // CE: every stage's egg moves, not only the first stage's
 }
 
 static bool32 HasRelearnerTMMoves(struct BoxPokemon *boxMon)
@@ -1139,3 +1109,5 @@ static bool32 IsTutorMoveRelearnerActive(void)
 {
     return (FlagGet(P_FLAG_TUTOR_MOVES) || P_ENABLE_MOVE_RELEARNERS);
 }
+
+u32 CeRelearner_GetListMoves(struct BoxPokemon *mon, enum MoveRelearnerStates state, u16 *moves) { return sRelearnTypes[state].getMoves(mon, moves); } // CE: the lists the relearner shows, for tests and the self-test
