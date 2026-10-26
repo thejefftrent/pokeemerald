@@ -1,11 +1,19 @@
 #include "global.h"
 #include "event_data.h"
 #include "event_object_movement.h"
+#include "pokedex.h"
+#include "pokedex_common.h"
+#include "ce/pokedex.h"
 #include "ce/progression.h"
 #include "ce/qol.h"
 #include "ce/selftest.h"
+#include "config/pokedex_plus_hgss.h"
 #include "constants/flags.h"
 #include "constants/map_groups.h"
+#include "constants/pokedex.h"
+#include "constants/vars.h"
+
+extern struct PokedexView *sPokedexView;
 
 // Self-test for QoL features whose behaviour the on/off masks (ProbeQol in selftest.c) don't
 // show. Runs after the player's-choice features were flipped. tools/canary/checks/qol.ts checks
@@ -101,9 +109,75 @@ static void ProbeAlwaysCatch(void)
     CeSelfTest_LineEmit();
 }
 
+// Where struct Sprite keeps its inUse bit (a bitfield): the byte and the mask, so the canary can
+// count the sprites alive on each dex page.
+static u32 SpriteInUseByte(u32 *mask)
+{
+    struct Sprite sprite;
+    const u8 *bytes = (const u8 *)&sprite;
+    u32 i;
+
+    memset(&sprite, 0, sizeof(sprite));
+    sprite.inUse = TRUE;
+    for (i = 0; i < sizeof(sprite); i++)
+    {
+        if (bytes[i] != 0)
+        {
+            *mask = bytes[i];
+            return i;
+        }
+    }
+    *mask = 0;
+    return 0;
+}
+
+// Pokédex Plus: the dex reads POKEDEX_PLUS_HGSS (include/config/pokedex_plus_hgss.h) whenever a
+// screen starts, so it must follow the mode the website wrote, after the player's pick. The
+// scenarioDex lines give tools/canary/pokedex.ts, which plays the HGSS dex in headless mGBA, the
+// save fields it sets (seen and caught flags, the national dex, the list's mode and order) and the
+// dex's code and state. The spoiler and bounds helpers are covered by test/ce/pokedex.c.
+static void ProbePokedexPlus(void)
+{
+    u32 inUseMask;
+
+    CeSelfTest_LineStart("pokedexPlus");
+    CeSelfTest_PutField("id", CE_QOL_POKEDEX_PLUS);
+    CeSelfTest_PutField("mode", CeQol_GetMode(CE_QOL_POKEDEX_PLUS));
+    CeSelfTest_PutField("on", CeQol_IsOn(CE_QOL_POKEDEX_PLUS));
+    CeSelfTest_PutField("hgss", POKEDEX_PLUS_HGSS);
+    CeSelfTest_LineEmit();
+
+    CeSelfTest_LineStart("scenarioDex");
+    CeSelfTest_PutField("dexSeen", offsetof(struct SaveBlock1, dexSeen));
+    CeSelfTest_PutField("dexCaught", offsetof(struct SaveBlock1, dexCaught));
+    CeSelfTest_PutField("dexFlagBytes", NUM_DEX_FLAG_BYTES);
+    CeSelfTest_PutField("dexGet", FLAG_SYS_POKEDEX_GET);
+    CeSelfTest_PutField("nationalFlag", FLAG_SYS_NATIONAL_DEX);
+    CeSelfTest_PutField("nationalVar", VAR_NATIONAL_DEX - VARS_START);
+    CeSelfTest_PutField("vars", offsetof(struct SaveBlock1, vars));
+    CeSelfTest_PutField("nationalMagic", offsetof(struct SaveBlock2, pokedex.nationalMagic));
+    CeSelfTest_PutField("dexMode", offsetof(struct SaveBlock2, pokedex.mode));
+    CeSelfTest_PutField("dexOrder", offsetof(struct SaveBlock2, pokedex.order));
+    CeSelfTest_LineEmit();
+
+    CeSelfTest_LineStart("scenarioDexCode");
+    CeSelfTest_PutField("modeNational", DEX_MODE_NATIONAL);
+    CeSelfTest_PutField("orderAlphabetical", ORDER_ALPHABETICAL);
+    CeSelfTest_PutField("pokedexView", (u32)&sPokedexView);
+    CeSelfTest_PutField("openDex", (u32)CB2_OpenPokedex);
+    CeSelfTest_PutField("sprites", (u32)gSprites);
+    CeSelfTest_PutField("spriteSize", sizeof(struct Sprite));
+    CeSelfTest_PutField("spriteCount", MAX_SPRITES);
+    CeSelfTest_PutField("inUseByte", SpriteInUseByte(&inUseMask));
+    CeSelfTest_PutField("inUseMask", inUseMask);
+    CeSelfTest_PutField("qolPokedexPlus", CE_QOL_POKEDEX_PLUS);
+    CeSelfTest_LineEmit();
+}
+
 void CeSelfTest_ProbeQolExtras(void)
 {
     ProbePcSellers();
     ProbeScenario();
     ProbeAlwaysCatch();
+    ProbePokedexPlus();
 }
