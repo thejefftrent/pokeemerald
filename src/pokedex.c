@@ -1722,6 +1722,7 @@ static void Task_ClosePokedex(u8 taskId)
         SetMainCallback2(CB2_ReturnToFieldWithOpenMenu);
         m4aMPlayVolumeControl(&gMPlayInfo_BGM, TRACKS_ALL, 0x100);
         Free(sPokedexView);
+        sPokedexView = NULL; // CE: the caught-Pokémon page frees a non-NULL sPokedexView again
     }
 }
 
