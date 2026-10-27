@@ -10,6 +10,7 @@
 #include "ce/progression.h"
 #include "ce/qol.h"
 #include "ce/wonder_trade.h"
+#include "constants/event_objects.h"
 #include "constants/flags.h"
 #include "constants/items.h"
 #include "constants/layouts.h"
@@ -341,6 +342,42 @@ void CeProgression_ScriptUpdatePcSellers(struct ScriptContext *ctx)
 {
     Script_RequestEffects(SCREFF_V1 | SCREFF_SAVE);
     CeProgression_UpdatePcSellers(gMapHeader.mapLayoutId == LAYOUT_POKEMON_CENTER_2F);
+}
+
+void CeProgression_ScriptPcSellerOpen(struct ScriptContext *ctx)
+{
+    u16 flag = ScriptReadHalfword(ctx);
+    u32 i;
+
+    Script_RequestEffects(SCREFF_V1);
+    gSpecialVar_Result = FALSE;
+    for (i = 0; i < ARRAY_COUNT(sPcSellers); i++)
+    {
+        if (sPcSellers[i].flag == flag)
+            gSpecialVar_Result = IsPcSellerOpen(&sPcSellers[i]);
+    }
+}
+
+void CeProgression_RepairPcSellerTemplates(void)
+{
+    struct ObjectEventTemplate *templates = gSaveBlock1Ptr->objectEventTemplates;
+    bool32 repaired = FALSE;
+    u32 i;
+
+    if (gMapHeader.mapLayoutId != LAYOUT_POKEMON_CENTER_2F)
+        return;
+    // A save from an older base has zeroed templates past the floor's old objects.
+    for (i = 0; i < gMapHeader.events->objectEventCount; i++)
+    {
+        if (templates[i].localId == LOCALID_NONE)
+        {
+            templates[i] = gMapHeader.events->objectEvents[i];
+            repaired = TRUE;
+        }
+    }
+    // The save's temp flags predate the sellers too.
+    if (repaired)
+        CeProgression_UpdatePcSellers(TRUE);
 }
 
 bool32 CeProgression_GetPcSeller(u32 index, u16 *flag, u32 *feature, bool32 *needsCenterSellers)

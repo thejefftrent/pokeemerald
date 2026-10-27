@@ -3,6 +3,7 @@
 #include "event_object_movement.h"
 #include "move.h"
 #include "move_relearner.h"
+#include "overworld.h"
 #include "pokedex.h"
 #include "pokedex_common.h"
 #include "pokemon.h"
@@ -16,6 +17,7 @@
 #include "ce/selftest.h"
 #include "ce/wonder_trade.h"
 #include "config/pokedex_plus_hgss.h"
+#include "constants/event_objects.h"
 #include "constants/flags.h"
 #include "constants/map_groups.h"
 #include "constants/moves.h"
@@ -80,8 +82,9 @@ static void ProbePcSellers(void)
 // For tools/canary/pc-sellers.ts, which plays a generated ROM in headless mGBA: the maps it
 // visits (a standard Pokémon Center 2F, Mauville's with one more NPC, and Brendan's bedroom with
 // the old sellers' placeholders), where gObjectEvents lives (to count what spawned), where the
-// save keeps the player's own QoL picks (bit = feature id), and the flags it clears to spawn
-// every object at once.
+// save keeps the player's own QoL picks (bit = feature id), the flags it clears to spawn
+// every object at once, and what it needs to continue a save from an older base made on a 2F
+// (the saved object templates, CB2_ContinueSavedGame).
 static void ProbeScenario(void)
 {
     CeSelfTest_LineStart("scenarioPcSellers");
@@ -104,6 +107,15 @@ static void ProbeScenario(void)
     CeSelfTest_PutField("tempB", FLAG_TEMP_B);
     CeSelfTest_PutField("tempC", FLAG_TEMP_C);
     CeSelfTest_PutField("giftMan", FLAG_HIDE_POKEMON_CENTER_2F_MYSTERY_GIFT_MAN);
+    CeSelfTest_LineEmit();
+
+    CeSelfTest_LineStart("scenarioContinue");
+    CeSelfTest_PutField("continueGame", (u32)CB2_ContinueSavedGame);
+    CeSelfTest_PutField("objTemplates", offsetof(struct SaveBlock1, objectEventTemplates));
+    CeSelfTest_PutField("templateSize", sizeof(struct ObjectEventTemplate));
+    CeSelfTest_PutField("templateCount", OBJECT_EVENT_TEMPLATES_COUNT);
+    CeSelfTest_PutField("objLocalId", offsetof(struct ObjectEvent, localId));
+    CeSelfTest_PutField("followerId", OBJ_EVENT_ID_FOLLOWER);
     CeSelfTest_LineEmit();
 }
 

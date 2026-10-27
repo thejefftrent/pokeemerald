@@ -2,6 +2,7 @@
 #include "ce/qol.h" // CE:
 #include "ce/key_items.h" // CE:
 #include "ce/overworld.h" // CE:
+#include "ce/progression.h" // CE:
 #include "overworld.h"
 #include "battle_pyramid.h"
 #include "battle_setup.h"
@@ -2137,6 +2138,7 @@ void CB2_ContinueSavedGame(void)
         LoadTrainerHillFloorObjectEventScripts();
     else
         LoadSaveblockObjEventScripts();
+    CeProgression_RepairPcSellerTemplates(); // CE: a save from an older base lacks the 2F sellers' templates
 
     UnfreezeObjectEvents();
     DoTimeBasedEvents();

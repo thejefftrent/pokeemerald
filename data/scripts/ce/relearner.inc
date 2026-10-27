@@ -55,6 +55,9 @@ CE_EventScript_RelearnerAskCancelled:
 CE_EventScript_PcSellerRelearner::
 	lockall
 	faceplayer
+	callnative CeProgression_ScriptPcSellerOpen, requests_effects=1
+	.2byte FLAG_TEMP_B
+	goto_if_eq VAR_RESULT, FALSE, CE_EventScript_PcRelearner_Closed
 	msgbox CE_Text_PcRelearner_Hello, MSGBOX_DEFAULT
 CE_EventScript_PcRelearner_Ask:
 	message CE_Text_Relearner_WhichList
@@ -97,9 +100,19 @@ CE_EventScript_PcRelearner_Bye:
 	releaseall
 	end
 
+@ Switched off in the options menu while the tutor still stands (until the next map load).
+CE_EventScript_PcRelearner_Closed:
+	msgbox CE_Text_PcRelearner_Closed, MSGBOX_DEFAULT
+	releaseall
+	end
+
 CE_Text_PcRelearner_Hello:
 	.string "EGG moves or tutor moves, I teach\n"
 	.string "them all, free of charge!$"
+
+CE_Text_PcRelearner_Closed:
+	.string "Sorry, I'm not teaching any\n"
+	.string "moves right now.$"
 
 CE_Text_PcRelearner_WhichMon:
 	.string "Which POKéMON should learn a move?$"

@@ -15,6 +15,8 @@
 //                                                               CE_QOL_TUTOR_SELLER, CE_QOL_WONDER_TRADE
 //   data/maps/LittlerootTown_BrendansHouse_2F, _MaysHouse_2F  OnTransition  (hides the old
 //                                                               bedroom sellers' placeholders)
+//   src/overworld.c             CB2_ContinueSavedGame           (repairs an older save's 2F
+//                                                               object templates)
 //   src/battle_util.c           GetAttackerObedienceForAction   CE_QOL_ALWAYS_OBEY
 //   src/battle_util.c           IsGen6ExpShareEnabled           CE_QOL_EXP_SHARE_ALL
 //   src/battle_main.c           ClearSetBScriptingStruct        CE_QOL_CATCH_EXP
@@ -88,6 +90,18 @@ void CeProgression_UpdatePcSellers(bool32 onPcSecondFloor);
 // OnTransition, whose placeholders it always hides (callnative, requests_effects=1).
 struct ScriptContext;
 void CeProgression_ScriptUpdatePcSellers(struct ScriptContext *ctx);
+// The sellers' scripts (data/scripts/ce/pc_sellers.inc, and the move tutor's in
+// ce/relearner.inc) ask again when talked to, since an option switched off in the menu hides
+// nobody until the next map load: VAR_RESULT = whether the seller whose hide flag follows the
+// callnative (.2byte) is open (callnative, requests_effects=1). The Wonder Trade attendant has
+// its own gate, CeWonderTrade_ScriptGate.
+void CeProgression_ScriptPcSellerOpen(struct ScriptContext *ctx);
+// CB2_ContinueSavedGame, after the saved object templates load: a save made on a 2F with base
+// 1.17.1-ce3 or older kept only the floor's old object templates, and Continue copies only
+// scripts, so the sellers' entries stay zeroed (localId LOCALID_NONE) and one stray object would
+// spawn at (0,0). Copies those entries from the map header and, if it copied any, sets the
+// sellers' hide flags, which the old save never had.
+void CeProgression_RepairPcSellerTemplates(void);
 // The self-test's view of the seller table: the index-th seller's hide flag, feature
 // (CE_QOL_COUNT for a placeholder) and whether it also needs CE_QOL_ROOM_SELLERS. FALSE past
 // the last seller.

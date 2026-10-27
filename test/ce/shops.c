@@ -2,11 +2,14 @@
 #include "event_data.h"
 #include "item.h"
 #include "item_use.h"
+#include "overworld.h"
+#include "script.h"
 #include "shop_criteria.h"
 #include "test/test.h"
 #include "ce/progression.h"
 #include "ce/qol.h"
 #include "ce/test.h"
+#include "constants/event_objects.h"
 #include "constants/flags.h"
 #include "constants/items.h"
 #include "constants/maps.h"
@@ -263,6 +266,88 @@ TEST("CE: The PC seller table hides with FLAG_TEMP_5 onwards, in the maps' objec
         EXPECT_NE(flag, FLAG_TEMP_HIDE_FOLLOWER);
     }
     EXPECT_EQ(i, ARRAY_COUNT(sFeatures));
+}
+
+TEST("CE: Continuing an older save on a Pokémon Center 2F fills in the sellers' object templates")
+{
+    u16 map = MAP_OLDALE_TOWN_POKEMON_CENTER_2F;
+    u32 saved = 0; // templates the save kept; the rest are zeroed
+    bool32 repairs = FALSE;
+    const struct MapHeader *header;
+    struct ObjectEventTemplate *templates = gSaveBlock1Ptr->objectEventTemplates;
+    u32 i, count;
+
+    // Base 1.17.1-ce3 and older: the four link attendants and the Mystery Gift man, and
+    // Mauville's youngster.
+    PARAMETRIZE { map = MAP_OLDALE_TOWN_POKEMON_CENTER_2F;   saved = 4;  repairs = TRUE; }
+    PARAMETRIZE { map = MAP_MAUVILLE_CITY_POKEMON_CENTER_2F; saved = 5;  repairs = TRUE; }
+    // A save from this base keeps them all.
+    PARAMETRIZE { map = MAP_OLDALE_TOWN_POKEMON_CENTER_2F;   saved = 12; repairs = FALSE; }
+    // Only the 2F: elsewhere a zeroed template stays as it is.
+    PARAMETRIZE { map = MAP_OLDALE_TOWN_POKEMON_CENTER_1F;   saved = 0;  repairs = FALSE; }
+
+    header = Overworld_GetMapHeaderByGroupAndId(MAP_GROUP(map), MAP_NUM(map));
+    count = header->events->objectEventCount;
+    gMapHeader = *header;
+    memset(templates, 0, sizeof(gSaveBlock1Ptr->objectEventTemplates));
+    for (i = 0; i < saved; i++)
+        templates[i] = header->events->objectEvents[i];
+    CeTest_SetQol(CE_QOL_ROOM_SELLERS, CE_QOL_MODE_ON);
+    CeTest_SetQol(CE_QOL_NATURE_MINTS, CE_QOL_MODE_ON);
+    CeTest_SetQol(CE_QOL_BATTLE_ITEMS, CE_QOL_MODE_OFF);
+    // The old save's temp flags: cleared by its last map load.
+    FlagClear(FLAG_TEMP_5);
+    FlagClear(FLAG_TEMP_A);
+    CeProgression_RepairPcSellerTemplates();
+
+    for (i = 0; i < count; i++)
+    {
+        if (repairs || i < saved)
+            EXPECT_EQ(memcmp(&templates[i], &header->events->objectEvents[i], sizeof(templates[i])), 0);
+        else
+            EXPECT_EQ(templates[i].localId, LOCALID_NONE);
+    }
+    EXPECT_EQ(templates[count].localId, LOCALID_NONE);
+    // A repair sets the hide flags as the floor's OnTransition does: battle items are off. Without
+    // one, the save's own flags stay.
+    EXPECT(!FlagGet(FLAG_TEMP_5));
+    EXPECT_EQ(FlagGet(FLAG_TEMP_A), repairs);
+}
+
+TEST("CE: A PC seller talked to after the player switches its option off closes instead of selling")
+{
+    struct ScriptContext ctx = {0};
+    u16 flag = FLAG_TEMP_5;
+    enum CeQolFeature feature = CE_QOL_NATURE_MINTS;
+    enum CeQolFeature switchedOff = CE_QOL_COUNT; // CE_QOL_COUNT: nothing
+    bool32 open = FALSE;
+
+    PARAMETRIZE { flag = FLAG_TEMP_5; feature = CE_QOL_NATURE_MINTS; switchedOff = CE_QOL_COUNT;         open = TRUE;  }
+    PARAMETRIZE { flag = FLAG_TEMP_5; feature = CE_QOL_NATURE_MINTS; switchedOff = CE_QOL_NATURE_MINTS;  open = FALSE; }
+    PARAMETRIZE { flag = FLAG_TEMP_5; feature = CE_QOL_NATURE_MINTS; switchedOff = CE_QOL_ROOM_SELLERS;  open = FALSE; }
+    PARAMETRIZE { flag = FLAG_TEMP_A; feature = CE_QOL_BATTLE_ITEMS; switchedOff = CE_QOL_BATTLE_ITEMS;  open = FALSE; }
+    PARAMETRIZE { flag = FLAG_TEMP_A; feature = CE_QOL_BATTLE_ITEMS; switchedOff = CE_QOL_ROOM_SELLERS;  open = TRUE;  }
+    PARAMETRIZE { flag = FLAG_TEMP_B; feature = CE_QOL_TUTOR_SELLER; switchedOff = CE_QOL_COUNT;         open = TRUE;  }
+    PARAMETRIZE { flag = FLAG_TEMP_B; feature = CE_QOL_TUTOR_SELLER; switchedOff = CE_QOL_TUTOR_SELLER;  open = FALSE; }
+
+    memset(gSaveBlock2Ptr->pokedex.ceQolChosen, 0, sizeof(gSaveBlock2Ptr->pokedex.ceQolChosen));
+    memset(gSaveBlock2Ptr->pokedex.ceQolValue, 0, sizeof(gSaveBlock2Ptr->pokedex.ceQolValue));
+    CeTest_SetQol(CE_QOL_ROOM_SELLERS, CE_QOL_MODE_PLAYER_ON);
+    CeTest_SetQol(feature, CE_QOL_MODE_PLAYER_ON);
+    // The floor loads with the seller standing, then the player opens the options menu there.
+    CeProgression_UpdatePcSellers(TRUE);
+    EXPECT(!FlagGet(flag));
+    if (switchedOff != CE_QOL_COUNT)
+        CeQol_SetPlayerValue(switchedOff, FALSE);
+
+    // The script passes the seller's hide flag after the callnative.
+    ctx.scriptPtr = (const u8 *)&flag;
+    gSpecialVar_Result = 0xFFFF;
+    CeProgression_ScriptPcSellerOpen(&ctx);
+    EXPECT_EQ(gSpecialVar_Result, open);
+    EXPECT(ctx.scriptPtr == (const u8 *)&flag + sizeof(flag));
+    // The seller still stands until the next map load.
+    EXPECT(!FlagGet(flag));
 }
 
 TEST("CE: The training stock is the mints, Ability Capsule and Patch, the vitamins and every Power item")
