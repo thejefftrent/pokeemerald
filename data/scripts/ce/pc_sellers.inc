@@ -1,15 +1,20 @@
 @ Sellers upstairs in every Pokémon Center (src/ce/progression.c): eight object events at the end
 @ of the map.json of each of the 17 LAYOUT_POKEMON_CENTER_2F maps, which
 @ CeProgression_ScriptUpdatePcSellers (called from CableClub_OnTransition) hides unless their
-@ feature is on. The shop sellers each sell one of the gCeShop lists whole; the items keep their
-@ own prices. tools/ce/gen_field_items.py does not list these marts (it reads only scripts pulled
-@ in with .include, and the lists are C arrays), so the mart editor and mart randomizer of the
-@ website leave them alone. Local ids differ between maps (Mauville and Mossdeep have one more
+@ feature is on. Hide flags change only on a map load, so each script also asks
+@ CeProgression_ScriptPcSellerOpen with its hide flag when talked to: a seller whose option the
+@ player switched off in the menu closes instead of selling. The shop sellers each sell one of the
+@ gCeShop lists whole; the items keep their own prices. tools/ce/gen_field_items.py does not list
+@ these marts (it reads only scripts pulled in with .include, and the lists are C arrays), so the
+@ mart editor and mart randomizer of the website leave them alone. Local ids differ between maps (Mauville and Mossdeep have one more
 @ NPC), so these scripts never name their object. (cpp reads this file: no apostrophes here.)
 
 CE_EventScript_PcSellerTraining::
 	lock
 	faceplayer
+	callnative CeProgression_ScriptPcSellerOpen, requests_effects=1
+	.2byte FLAG_TEMP_5
+	goto_if_eq VAR_RESULT, FALSE, CE_EventScript_PcSellerClosed
 	message CE_Text_PcSellerTraining
 	waitmessage
 	pokemart gCeShopTrainingItems
@@ -20,6 +25,9 @@ CE_EventScript_PcSellerTraining::
 CE_EventScript_PcSellerEvolutionItems::
 	lock
 	faceplayer
+	callnative CeProgression_ScriptPcSellerOpen, requests_effects=1
+	.2byte FLAG_TEMP_6
+	goto_if_eq VAR_RESULT, FALSE, CE_EventScript_PcSellerClosed
 	message CE_Text_PcSellerEvolutionItems
 	waitmessage
 	pokemart gCeShopEvolutionItems
@@ -30,6 +38,9 @@ CE_EventScript_PcSellerEvolutionItems::
 CE_EventScript_PcSellerMegaStones::
 	lock
 	faceplayer
+	callnative CeProgression_ScriptPcSellerOpen, requests_effects=1
+	.2byte FLAG_TEMP_7
+	goto_if_eq VAR_RESULT, FALSE, CE_EventScript_PcSellerClosed
 	message CE_Text_PcSellerMegaStones
 	waitmessage
 	pokemart gCeShopMegaStones
@@ -40,6 +51,9 @@ CE_EventScript_PcSellerMegaStones::
 CE_EventScript_PcSellerZCrystals::
 	lock
 	faceplayer
+	callnative CeProgression_ScriptPcSellerOpen, requests_effects=1
+	.2byte FLAG_TEMP_8
+	goto_if_eq VAR_RESULT, FALSE, CE_EventScript_PcSellerClosed
 	message CE_Text_PcSellerZCrystals
 	waitmessage
 	pokemart gCeShopZCrystals
@@ -50,6 +64,9 @@ CE_EventScript_PcSellerZCrystals::
 CE_EventScript_PcSellerGemsPlatesMemories::
 	lock
 	faceplayer
+	callnative CeProgression_ScriptPcSellerOpen, requests_effects=1
+	.2byte FLAG_TEMP_9
+	goto_if_eq VAR_RESULT, FALSE, CE_EventScript_PcSellerClosed
 	message CE_Text_PcSellerGemsPlatesMemories
 	waitmessage
 	pokemart gCeShopGemsPlatesMemories
@@ -60,6 +77,9 @@ CE_EventScript_PcSellerGemsPlatesMemories::
 CE_EventScript_PcSellerBattleItems::
 	lock
 	faceplayer
+	callnative CeProgression_ScriptPcSellerOpen, requests_effects=1
+	.2byte FLAG_TEMP_A
+	goto_if_eq VAR_RESULT, FALSE, CE_EventScript_PcSellerClosed
 	message CE_Text_PcSellerBattleItems
 	waitmessage
 	pokemart gCeShopBattleItems
@@ -67,8 +87,18 @@ CE_EventScript_PcSellerBattleItems::
 	release
 	end
 
+@ A seller still standing after the player switched its option off.
+CE_EventScript_PcSellerClosed:
+	msgbox CE_Text_PcSellerClosed, MSGBOX_DEFAULT
+	release
+	end
+
 @ The move tutor (CE_EventScript_PcSellerRelearner) is in data/scripts/ce/relearner.inc, and the
 @ Wonder Trade attendant (CE_EventScript_PcSellerWonderTrade) in data/scripts/ce/wonder_trade.inc.
+
+CE_Text_PcSellerClosed:
+	.string "Sorry, my shop is closed\n"
+	.string "right now.$"
 
 CE_Text_PcSellerTraining:
 	.string "Mints, vitamins, POWER items\n"
