@@ -9,6 +9,7 @@
 #include "string_util.h"
 #include "trade.h"
 #include "test/test.h"
+#include "ce/option_menu_qol.h"
 #include "ce/progression.h"
 #include "ce/qol.h"
 #include "ce/team.h"
@@ -185,7 +186,7 @@ TEST("CE: Wonder Trade picks a species from the pool, and only of the run's type
     }
 }
 
-TEST("CE: Wonder Trade refuses Nuzlocke, single-Pokémon and static team runs, and hides its attendant there")
+TEST("CE: Wonder Trade refuses Nuzlocke, single-Pokémon and static team runs, and hides its attendant and option there")
 {
     struct CeModesConfig rules = {0};
     bool32 staticTeam = FALSE;
@@ -227,6 +228,16 @@ TEST("CE: Wonder Trade refuses Nuzlocke, single-Pokémon and static team runs, a
     FlagClear(FLAG_TEMP_C);
     CeProgression_UpdatePcSellers(FALSE);
     EXPECT(FlagGet(FLAG_TEMP_C));
+
+    // Its MORE OPTIONS row is listed unless locked off, and never while the rules refuse it, even
+    // when the ROM lists locked-off rows.
+    CE_TEST_CONFIG->body.qol.showLockedOff = FALSE;
+    EXPECT_EQ(CeOptions_IsQolRowShown(CE_QOL_WONDER_TRADE), mode != CE_QOL_MODE_OFF && CeWonderTrade_IsAllowed());
+    CE_TEST_CONFIG->body.qol.showLockedOff = TRUE;
+    EXPECT_EQ(CeOptions_IsQolRowShown(CE_QOL_WONDER_TRADE), CeWonderTrade_IsAllowed());
+    // Other rows ignore the rules.
+    CeTest_SetQol(CE_QOL_BATTLE_ITEMS, CE_QOL_MODE_PLAYER_ON);
+    EXPECT(CeOptions_IsQolRowShown(CE_QOL_BATTLE_ITEMS));
 }
 
 TEST("CE: The Pokémon Wonder Trade sends comes from another trainer at the sent one's level")

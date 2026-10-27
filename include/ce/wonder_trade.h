@@ -22,8 +22,9 @@
 // only species of the run's type come (CeSpecies_IsOfType, as the catch rule: the third type
 // counts).
 //
-// Refused, and the attendant hidden, in Nuzlocke, single-Pokémon and static team runs (the save's
-// rules). Hard mode, no-heal, no-evolution, no-experience and monotype runs may trade.
+// Refused, and the attendant and its MORE OPTIONS row hidden (src/ce/option_menu_qol.c), in
+// Nuzlocke, single-Pokémon and static team runs (the save's rules). Hard mode, no-heal,
+// no-evolution, no-experience and monotype runs may trade.
 //
 // The trade plays upstream's in-game trade scene (DoInGameTradeScene, wireless animation): it
 // swaps the Pokémon, sets the dex flags, sends a PC pick's new Pokémon to the PC and evolves a

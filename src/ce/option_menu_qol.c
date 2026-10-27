@@ -14,6 +14,7 @@
 #include "ce/option_menu_qol.h"
 #include "ce/qol.h"
 #include "ce/rom_config.h"
+#include "ce/wonder_trade.h"
 
 // option_menu.c owns task data[0..6] and its two windows; this page adds a second
 // window over the same screen area (free VRAM after the frame tiles) and keeps its
@@ -108,8 +109,18 @@ static const u8 *const sFeatureNames[CE_QOL_COUNT] =
     [CE_QOL_WONDER_TRADE]             = COMPOUND_STRING("WONDER TRADE"),
 };
 
-static bool32 IsVisible(enum CeQolFeature feature)
+// Features the run's rules refuse whatever the option says: Wonder Trade in Nuzlocke, single
+// Pokémon and static team runs. The rules are the save's copy, so on the title screen this
+// follows the save that Continue would load, like the hard-mode battle style lock.
+static bool32 IsRefusedByRules(enum CeQolFeature feature)
 {
+    return feature == CE_QOL_WONDER_TRADE && !CeWonderTrade_IsAllowed();
+}
+
+bool32 CeOptions_IsQolRowShown(enum CeQolFeature feature)
+{
+    if (IsRefusedByRules(feature))
+        return FALSE;
     return CeQol_GetMode(feature) != CE_QOL_MODE_OFF || gCeRomConfig.body.qol.showLockedOff;
 }
 
@@ -118,7 +129,7 @@ static u32 CountVisible(void)
     u32 i, count = 0;
     for (i = 0; i < CE_QOL_COUNT; i++)
     {
-        if (IsVisible(i))
+        if (CeOptions_IsQolRowShown(i))
             count++;
     }
     return count;
@@ -130,7 +141,7 @@ static enum CeQolFeature VisibleAt(u32 index)
     u32 i;
     for (i = 0; i < CE_QOL_COUNT; i++)
     {
-        if (IsVisible(i) && index-- == 0)
+        if (CeOptions_IsQolRowShown(i) && index-- == 0)
             return i;
     }
     return CE_QOL_COUNT;
